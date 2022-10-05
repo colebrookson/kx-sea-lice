@@ -24,4 +24,13 @@ Notes for me:
 First steps:
 
 * Cole would like to do power analysis first 
-* 
+
+3-5 pages (2 pages of writing) 
+
+* include timeline with just ktc, the mortality figure, map, and the log-log regression ----- the rest goes in SI 
+
+
+
+
+
+
