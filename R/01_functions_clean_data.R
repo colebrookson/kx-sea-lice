@@ -10,31 +10,34 @@
 #'
 
 library(readxl)
+library(here)
 
+fname <- here("./data/wild-lice/klemtu_wild_lice_data.xlsx")
 
 multiplesheets <- function(fname) {
   #' Pulls in multiple excel sheets and collapses into a single object
   #' 
-  #' @description 
+  #' @description Takes in the path to the file, reads it in, goes through 
+  #' each sheet to make it into a list, then puts those list items into one 
+  #' dataframe since the names are technically similar
   #' 
-  #' @param n_spp integer. The number of species at hand.
-  #' @param richness_shape character. The shape of the network. Can take on 
-  #' values of "top-heavy", "bottom-heavy" or "uniform"
-  #' @param rates_df data.frame. Dataframe from pre-analysis body sizes
-  #' with the information on rates from each trophic level
+  #' @param fname character. The file name for the .xls(x) file
   #'  
-  #' @usage define_species_list(20, "top-heavy")
-  #' @return List of the species for the present network
+  #' @usage multiplesheets(here("./data/wild-lice/klemtu_wild_lice_data.xlsx"))
+  #' @return Dataframe of all lice data 
   #' 
   
   # getting info about all excel sheets
   sheets <- readxl::excel_sheets(fname)
   tibble <- lapply(sheets, function(x) readxl::read_excel(fname, sheet = x))
-  data_frame <- lapply(tibble, as.data.frame)
+  list_of_dfs <- lapply(tibble, as.data.frame)
   
-  # assigning names to data frames
-  names(data_frame) <- sheets
+  # name the different df's by the names of the sheets
+  names(list_of_dfs) <- sheets
   
-  # print data frame
-  print(data_frame)
+  # start at 2 because the first one is the summary sheet, and we don't want 
+  # that one, just the actual data 
+  
+  
+  return()
 }
