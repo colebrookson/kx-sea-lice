@@ -15,12 +15,24 @@ library(tarchetypes)
 library(here)
 
 source(here::here("./R/00_functions_global.R"))
+source(here::here("./R/01_functions_clean_data.R"))
+
+tar_option_set(packages = c("here", "readr", "magrittr", "dplyr"))
 
 list(
   ## files =====================================================================
   tar_target(raw_wild_lice_data,
              here::here(
                "./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv"),
-             format = "file")
-  
+             format = "file"
+  ),
+  ## data cleaning =============================================================
+  tar_target(clean_wild_lice_data,
+             clean_wild_lice(
+               raw_wild_lice_data,
+               here::here(
+                 "./data/wild-lice/clean/"
+               )
+             )
+  )
 )
