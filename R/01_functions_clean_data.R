@@ -37,7 +37,10 @@ multiplesheets <- function(fname) {
   
   # start at 2 because the first one is the summary sheet, and we don't want 
   # that one, just the actual data 
-  
+  df <- list_of_dfs[[2]]
+  for(sheet in 3:length(sheets)) {
+    df <- rbind(df, list_of_dfs[[sheet]])
+  }
   
   return()
 }
