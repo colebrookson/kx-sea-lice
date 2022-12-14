@@ -9,38 +9,44 @@
 #'library
 #'
 
-library(readxl)
+library(readr)
 library(here)
+library(magrittr)
+library(dplyr)
 
-fname <- here("./data/wild-lice/klemtu_wild_lice_data.xlsx")
+wild_lice <- readr::read_csv(
+  here::here("./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv")) 
 
-multiplesheets <- function(fname) {
-  #' Pulls in multiple excel sheets and collapses into a single object
+
+
+clean_wild_lice <- function(file) {
+  #' Takes in object, and sorts thru the file to fix any errors that are present
   #' 
-  #' @description Takes in the path to the file, reads it in, goes through 
-  #' each sheet to make it into a list, then puts those list items into one 
-  #' dataframe since the names are technically similar
+  #' @description First deals with the incorrect types that aren't expected 
   #' 
-  #' @param fname character. The file name for the .xls(x) file
+  #' @param file data frame. The file at hand
   #'  
   #' @usage multiplesheets(here("./data/wild-lice/klemtu_wild_lice_data.xlsx"))
   #' @return Dataframe of all lice data 
   #' 
   
-  # getting info about all excel sheets
-  sheets <- readxl::excel_sheets(fname)
-  tibble <- lapply(sheets, function(x) readxl::read_excel(fname, sheet = x))
-  list_of_dfs <- lapply(tibble, as.data.frame)
+  # get rid of the problems 
+  wild_lice <- wild_lice %>% 
+    mutate(
+      `Length (mm)` = ifelse(
+        `Length (mm)` == "too decomposed", 
+        NA,
+        ifelse(
+          `Length (mm)` == "1.9.", 
+          1.9,
+          `Length (mm)`
+        )
+      )
+    )
   
-  # name the different df's by the names of the sheets
-  names(list_of_dfs) <- sheets
+  # standardize names 
+  wild_lice <- standardize_names(wild_lice)
   
-  # start at 2 because the first one is the summary sheet, and we don't want 
-  # that one, just the actual data 
-  df <- list_of_dfs[[2]]
-  for(sheet in 3:length(sheets)) {
-    df <- rbind(df, list_of_dfs[[sheet]])
-  }
   
-  return()
+  
 }

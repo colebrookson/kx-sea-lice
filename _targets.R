@@ -14,3 +14,13 @@ library(targets)
 library(tarchetypes)
 library(here)
 
+source(here::here("./R/00_functions_global.R"))
+
+list(
+  ## files =====================================================================
+  tar_target(raw_wild_lice_data,
+             here::here(
+               "./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv"),
+             format = "file")
+  
+)
