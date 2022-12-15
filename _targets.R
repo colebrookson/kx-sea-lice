@@ -29,7 +29,7 @@ list(
   ## data cleaning =============================================================
   tar_target(clean_wild_lice_data,
              clean_wild_lice(
-               raw_wild_lice_data,
+               get_data_csv(raw_wild_lice_data),
                here::here(
                  "./data/wild-lice/clean/"
                )
