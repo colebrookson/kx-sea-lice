@@ -9,14 +9,14 @@
 #'
 
 # clean_wild_lice ==============================================================
-clean_wild_lice <- function(file, output_path) {
+clean_wild_lice <- function(wild_lice, output_path) {
   #' Takes in object, and sorts thru the file to fix any errors that are present
   #' 
   #' @description First deals with the incorrect types that aren't expected 
   #' 
-  #' @param file data frame. The file at hand
+  #' @param wild_lice data frame. The file at hand
   #'  
-  #' @usage multiplesheets(here("./data/wild-lice/klemtu_wild_lice_data.xlsx"))
+  #' @usage 
   #' @return Dataframe of all lice data 
   #' 
   
@@ -38,6 +38,7 @@ clean_wild_lice <- function(file, output_path) {
   wild_lice <- standardize_names(wild_lice)
   
   readr::write_csv(
+    wild_lice,
     paste0(
       output_path, "wild_lice_df.csv"
     )

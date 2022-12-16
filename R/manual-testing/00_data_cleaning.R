@@ -15,7 +15,8 @@ library(dplyr)
 
 # wild lice ==================================================================== 
 wild_lice <- readr::read_csv(
-  here::here("./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv"))
+  here::here("./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv"),
+  warnings=FALSE)
 
 wild_lice <- wild_lice %>% 
   mutate(
