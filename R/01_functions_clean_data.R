@@ -105,3 +105,5 @@ plot_wild_lice_data <- function(wild_lice, output_path) {
     height = 5, width = 5.8
   )
 }
+
+# clean_psf_data ===============================================================

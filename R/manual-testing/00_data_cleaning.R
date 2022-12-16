@@ -31,3 +31,16 @@ wild_lice <- wild_lice %>%
       )
     )
   )
+
+# PSF data =====================================================================
+psf_df <- readr::read_csv(here::here("./data/spawner-recruit/psf-2022-12-13.csv"))
+head(psf_df)
+unique(psf_df$parameter)
+
+
+
+
+
+
+
+
