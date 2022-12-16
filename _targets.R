@@ -17,7 +17,8 @@ library(here)
 source(here::here("./R/00_functions_global.R"))
 source(here::here("./R/01_functions_clean_data.R"))
 
-tar_option_set(packages = c("here", "readr", "magrittr", "dplyr"))
+tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2", 
+                            "ggthemes", "wesanderson"))
 
 list(
   ## files =====================================================================
@@ -34,5 +35,15 @@ list(
                  "./data/wild-lice/clean/"
                )
              )
+  ),
+  ## useful plots/extra content ================================================
+  tar_target(wild_lice_per_fish_plot,
+             plot_wild_lice_data(
+               clean_wild_lice_data,
+               here::here(
+                 "./figs/wild-lice/"
+               )
+             )
+    
   )
 )

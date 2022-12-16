@@ -12,6 +12,7 @@ library(readr)
 library(here)
 library(magrittr)
 library(dplyr)
+library(ggplot2)
 
 # wild lice ==================================================================== 
 wild_lice <- readr::read_csv(

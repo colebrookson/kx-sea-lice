@@ -63,3 +63,18 @@ standardize_names = function(df) {
   #return dataframe renamed 
   return(df)
 }
+
+# std_err ======================================================================
+std_err <- function(x) {
+  #' Calculate standard error
+  #' 
+  #' @description Easy add on function to calculate standard error 
+  #' 
+  #' @param x vector of values
+  #'  
+  #' @usage std_err(df, na.rm = TRUE)
+  #' @return numeric value
+  #'
+  
+  return(sd(x, na.rm = TRUE) / sqrt(length(x)))
+}
