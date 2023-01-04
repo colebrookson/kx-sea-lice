@@ -15,6 +15,7 @@ clean_wild_lice <- function(wild_lice, output_path) {
   #' @description First deals with the incorrect types that aren't expected 
   #' 
   #' @param wild_lice data frame. The file at hand
+  #' @param output_path character. Where to save the actual work 
   #'  
   #' @usage 
   #' @return Dataframe of all lice data 

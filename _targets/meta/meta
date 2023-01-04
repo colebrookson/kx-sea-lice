@@ -1,10 +1,10 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
 %notin%|function|c5de772db35799a7|||||||||||||||
 clean_wild_lice|function|21e030d2ac490cf8|||||||||||||||
-clean_wild_lice_data|stem|612a7987be4dba0f|46b36a7bbc8a9552|7858d86d422533eb|-13439032||t19342.086530016s|a6c951f14388c177|177558|rds|local|vector|||1.216|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat|
+clean_wild_lice_data|stem|4c160153cec1714e|46b36a7bbc8a9552|7858d86d422533eb|-13439032||t19361.6747079683s|13927ee35e2feee8|177557|rds|local|vector|||0.297|One or more parsing issues, see problems for details|
 get_data_csv|function|f55fbb93cbb1e4ef|||||||||||||||
 plot_wild_lice_data|function|6d89e7bf4d3a2dcf|||||||||||||||
-raw_wild_lice_data|stem|ea3d8e32841e07c4|c00b1b91feb5c5a6|c3b5fc02cdc369c1|1321957318|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv|t19340.7750356681s|f9c23685229b96ad|2516217|file|local|vector|||0.404||
+raw_wild_lice_data|stem|ea3d8e32841e07c4|c00b1b91feb5c5a6|c3b5fc02cdc369c1|1321957318|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv|t19340.814742411s|f9c23685229b96ad|2516217|file|local|vector|||0.404||
 standardize_names|function|5b63229e8588d8eb|||||||||||||||
 std_err|function|3b26304b718e3898|||||||||||||||
-wild_lice_per_fish_plot|stem|42e13a49b2bc6698|f7d5653a769416f9|24c9e11e24965d92|1285149232||t19342.785861298s|758d7d51407f572d|117|rds|local|vector|||1.711||
+wild_lice_per_fish_plot|stem|49fc3cf67f9dce34|f7d5653a769416f9|1bab905d123aa867|1285149232||t19361.6747135701s|758d7d51407f572d|117|rds|local|vector|||0.478||
