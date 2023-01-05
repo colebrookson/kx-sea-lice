@@ -22,19 +22,28 @@ tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2",
 
 list(
   ## files =====================================================================
-  tar_target(raw_wild_lice_data,
-             here::here(
-               "./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv"),
-             format = "file"
+  tar_target(
+    raw_wild_lice_data,
+    here::here(
+      "./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv"),
+    format = "file"
+  ),
+  tar_target(
+    sr_data,
+    here::here(
+      "./data/spawner-recruit/psf-2022-12-13.csv"
+    ),
+    format = "file"
   ),
   ## data cleaning =============================================================
-  tar_target(clean_wild_lice_data,
-             clean_wild_lice(
-               get_data_csv(raw_wild_lice_data),
-               here::here(
-                 "./data/wild-lice/clean/"
-               )
-             )
+  tar_target(
+    clean_wild_lice_data,
+    clean_wild_lice(
+      get_data_csv(raw_wild_lice_data),
+      here::here(
+        "./data/wild-lice/clean/"
+        )
+      )
   ),
   ## useful plots/extra content ================================================
   tar_target(wild_lice_per_fish_plot,

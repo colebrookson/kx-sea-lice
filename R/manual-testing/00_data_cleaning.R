@@ -35,8 +35,20 @@ wild_lice <- wild_lice %>%
 # PSF data =====================================================================
 psf_df <- readr::read_csv(here::here("./data/spawner-recruit/psf-2022-12-13.csv"))
 head(psf_df)
-unique(psf_df$parameter)
+unique(psf_df$species)
 
+
+pink_sr <- psf_df %>% 
+  dplyr::filter(species %in% c("Pink (even)", "Pink (odd)"),
+                parameter %in% c("lnRS", "Recruits", "Spawners")) %>%
+  tidyr::pivot_wider(
+    names_from = "parameter",
+    values_from = "datavalue"
+  )
+unique(pink_sr$location)
+
+ggplot(data = pink_sr) + 
+  geom_point(aes(x = year, y = "Spawners"))
 
 
 
