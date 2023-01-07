@@ -107,7 +107,7 @@ plot_wild_lice_data <- function(wild_lice, output_path) {
   )
 }
 
-# clean_sr_data ================================================================
+# clean_pk_sr_data ================================================================
 clean_pk_sr_data <- function(sr_data, output_path) {
   #' Take in the raw spawner-recruit data and clean and write out the clean 
   #' version
@@ -123,7 +123,7 @@ clean_pk_sr_data <- function(sr_data, output_path) {
   #' 
   
   # basic cleaning (renaming etc)
-  renamed_sr <- sr_data %>% 
+  all_pinks <- sr_data %>% 
     dplyr::rename(
       gfe_id = GFE_ID,
       brood_year = BroodYear,
@@ -141,10 +141,71 @@ clean_pk_sr_data <- function(sr_data, output_path) {
     ) %>% 
     dplyr::filter(
       species %in% c("PKO", "PKE")
+    ) %>% 
+    # get rid of NA's
+    dplyr::filter_at(
+      vars(spawners, returns), all_vars(!is.na(.))
     )
   
-  # find the distribution of the values of obs per creek (excluding NAs)
-  hist()
-    
+  # figure out how many observations per population there is
+  pinks_even <- all_pinks %>% 
+    dplyr::filter(species %in% c("PKE"))
+  pinks_odd <- all_pinks %>% 
+    dplyr::filter(species %in% c("PKO")) 
   
+  all_pinks_obs_per_stream <- all_pinks %>% 
+    dplyr::mutate(river = as.factor(river)) %>% 
+    dplyr::group_by(river) %>% 
+    dplyr::summarize(n = n()) 
+  
+  pke_obs_per_stream <- pinks_even %>% 
+    dplyr::mutate(river = as.factor(river)) %>% 
+    dplyr::group_by(river) %>% 
+    dplyr::summarize(n = n())
+  
+  pko_obs_per_stream <- pinks_odd %>% 
+    dplyr::mutate(river = as.factor(river)) %>% 
+    dplyr::group_by(river) %>% 
+    dplyr::summarize(n = n())
+  
+  min_obs <- min(summary(pke_obs_per_stream$n)[[2]], # [[2]] is 1st quartile
+                 summary(pko_obs_per_stream$n)[[2]])
+  
+  # find the streams to exclude
+  pke_streams_to_exclude <- pke_obs_per_stream %>% 
+    dplyr::filter(
+      n < min_obs
+    ) 
+  pko_streams_to_exclude <- pko_obs_per_stream %>% 
+    dplyr::filter(
+      n < min_obs
+    ) 
+  
+  # note that this could be condensed but it's handy to have a more easily 
+  # accessible list of all the streams that we're keeping and the 
+  # number of observations at each stream 
+  streams_to_keep <- all_pinks_obs_per_stream %>% 
+    dplyr::filter(
+      river %notin% c(pke_streams_to_exclude$river, 
+                      pko_streams_to_exclude$river)
+    )
+  readr::write_csv(
+    streams_to_keep,
+    paste0(output_path, "pink-obs-per-stream.csv")
+  )
+  
+  # make the dataframe to move on with 
+  all_pinks_rivers <- all_pinks %>% 
+    dplyr::filter(
+      river %in% streams_to_keep$river
+    ) %>% 
+    dplyr::arrange(
+      brood_year
+    )
+  readr::write_csv(
+    all_pinks_rivers,
+    paste0(output_path, "pink-sr-data-clean.csv")
+  )
+  
+  return(all_pinks_rivers)
 }

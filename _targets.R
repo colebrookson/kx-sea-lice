@@ -31,7 +31,7 @@ list(
   tar_target(
     sr_data,
     here::here(
-      "./data/spawner-recruit/raw/river-level-sr/NCC_streams_SR_data.csv.csv"
+      "./data/spawner-recruit/raw/river-level-sr/NCC_streams_SR_data.csv"
     ),
     format = "file"
   ),
@@ -46,14 +46,14 @@ list(
       )
   ),
   tar_target(
-    clean_spawn_recruit_data,
-    clean_sr_data(
+    clean_pink_spawner_recruit_data,
+    clean_pk_sr_data(
       get_data_csv(sr_data),
       here::here(
-        "./data/spawner-recruit/clean/sr-data-clean.csv"
+        "./data/spawner-recruit/clean/"
       )
     )
-  )
+  ),
   ## useful plots/extra content ================================================
   tar_target(wild_lice_per_fish_plot,
              plot_wild_lice_data(
