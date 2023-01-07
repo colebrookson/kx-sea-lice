@@ -107,4 +107,44 @@ plot_wild_lice_data <- function(wild_lice, output_path) {
   )
 }
 
-# clean_psf_data ===============================================================
+# clean_sr_data ================================================================
+clean_pk_sr_data <- function(sr_data, output_path) {
+  #' Take in the raw spawner-recruit data and clean and write out the clean 
+  #' version
+  #' 
+  #' @description Data needs to be renamed, cleaned up a bit, do this with this 
+  #' one function 
+  #' 
+  #' @param sr_data file. the raw SR data
+  #' @param output_path character. Path to where to save the plot
+  #'  
+  #' @usage clean_sr_data(sr_data, output_path)
+  #' @return the clean sr data
+  #' 
+  
+  # basic cleaning (renaming etc)
+  renamed_sr <- sr_data %>% 
+    dplyr::rename(
+      gfe_id = GFE_ID,
+      brood_year = BroodYear,
+      river = River,
+      species = Species,
+      indicator = Indicator,
+      long = xLONG,
+      lat = yLAT,
+      area = StatArea,
+      con_unit = CU,
+      con_unit_2 = CU_2,
+      spawners = Spawners,
+      returns = Returns,
+      recruits = Recruits
+    ) %>% 
+    dplyr::filter(
+      species %in% c("PKO", "PKE")
+    )
+  
+  # find the distribution of the values of obs per creek (excluding NAs)
+  hist()
+    
+  
+}

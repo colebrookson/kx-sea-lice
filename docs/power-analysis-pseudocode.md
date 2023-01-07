@@ -83,11 +83,20 @@ area within year, you just draw from the distribution
 
 three loops 
 
-LRT - 
+LRT -  
 
 Do it up to 1
 
 One challenge is that models fail to fit -- if random effect draws fail 
 
 if the proportion of farm affected is really low, possibly think about it then 
+
+
+
+
+
+
+
+
+
 
