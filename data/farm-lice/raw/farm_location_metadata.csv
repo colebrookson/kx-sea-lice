@@ -1,0 +1,93 @@
+facility.num,site,zone,license.holder,latitude,longitude,area
+AQ78,Phillips Arm,3.2,Marine Harvest,50.48802,-125.35653,13
+AQ100,Lees Bay,3.2,Marine Harvest,50.40861,-125.70015,13
+AQ136,Cliff Bay,3.3,Mainstream Canada,50.83357,-126.49918,12
+AQ141,Port Elizabeth,3.3,Marine Harvest,50.67284,-126.47715,12
+AQ143,Larsen Island,3.3,Marine Harvest,50.60316,-126.63215,12
+AQ144,Koskimo,2.4,Marine Harvest,50.45805,-127.88985,27
+AQ169,Barkley,2.3,Cermaq,48.94383,-124.98585,23
+AQ211,Okisollo,3.2,Marine Harvest,50.2864,-125.35024,13
+AQ221,Vantage,3.1,Greig,49.67053,-123.86163,16
+AQ227,Bawden,2.3,Mainstream Canada,49.31278,-126.00731,24
+AQ234,Dixon,2.3,Mainstream Canada,49.4074,-126.15089,24
+AQ304,Raza,3.2,Mainstream Canada,50.32081,-125.00943,13
+AQ306,Venture,3.2,Mainstream Canada,50.29936,-125.33725,13
+AQ314,Ross Pass,2.3,Mainstream Canada,49.32483,-126.04677,24
+AQ332,Salten,3.1,Grieg Seafood,49.61663,-123.83215,16
+AQ380,Sonora Pt,3.2,Marine Harvest,50.42297,-125.30462,13
+AQ408,Kunechin,3.1,Grieg Seafood,49.63532,-123.78326,16
+AQ412,Site 9,3.1,Greig,49.64744,-123.72444,16
+AQ465,Swanson,3.3,Marine Harvest,50.61826,-126.70369,12
+AQ467,Midsummer,3.3,Marine Harvest,50.65928,-126.66242,12
+AQ520,Bedwell,2.3,Cermaq,49.26854,-125.80967,24
+AQ526,Rant Pt,2.3,Mainstream Canada,49.25863,-125.84322,24
+AQ527,Saranac,2.3,Mainstream Canada,49.24726,-125.90718,24
+AQ540,Fortune,2.3,Mainstream Canada,49.2347,-125.75026,24
+AQ543,Mussel Rock,2.3,Mainstream Canada,49.25941,-125.86669,24
+AQ728,Sir Ed,3.3,Mainstream Canada,50.83134,-126.59616,12
+AQ733,Cyrus Rocks,3.2,Marine Harvest,50.25633,-125.20986,13
+AQ739,Upper Retreat,3.3,Marine Harvest,50.72149,-126.56608,12
+AQ746,Site 13,3.1,Greig,49.62881,-123.84524,16
+AQ819,Cecil,3.3,Mainstream Canada,50.8508,-126.71453,12
+AQ820,Wicklow,3.3,Marine Harvest,50.78744,-126.69158,12
+AQ821,Glacier Falls,3.3,Marine Harvest,50.84656,-126.31882,12
+AQ831,Shelter Pass,3.4,Marine Harvest,50.88189,-127.49701,12
+AQ869,Maude Island,3.3,Mainstream Canada,50.85044,-126.75707,12
+AQ871,Barnes Bay,3.2,Grieg Seafood,50.32382,-125.26107,13
+AQ884,Lochalsh,3.5,Marine Harvest,52.53555,-128.35934,7
+AQ892,Bell Island,3.4,Marine Harvest,50.83331,-127.52029,12
+AQ1059,Sargeaunt Pass,3.3,Marine Harvest,50.67321,-126.18621,12
+AQ1079,Steamer,2.4,Grieg Seafood,49.88745,-126.79167,25
+AQ1144,Burdwood,3.3,Mainstream Canada,50.79786,-126.49435,12
+AQ1145,Potts Bay,3.3,Marine Harvest,50.65005,-126.6184,12
+AQ1198,Raynor,3.4,Marine Harvest,50.8926,-127.25489,12
+AQ1237,Monday Rocks,2.4,Marine Harvest,50.48484,-127.87584,27
+AQ1238,Mahatta W,2.4,Marine Harvest,50.46998,-127.83693,27
+AQ1288,Doyle,3.4,Marine Harvest,50.81442,-127.4859,12
+AQ1291,McIntyre Lake,2.3,Mainstream Canada,49.30404,-125.81611,24
+AQ1293,Duncan,3.4,Marine Harvest,50.82232,-127.55621,12
+AQ1300,Althorpe,3.3,Marine Harvest,50.47384,-125.80982,13
+AQ1336,Simmonds,3.4,Mainstream Canada,50.87828,-126.90133,12
+AQ1338,Mahatta E,2.4,Marine Harvest,50.47347,-127.78789,27
+AQ1350,Shelter Bay,3.4,Marine Harvest,50.96464,-127.45365,12
+AQ1351,Marsh,3.4,Marine Harvest,50.90461,-127.3405,12
+AQ1401,Brent Island,3.2,Mainstream Canada,50.2864,-125.35024,13
+AQ1472,Westside,2.3,Mainstream Canada,49.2755,-125.83179,24
+AQ1507,Millar,2.3,Mainstream Canada,49.37503,-126.09111,24
+AQ1537,Bare Bluff,2.3,Cermaq,49.32961,-125.79759,24
+AQ1580,Jackson Pass,3.5,Marine Harvest,52.53767,-128.40377,7
+AQ1581,Hardwicke,3.2,Marine Harvest,50.41582,-125.76669,13
+AQ1586,Doctor Islets,3.3,Marine Harvest,50.65125,-126.28933,12
+AQ1618,Humphrey Rocks,3.3,Marine Harvest,50.69799,-126.25401,12
+AQ1691,Kid Bay,3.5,Marine Harvest,52.79923,-128.4017,7
+AQ1697,Culloden,3.1,Greig,49.79368,-124.10102,16
+AQ1698,Ahlstrom,3.1,Grieg Seafood,49.7785,-124.1553,16
+AQ1700,Muchalat S,2.4,Grieg Seafood,49.6398,-126.32677,25
+AQ1702,Goat Cove,3.5,Marine Harvest,52.78342,-128.4148,7
+AQ1705,Williamson,2.4,Grieg Seafood,49.65659,-126.42796,25
+AQ1738,Atrevida ,2.4,Greig,49.65735,-126.45393,25
+AQ1789,Concepcion,2.4,Grieg Seafood,49.65969,-126.48387,25
+AQ1825,Noo-la,3.3,Grieg Seafood,50.60722,-126.36289,12
+AQ1849,Muchalat N,2.4,Grieg Seafood,49.64486,-126.33946,25
+AQ1863,Esperanza,2.4,Grieg Seafood,49.88103,-126.76326,25
+AQ1895,Sheep Passage,3.5,Marine Harvest,52.79883,-128.31444,7
+AQ1896,Lime Point,3.5,Marine Harvest,52.78224,-128.32211,7
+AQ6668,Plover,2.3,Mainstream Canada,49.21448,-125.76528,24
+AQ7053,Bull Harbour,3.4,Marine Harvest,50.90039,-127.9367,12
+AQ1031,Frederick Arm,3.2,Marine Harvest,50.47056,-125.26193,13
+AQ1136,Shaw Pt,3.3,Marine Harvest,50.48591,-125.88985,13
+AQ1148,Binns Island,2.3,Mainstream Canada,49.34261,-125.95259,24
+AQ1164,Farside,3.2,Marine Harvest,50.48561,-125.2744,13
+AQ1335,Wehlis,3.4,Mainstream Canada,50.86499,-126.92332,12
+AQ137,Conville Bay,3.2,Grieg Seafood,50.18117,-125.15091,13
+AQ1376,Cleagh Creek,2.4,Marine Harvest,50.48178,-127.73215,27
+AQ303,Glacial Creek,3.1,Marine Harvest,50.01026,-123.90246,16
+AQ377,Bickley,3.2,Marine Harvest,50.45138,-125.39602,13
+AQ378,Thurlow S,3.2,Marine Harvest,50.40962,-125.34022,13
+AQ388,Brougham Pt,3.2,Marine Harvest,50.37259,-125.37968,13
+AQ458,Cypress,3.3,Mainstream Canada,50.8377,-126.6634,12
+AQ466,Arrow,3.3,Marine Harvest,50.70922,-126.6626,12
+AQ753,Cormorant,2.3,Mainstream Canada,49.25689,-125.92482,24
+AQ790,Chancellor,3.2,Marine Harvest,50.41606,-125.6617,13
+AQ1839,Sambo,3.3,Greig,50.60105,-126.34755,12
+AQ7714,Alexander Inlet,3.5,Marine Harvest,52.6407,-128.6312,6

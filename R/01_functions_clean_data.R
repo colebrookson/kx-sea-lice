@@ -209,3 +209,20 @@ clean_pk_sr_data <- function(sr_data, output_path) {
   
   return(all_pinks_rivers)
 }
+
+# clean_farm_loc_data ==========================================================
+clean_farm_loc_data <- function(farm_loc_data) {
+  #' Take in the raw spawner-recruit data and clean and write out the clean 
+  #' version
+  #' 
+  #' @description Data needs to be renamed, cleaned up a bit, do this with this 
+  #' one function 
+  #' 
+  #' @param farm_loc_data file. Data on the locations of the different farms
+  #'  
+  #' @usage clean_farm_loc_data(farm_loc_data)
+  #' @return the clean sr data
+  #' 
+}
+
+# farm_map =====================================================================

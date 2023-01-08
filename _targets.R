@@ -35,6 +35,13 @@ list(
     ),
     format = "file"
   ),
+  tar_target(
+    farm_locations,
+    here::here(
+      "./data/farm-lice/raw/farm_location_metadata.csv"
+    ),
+    format = "file"
+  ),
   ## data cleaning =============================================================
   tar_target(
     clean_wild_lice_data,
