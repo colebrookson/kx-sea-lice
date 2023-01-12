@@ -119,13 +119,20 @@ all_pinks_rivers <- all_pinks %>%
   ) %>% 
   dplyr::arrange(
     brood_year
+  )  
+
+
+# wild lice data ===============================================================
+wild_lice <- readr::read_csv(here("./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv"))
+readr::problems()
+
+# ignore the problems since they don't really apply to the columns we're 
+# interested in
+
+wild_lice_clean <- wild_lice %>% 
+  dplyr::select(
+    year, seine_date, site, zone, fish_spp, lep_total, cal_total, lat, long
   )
-
-
-# farm lice data ===============================================================
-
-
-
 
 
 
