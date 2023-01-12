@@ -1,13 +1,16 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
 %notin%|function|c5de772db35799a7|||||||||||||||
+clean_farm_loc_data|function|0a5258107be7135b|||||||||||||||
 clean_pink_spawner_recruit_data|stem|4dbb6333041555a7|8134c724a125a19e|668e6837cde0eaac|1143075027||t19364.8319399376s|dce8f9ec65542dd4|238185|rds|local|vector|||0.644||
 clean_pk_sr_data|function|7ed45cf34910dd02|||||||||||||||
-clean_wild_lice|function|21e030d2ac490cf8|||||||||||||||
-clean_wild_lice_data|stem|4c160153cec1714e|46b36a7bbc8a9552|7858d86d422533eb|-13439032||t19361.6747079683s|13927ee35e2feee8|177557|rds|local|vector|||0.297|One or more parsing issues, see problems for details|
+clean_wild_lice|function|3dbf9e0d85c48a26|||||||||||||||
+clean_wild_lice_data|stem|2354981d23956c25|b46e97954db35645|3872769ef3f64b46|-13439032||t19369.1502491802s|5744269775fe6cc0|61415|rds|local|vector|||1.202|One or more parsing issues, see problems for details|
+dates_to_join|stem|1c0be8222a6c269f|ebd1dfe2658f8cc1|c3b5fc02cdc369c1|235570657|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/unique_dates_manually_edited.csv|t19369.1463297283s|8b9a29a5ea833366|9400|file|local|vector|||0.177||
+farm_locations|stem|7c9aa8ec7801ab3a|0a5855a37f7f0433|c3b5fc02cdc369c1|-1884169169|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/farm_location_metadata.csv|t19340.1633181332s|39911213ec660508|5486|file|local|vector|||0.176||
 get_data_csv|function|f55fbb93cbb1e4ef|||||||||||||||
-plot_wild_lice_data|function|6d89e7bf4d3a2dcf|||||||||||||||
-raw_wild_lice_data|stem|ea3d8e32841e07c4|c00b1b91feb5c5a6|c3b5fc02cdc369c1|1321957318|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv|t19340.814742411s|f9c23685229b96ad|2516217|file|local|vector|||0.404||
+plot_wild_lice_data|function|510976da4311155a|||||||||||||||
+raw_wild_lice_data|stem|7d7e0462623be403|c00b1b91feb5c5a6|c3b5fc02cdc369c1|1321957318|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv|t19365.8983720276s|db325842a66b0784|3469616|file|local|vector|||0.001||
 sr_data|stem|dc499a6be1fc5456|9656ea9207ccd9fb|c3b5fc02cdc369c1|-1452995489|/home/cole/Github/kx-sea-lice/./data/spawner-recruit/raw/river-level-sr/NCC_streams_SR_data.csv|t18971.5809722222s|36f04190578cee74|19557605|file|local|vector|||0.173||
 standardize_names|function|5b63229e8588d8eb|||||||||||||||
 std_err|function|3b26304b718e3898|||||||||||||||
-wild_lice_per_fish_plot|stem|49fc3cf67f9dce34|f7d5653a769416f9|1bab905d123aa867|1285149232||t19361.6747135701s|758d7d51407f572d|117|rds|local|vector|||0.478||
+wild_lice_per_fish_plot|stem|49fc3cf67f9dce34|f7d5653a769416f9|888a47e5bbc9cbe2|1285149232||t19369.1502581152s|758d7d51407f572d|117|rds|local|vector|||0.764||
