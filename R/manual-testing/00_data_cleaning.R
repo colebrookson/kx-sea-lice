@@ -227,3 +227,46 @@ dplyr::group_by(year_fac) %>%
   )
 
 # farm lice ====================================================================
+
+old_lice <- readxl::read_excel(
+  here("./data/farm-lice/raw/klemtu_farm_lice_data_old.xls"),
+                               sheet = 9)
+new_lice <- readxl::read_excel(
+  here("./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx"), 
+                               sheet = 5)
+
+library(lubridate)
+library(dplyr)
+library(janitor)
+library(tibble)
+old_lice$DATE <- janitor::excel_numeric_to_date(
+  as.numeric(
+    as.character(old_lice$DATE)), 
+  date_system = "modern") 
+old_lice <- old_lice %>% 
+  dplyr::mutate(
+    day = lubridate::day(DATE),
+    month = lubridate::month(DATE),
+    year = lubridate::year(DATE)
+  )
+
+new_lice <- new_lice %>% 
+  dplyr::mutate(
+    day = lubridate::day(DATE),
+    month = lubridate::month(DATE),
+    year = lubridate::year(DATE)
+  )
+
+new_lice <- standardize_names(new_lice)
+old_lice <- standardize_names(old_lice)
+
+all_farms <- unique(c(unique(new_lice$farm), unique(old_lice$farm)))
+
+farm_locs <- readr::read_csv(
+  here("./data/farm-lice/raw/farm_location_metadata.csv")
+)
+
+farm_locs <- farm_locs %>% 
+  dplyr::filter(
+    site %in% c("Lochalsh", "Jackson Pass", "Kid Bay")
+  )
