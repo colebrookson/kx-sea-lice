@@ -239,16 +239,40 @@ library(lubridate)
 library(dplyr)
 library(janitor)
 library(tibble)
+
+# remove obs with NAs in the date column 
+old_lice <- old_lice %>% 
+  dplyr::filter(!is.na(DATE))
+
+# since it's an excel sheet it read it in oddly, so now we need to transfer the 
+# data back to a readable structure 
 old_lice$DATE <- janitor::excel_numeric_to_date(
   as.numeric(
     as.character(old_lice$DATE)), 
   date_system = "modern") 
+
+# get rid of NA's and add in the appropriate columns 
 old_lice <- old_lice %>% 
+  dplyr::filter(
+    !is.na(DATE)
+  ) %>% 
   dplyr::mutate(
     day = lubridate::day(DATE),
     month = lubridate::month(DATE),
     year = lubridate::year(DATE)
   )
+
+# standardize names
+old_lice <- standardize_names(old_lice) %>% 
+  # needs some custom renames too
+  dplyr::rename(
+    adult_fem_no_egg = `adult_female_w/o_eggs`,
+    adult_fem_w_egg = `adult_female____with_eggs`,
+    num_fish_sampled = `#_of_fish_sampled`
+  )
+
+# readr::write_csv(old_lice,
+#                  here::here())
 
 new_lice <- new_lice %>% 
   dplyr::mutate(
@@ -268,5 +292,29 @@ farm_locs <- readr::read_csv(
 
 farm_locs <- farm_locs %>% 
   dplyr::filter(
-    site %in% c("Lochalsh", "Jackson Pass", "Kid Bay")
+    site %in% c("Lochalsh", "Jackson Pass", "Kid Bay", "Alexander Inlet",
+                "Sheep Passage", "Goat Cove", "Lime Point", "")
   )
+
+length(unique(old_lice %>% select(farm, month, year)))
+
+old_lice_trim <- old_lice %>% 
+  dplyr::select(year, month, farm, adult_fem_no_egg, 
+                adult_fem_w_egg, site_inventory) %>% 
+  dplyr::mutate(
+    year = as.factor(year), 
+    month = as.factor(month),
+    farm = as.factor(farm),
+    inventory = as.integer(site_inventory)
+  ) %>% 
+  dplyr::rowwise() %>% 
+  dplyr::mutate(
+    lice = sum(adult_fem_no_egg, 
+               adult_fem_w_egg, na.rm = TRUE)
+  ) %>% 
+  dplyr::group_by(year, month, farm) %>% 
+  dplyr::mutate(
+    mean_inventory = mean(inventory, na.rm = TRUE), 
+    lice = mean(lice, na.rm = TRUE)
+  )
+
