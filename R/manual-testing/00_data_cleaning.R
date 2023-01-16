@@ -298,6 +298,11 @@ farm_locs <- farm_locs %>%
 
 length(unique(old_lice %>% select(farm, month, year)))
 
+# there's one specific problem, a space in the character vector of the 
+# inventories, so I'll change that first
+old_lice[which(old_lice$site_inventory == 
+                 "846 012"), "site_inventory"] <- "846012"
+
 old_lice_trim <- old_lice %>% 
   dplyr::select(year, month, farm, adult_fem_no_egg, 
                 adult_fem_w_egg, site_inventory) %>% 
@@ -305,7 +310,7 @@ old_lice_trim <- old_lice %>%
     year = as.factor(year), 
     month = as.factor(month),
     farm = as.factor(farm),
-    inventory = as.integer(site_inventory)
+    inventory = as.numeric(as.integer(site_inventory))
   ) %>% 
   dplyr::rowwise() %>% 
   dplyr::mutate(
@@ -313,8 +318,7 @@ old_lice_trim <- old_lice %>%
                adult_fem_w_egg, na.rm = TRUE)
   ) %>% 
   dplyr::group_by(year, month, farm) %>% 
-  dplyr::mutate(
-    mean_inventory = mean(inventory, na.rm = TRUE), 
-    lice = mean(lice, na.rm = TRUE)
+  dplyr::summarize(
+    mean_inventory = mean(inventory, na.rm = TRUE)
   )
 
