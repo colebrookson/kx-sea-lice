@@ -78,6 +78,6 @@ ggplot(data = reg_data, aes(x = log10(farm_lice), y = log10(wild_lice))) +
   labs(x = "Lice on Farmed Fish (Log 10)", 
        y = "Mean Number of Lice per Wild Juvenile Fish (Log 10)")
 
-
+farm_lice
 
 

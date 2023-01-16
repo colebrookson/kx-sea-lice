@@ -411,3 +411,37 @@ ggplot(data = all_lice_both_measures) +
   ) + 
   labs(x = "Date",  y = "Values")
   
+
+# prepped sr data ==============================================================
+pink_sr_data <- read_csv(here("./data/spawner-recruit/clean/pink-sr-data-clean.csv"))
+
+wild_lice_years <- wild_lice %>%
+  dplyr::mutate(
+    year = as.factor(year)
+  ) %>%
+  dplyr::group_by(year) %>%
+  dplyr::summarize(wild_lice = mean(lep_motiles, na.rm = TRUE)) %>% 
+  dplyr::mutate(
+    area = "7" 
+  ) %>% 
+  dplyr::mutate(
+    brood_year = as.numeric(as.character(year))
+  ) %>% 
+  dplyr::select(-year)
+
+pink_sr_data_lice <- dplyr::left_join(pink_sr_data, 
+                 wild_lice_years,
+                 by = c("brood_year", "area")) %>% 
+  dplyr::rename(lice = wild_lice) %>% 
+  dplyr::mutate(
+    lice = ifelse(!is.na(lice), lice, 0)
+  )
+
+summary(pink_sr_data$area)
+unique(pink_sr_data[which(is.na(pink_sr_data$area)), "brood_year"])
+max_year <- max(pink_sr_data$brood_year)
+
+
+
+# loop through every year/
+
