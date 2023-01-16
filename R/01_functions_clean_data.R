@@ -131,7 +131,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, raw_output_path,
   readr::write_csv(
     wild_lice_clean_dates_fixed,
     paste0(
-      clean_output_path, "wild_lice_df.csv"
+      clean_output_path, "wild-lice-df.csv"
     )
   )
   

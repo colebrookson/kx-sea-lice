@@ -5,8 +5,8 @@ clean_farm_lice_data|stem|00e1d8f0060aac41|ab58216727568033|12b37c44d1724389|144
 clean_farm_loc_data|function|0a5258107be7135b|||||||||||||||
 clean_pink_spawner_recruit_data|stem|4dbb6333041555a7|8134c724a125a19e|668e6837cde0eaac|1143075027||t19364.8319399376s|dce8f9ec65542dd4|238185|rds|local|vector|||0.644||
 clean_pk_sr_data|function|7ed45cf34910dd02|||||||||||||||
-clean_wild_lice|function|3dbf9e0d85c48a26|||||||||||||||
-clean_wild_lice_data|stem|2354981d23956c25|b46e97954db35645|3872769ef3f64b46|-13439032||t19369.1502491802s|5744269775fe6cc0|61415|rds|local|vector|||1.202|One or more parsing issues, see problems for details|
+clean_wild_lice|function|77dac7c4f3932cfc|||||||||||||||
+clean_wild_lice_data|stem|2354981d23956c25|b46e97954db35645|943e219d3bcaf2b5|-13439032||t19373.1847194999s|5744269775fe6cc0|61415|rds|local|vector|||1.194|One or more parsing issues, see problems for details|
 dates_to_join|stem|1c0be8222a6c269f|ebd1dfe2658f8cc1|c3b5fc02cdc369c1|235570657|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/unique_dates_manually_edited.csv|t19369.1463297283s|8b9a29a5ea833366|9400|file|local|vector|||0.177||
 farm_locations|stem|7c9aa8ec7801ab3a|0a5855a37f7f0433|c3b5fc02cdc369c1|-1884169169|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/farm_location_metadata.csv|t19340.1633181332s|39911213ec660508|5486|file|local|vector|||0.176||
 get_data_csv|function|f55fbb93cbb1e4ef|||||||||||||||
