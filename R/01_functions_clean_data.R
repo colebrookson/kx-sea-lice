@@ -66,10 +66,19 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, raw_output_path,
   
   # perform a join to get columns for year, month, day
   wild_lice_clean_dates_fixed <- dplyr::left_join(
-    wild_lice_to_join,
-    dates_to_join,
-    by = "seine_date"
-  )
+      wild_lice_to_join,
+      dates_to_join,
+      by = "seine_date"
+    ) 
+  
+  wild_lice_to_save = wild_lice_clean_dates_fixed%>% 
+    dplyr::rowwise() %>% 
+    dplyr::mutate(
+      lep_motiles = sum(lep_pam, lep_paf, lep_am, lep_af, na.rm = TRUE),
+      lep_chal = sum(lep_c1, lep_c2, lep_c3, lep_c4, na.rm = TRUE)
+    ) %>% 
+    dplyr::select(-c(lep_pam, lep_paf, lep_am, lep_af,
+                     lep_c1, lep_c2, lep_c3, lep_c4))
   
   # make dataframe to plot
   obs_per_year <- wild_lice_clean_dates_fixed %>% 
@@ -87,8 +96,9 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, raw_output_path,
                colour = "black") + 
       scale_x_discrete() +
       scale_fill_gradientn("No. of Obs", 
-                           colours = wesanderson::wes_palette("Zissou1", 100, 
-                                                              type = "continuous"))+
+                           colours = 
+                             wesanderson::wes_palette("Zissou1", 100,
+                                                      type = "continuous"))+
       ggthemes::theme_base() +
       theme(
         axis.text.x = element_text(angle = 90, vjust = 0.5),
@@ -129,9 +139,9 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, raw_output_path,
   
   # write out clean data
   readr::write_csv(
-    wild_lice_clean_dates_fixed,
+    wild_lice_to_save,
     paste0(
-      clean_output_path, "wild-lice-df.csv"
+      clean_output_path, "clean-wild-lice-df.csv"
     )
   )
   
@@ -501,7 +511,7 @@ clean_farm_lice <- function(old_lice, new_lice, data_output_path,
   
   readr::write_csv(
     all_lice,
-    paste0(data_output_path, "clean-farm-lice.csv")
+    paste0(data_output_path, "clean-farm-lice-df.csv")
   )
   
   # figure =====================================================================
