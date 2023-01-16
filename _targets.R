@@ -18,7 +18,8 @@ source(here::here("./R/00_functions_global.R"))
 source(here::here("./R/01_functions_clean_data.R"))
 
 tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2", 
-                            "ggthemes", "wesanderson"))
+                            "ggthemes", "wesanderson", "lubridate", "janitor",
+                            "tibble"))
 options(dplyr.summarise.inform = FALSE)
 
 list(
@@ -51,6 +52,19 @@ list(
     ),
     format = "file"
   ),
+  tar_target(
+    old_farm_lice,
+    here::here(
+      "./data/farm-lice/raw/klemtu_farm_lice_data_old.xls"
+    ),
+    format = "file"
+  ),
+  tar_target(
+    new_farm_lice,
+    here::here(
+      "./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx"
+    )
+  ),
   ## data cleaning =============================================================
   tar_target(
     clean_wild_lice_data,
@@ -60,6 +74,17 @@ list(
       raw_output_path = here::here("./data/wild-lice/raw/"),
       clean_output_path = here::here("./data/wild-lice/clean/"),
       fig_output_path = here::here("./figs/wild-lice/")
+    )
+  ),
+  tar_target(
+    clean_farm_lice_data,
+    clean_farm_lice(
+      old_lice = readxl::read_excel(old_farm_lice,
+                                    sheet = 9),
+      new_lice = readxl::read_excel(new_farm_lice,
+                                    sheet = 5),
+      data_output_path = here::here("./data/farm-lice/clean/"),
+      fig_output_path = here::here("./figs/farm-lice/")
     )
   ),
   tar_target(

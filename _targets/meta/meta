@@ -1,5 +1,7 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
 %notin%|function|c5de772db35799a7|||||||||||||||
+clean_farm_lice|function|83e45e9628594a59|||||||||||||||
+clean_farm_lice_data|stem|00e1d8f0060aac41|ab58216727568033|12b37c44d1724389|1445379850||t19373.1827464605s|e3871644244b3637|115|rds|local|vector|||0.96|Expecting numeric in H1219  R1219C8 got no counts fish transfers. NAs introduced by coercion|
 clean_farm_loc_data|function|0a5258107be7135b|||||||||||||||
 clean_pink_spawner_recruit_data|stem|4dbb6333041555a7|8134c724a125a19e|668e6837cde0eaac|1143075027||t19364.8319399376s|dce8f9ec65542dd4|238185|rds|local|vector|||0.644||
 clean_pk_sr_data|function|7ed45cf34910dd02|||||||||||||||
@@ -8,6 +10,8 @@ clean_wild_lice_data|stem|2354981d23956c25|b46e97954db35645|3872769ef3f64b46|-13
 dates_to_join|stem|1c0be8222a6c269f|ebd1dfe2658f8cc1|c3b5fc02cdc369c1|235570657|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/unique_dates_manually_edited.csv|t19369.1463297283s|8b9a29a5ea833366|9400|file|local|vector|||0.177||
 farm_locations|stem|7c9aa8ec7801ab3a|0a5855a37f7f0433|c3b5fc02cdc369c1|-1884169169|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/farm_location_metadata.csv|t19340.1633181332s|39911213ec660508|5486|file|local|vector|||0.176||
 get_data_csv|function|f55fbb93cbb1e4ef|||||||||||||||
+new_farm_lice|stem|b78ffb87e9b3031d|64cdd37e6d0d0f8e|c3b5fc02cdc369c1|1896230505||t19373.1824598888s|24d52ebf1535bba2|123|rds|local|vector|||0.4||
+old_farm_lice|stem|230a0a0eeaa66b1e|8ddef53d1c163c9a|c3b5fc02cdc369c1|-860842241|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19371.1554192771s|e2b8c6da6272f3c0|6212096|file|local|vector|||0||
 plot_wild_lice_data|function|510976da4311155a|||||||||||||||
 raw_wild_lice_data|stem|7d7e0462623be403|c00b1b91feb5c5a6|c3b5fc02cdc369c1|1321957318|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv|t19365.8983720276s|db325842a66b0784|3469616|file|local|vector|||0.001||
 sr_data|stem|dc499a6be1fc5456|9656ea9207ccd9fb|c3b5fc02cdc369c1|-1452995489|/home/cole/Github/kx-sea-lice/./data/spawner-recruit/raw/river-level-sr/NCC_streams_SR_data.csv|t18971.5809722222s|36f04190578cee74|19557605|file|local|vector|||0.173||

@@ -271,18 +271,19 @@ old_lice <- standardize_names(old_lice) %>%
     num_fish_sampled = `#_of_fish_sampled`
   )
 
-# readr::write_csv(old_lice,
-#                  here::here())
-
 new_lice <- new_lice %>% 
   dplyr::mutate(
     day = lubridate::day(DATE),
     month = lubridate::month(DATE),
     year = lubridate::year(DATE)
+  ) %>% 
+  standardize_names(.) %>% 
+  # needs some custom renames too
+  dplyr::rename(
+    adult_fem_no_egg = `adult_female_w/o_eggs`,
+    adult_fem_w_egg = `adult_female____with_eggs`,
+    num_fish_sampled = `#_of_fish_sampled`
   )
-
-new_lice <- standardize_names(new_lice)
-old_lice <- standardize_names(old_lice)
 
 all_farms <- unique(c(unique(new_lice$farm), unique(old_lice$farm)))
 
@@ -319,6 +320,94 @@ old_lice_trim <- old_lice %>%
   ) %>% 
   dplyr::group_by(year, month, farm) %>% 
   dplyr::summarize(
-    mean_inventory = mean(inventory, na.rm = TRUE)
-  )
+    mean_inventory = mean(inventory, na.rm = TRUE), 
+    lice = mean(lice, na.rm = TRUE)
+  ) %>% 
+  dplyr::rowwise() %>% 
+  dplyr::mutate(
+    total_lice = lice * mean_inventory
+  ) %>% 
+  dplyr::mutate(
+    day = 01,
+    year = as.integer(as.character(year)),
+    month = as.integer(as.character(month))
+  ) %>% 
+  dplyr::rowwise() %>% 
+  dplyr::mutate(
+    date = lubridate::make_date(year = as.integer(year), 
+                                month = as.integer(month),
+                                day = day)
+  ) %>% 
+  dplyr::arrange(date)
 
+new_lice_trim <- new_lice %>% 
+  dplyr::select(year, month, farm, adult_fem_no_egg, 
+                adult_fem_w_egg, site_inventory) %>% 
+  dplyr::mutate(
+    year = as.factor(year), 
+    month = as.factor(month),
+    farm = as.factor(farm),
+    inventory = as.numeric(as.integer(site_inventory))
+  ) %>% 
+  dplyr::rowwise() %>% 
+  dplyr::mutate(
+    lice = sum(adult_fem_no_egg, 
+               adult_fem_w_egg, na.rm = TRUE)
+  )   %>% 
+  dplyr::group_by(year, month, farm) %>% 
+  dplyr::summarize(
+    mean_inventory = mean(inventory, na.rm = TRUE), 
+    lice = mean(lice, na.rm = TRUE)
+  ) %>% 
+  dplyr::rowwise() %>% 
+  dplyr::mutate(
+    total_lice = lice * mean_inventory
+  ) %>% 
+  dplyr::mutate(
+    day = 01,
+    year = as.integer(as.character(year)),
+    month = as.integer(as.character(month))
+  ) %>% 
+  dplyr::rowwise() %>% 
+  dplyr::mutate(
+    date = lubridate::make_date(year = as.integer(year), 
+                                month = as.integer(month),
+                                day = day)
+  ) %>% 
+  dplyr::arrange(date)
+
+all_lice <- rbind(old_lice_trim, new_lice_trim) 
+
+all_lice_by_date <- all_lice %>% 
+  dplyr::group_by(date) %>% 
+  dplyr::summarize(
+    Inventory = mean(mean_inventory, na.rm = TRUE),
+    Lice = mean(total_lice, na.rm = TRUE)
+  ) %>% 
+  dplyr::filter(!is.na(Inventory))
+
+all_lice_both_measures <- all_lice_by_date %>% 
+  tidyr::pivot_longer(
+    cols = !date, 
+    values_to = "vals"
+  ) %>% 
+  dplyr::mutate(
+    Measurement = as.factor(name)
+  )
+  
+
+
+ggplot(data = all_lice_both_measures) + 
+  geom_line(aes(x = date, y = vals, colour = Measurement, 
+                linetype = Measurement)) +
+  geom_point(aes(x = date, y = vals, fill = Measurement), colour = "black",
+             shape = 21) +
+  ggthemes::theme_base() + 
+  scale_fill_manual(values = c("goldenrod1", "purple2")) + 
+  scale_colour_manual(values = c("goldenrod1", "purple2")) + 
+  scale_x_date(date_breaks = "1 years") +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5)
+  ) + 
+  labs(x = "Date",  y = "Values")
+  

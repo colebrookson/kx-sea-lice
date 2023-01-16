@@ -331,8 +331,202 @@ clean_farm_loc_data <- function(farm_loc_data) {
   #' 
 }
 
-# farm_map =====================================================================
-
+# clean_farm_lice ==============================================================
+clean_farm_lice <- function(old_lice, new_lice, data_output_path, 
+                            fig_output_path) {
+  #' Clean the data on farm lice from two sources
+  #' 
+  #' @description The lice on farmed fish data are in two separate files, so 
+  #' this function, reads them in and cleans each of them in turn, binds them
+  #' together, and makes a figure of lice and inventory through time  
+  #' 
+  #' @param old_lice file. Lice data on farms from 2005 to part of 2019
+  #' @param new_lice file. Lice data on farms from the last part of 2019 through
+  #' 2022 summer
+  #' @param data_output_path character. Where to save the cleaned data file
+  #' @param fig_output_path character. Where to save the figure of inventory and 
+  #' lice data 
+  #'  
+  #' @usage clean_farm_lice(old_lice, new_lice, data_output_path, 
+  #' fig_output_path)
+  #' @return the clean farmed lice data
+  #' 
+  
+  # old lice ===================================================================
+  
+  # remove obs with NAs in the date column 
+  old_lice <- old_lice %>% 
+    dplyr::filter(!is.na(DATE))
+  
+  # since it's an excel sheet it read it in oddly, so now we need to transfer  
+  # data back to a readable structure 
+  old_lice$DATE <- janitor::excel_numeric_to_date(
+    as.numeric(
+      as.character(old_lice$DATE)), 
+    date_system = "modern") 
+  
+  # get rid of NA's and add in the appropriate columns 
+  old_lice <- old_lice %>% 
+    dplyr::filter(
+      !is.na(DATE)
+    ) %>% 
+    dplyr::mutate(
+      day = lubridate::day(DATE),
+      month = lubridate::month(DATE),
+      year = lubridate::year(DATE)
+    )
+  
+  # standardize names
+  old_lice <- standardize_names(old_lice) %>% 
+    # needs some custom renames too
+    dplyr::rename(
+      adult_fem_no_egg = `adult_female_w/o_eggs`,
+      adult_fem_w_egg = `adult_female____with_eggs`,
+      num_fish_sampled = `#_of_fish_sampled`
+    )
+  
+  # there's one specific problem, a space in the character vector of the 
+  # inventories, so I'll change that first
+  old_lice[which(old_lice$site_inventory == 
+                   "846 012"), "site_inventory"] <- "846012"
+  
+  old_lice_trim <- old_lice %>% 
+    dplyr::select(year, month, farm, adult_fem_no_egg, 
+                  adult_fem_w_egg, site_inventory) %>% 
+    dplyr::mutate(
+      year = as.factor(year), 
+      month = as.factor(month),
+      farm = as.factor(farm),
+      inventory = as.numeric(as.integer(site_inventory))
+    ) %>% 
+    dplyr::rowwise() %>% 
+    dplyr::mutate(
+      lice = sum(adult_fem_no_egg, 
+                 adult_fem_w_egg, na.rm = TRUE)
+    ) %>% 
+    dplyr::group_by(year, month, farm) %>% 
+    dplyr::summarize(
+      mean_inventory = mean(inventory, na.rm = TRUE), 
+      lice = mean(lice, na.rm = TRUE)
+    ) %>% 
+    dplyr::rowwise() %>% 
+    dplyr::mutate(
+      total_lice = lice * mean_inventory
+    ) %>% 
+    dplyr::mutate(
+      day = 01,
+      year = as.integer(as.character(year)),
+      month = as.integer(as.character(month))
+    ) %>% 
+    dplyr::rowwise() %>% 
+    dplyr::mutate(
+      date = lubridate::make_date(year = as.integer(year), 
+                                  month = as.integer(month),
+                                  day = day)
+    ) %>% 
+    dplyr::arrange(date)
+  
+  # new lice ===================================================================
+  
+  new_lice <- new_lice %>% 
+    dplyr::mutate(
+      day = lubridate::day(DATE),
+      month = lubridate::month(DATE),
+      year = lubridate::year(DATE)
+    ) %>% 
+    standardize_names(.) %>% 
+    # needs some custom renames too
+    dplyr::rename(
+      adult_fem_no_egg = `adult_female_w/o_eggs`,
+      adult_fem_w_egg = `adult_female____with_eggs`,
+      num_fish_sampled = `#_of_fish_sampled`
+    )
+  
+  new_lice_trim <- new_lice %>% 
+    dplyr::select(year, month, farm, adult_fem_no_egg, 
+                  adult_fem_w_egg, site_inventory) %>% 
+    dplyr::mutate(
+      year = as.factor(year), 
+      month = as.factor(month),
+      farm = as.factor(farm),
+      inventory = as.numeric(as.integer(site_inventory))
+    ) %>% 
+    dplyr::rowwise() %>% 
+    dplyr::mutate(
+      lice = sum(adult_fem_no_egg, 
+                 adult_fem_w_egg, na.rm = TRUE)
+    )   %>% 
+    dplyr::group_by(year, month, farm) %>% 
+    dplyr::summarize(
+      mean_inventory = mean(inventory, na.rm = TRUE), 
+      lice = mean(lice, na.rm = TRUE)
+    ) %>% 
+    dplyr::rowwise() %>% 
+    dplyr::mutate(
+      total_lice = lice * mean_inventory
+    ) %>% 
+    dplyr::mutate(
+      day = 01,
+      year = as.integer(as.character(year)),
+      month = as.integer(as.character(month))
+    ) %>% 
+    dplyr::rowwise() %>% 
+    dplyr::mutate(
+      date = lubridate::make_date(year = as.integer(year), 
+                                  month = as.integer(month),
+                                  day = day)
+    ) %>% 
+    dplyr::arrange(date)
+  
+  # join lice ==================================================================
+  
+  all_lice <- rbind(old_lice_trim, new_lice_trim) 
+  
+  all_lice_by_date <- all_lice %>% 
+    dplyr::group_by(date) %>% 
+    dplyr::summarize(
+      Inventory = mean(mean_inventory, na.rm = TRUE),
+      Lice = mean(total_lice, na.rm = TRUE)
+    ) %>% 
+    dplyr::filter(!is.na(Inventory))
+  
+  all_lice_both_measures <- all_lice_by_date %>% 
+    tidyr::pivot_longer(
+      cols = !date, 
+      values_to = "vals"
+    ) %>% 
+    dplyr::mutate(
+      Measurement = as.factor(name)
+    )
+  
+  readr::write_csv(
+    all_lice,
+    paste0(data_output_path, "clean-farm-lice.csv")
+  )
+  
+  # figure =====================================================================
+  ggplot2::ggsave(
+    
+    # output path
+    paste0(fig_output_path, "inventory-lice-plot.png"),
+    
+    # make the plot
+    ggplot(data = all_lice_both_measures) + 
+      geom_line(aes(x = date, y = vals, colour = Measurement, 
+                    linetype = Measurement)) +
+      geom_point(aes(x = date, y = vals, fill = Measurement), colour = "black",
+                 shape = 21) +
+      ggthemes::theme_base() + 
+      scale_fill_manual(values = c("goldenrod1", "purple2")) + 
+      scale_colour_manual(values = c("goldenrod1", "purple2")) + 
+      scale_x_date(date_breaks = "1 years") +
+      theme(
+        axis.text.x = element_text(angle = 90, vjust = 0.5)
+      ) + 
+      labs(x = "Date",  y = "Values")
+  )
+  
+}
 
 
 
