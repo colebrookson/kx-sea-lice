@@ -1,4 +1,6 @@
 library(readr)
+library(here)
+library(magrittr)
 
 wild_lice <- read_csv(here("./data/wild-lice/clean/clean-wild-lice-df.csv"))
 farm_lice <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
@@ -6,6 +8,7 @@ farm_lice <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
 reg_wild_lice <- wild_lice %>% 
   dplyr::group_by(year) %>% 
   dplyr::summarize(wild_lice = mean(lep_motiles, na.rm = TRUE))
+
 
 reg_farm_lice <- farm_lice %>% 
   dplyr::filter(year >= 2005) %>% 
@@ -48,6 +51,8 @@ readr::write_csv(fitted_vals,
 readr::write_csv(model_vals,
                  paste0(mod_path, "glance_aic-wild-farm-regression.csv"))
 
+library(ggplot2)
+
 ggplot(data = reg_data, aes(x = farm_lice, y = wild_lice)) + 
   geom_point(
     # use the shape and colour to denote which are which
@@ -55,7 +60,11 @@ ggplot(data = reg_data, aes(x = farm_lice, y = wild_lice)) +
     colour = "black", size = 5) +
   stat_smooth(method = stats::lm, formula = y ~ x,
               colour = "black", alpha = 0.2) +
-  ggthemes::theme_base() 
+  ggthemes::theme_base()  + 
+  labs(x = "Lice on Farmed Fish (millions)", 
+       y = "Mean Number of Lice per Wild Juvenile Fish") + 
+  scale_x_continuous(breaks = c(0, 500000, 1000000, 1500000, 2000000), 
+                    labels = c("0", "0.5", "1.0", "1.5", "2.0"))
 
 
 ggplot(data = reg_data, aes(x = log10(farm_lice), y = log10(wild_lice))) + 
@@ -65,7 +74,9 @@ ggplot(data = reg_data, aes(x = log10(farm_lice), y = log10(wild_lice))) +
     colour = "black", size = 5) +
   stat_smooth(method = stats::lm, formula = y ~ x,
               colour = "black", alpha = 0.2) +
-  ggthemes::theme_base() 
+  ggthemes::theme_base() +
+  labs(x = "Lice on Farmed Fish (Log 10)", 
+       y = "Mean Number of Lice per Wild Juvenile Fish (Log 10)")
 
 
 

@@ -146,7 +146,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, raw_output_path,
   )
   
   # return the clean dataframe of wild lice
-  return(wild_lice_clean_dates_fixed)
+  return(wild_lice_to_save)
 }
 
 # plot_wild_lice ===============================================================
@@ -171,11 +171,9 @@ plot_wild_lice_data <- function(wild_lice, output_path) {
       year_fac = as.factor(year)) %>% 
     dplyr::rowwise() %>% 
     dplyr::mutate(
-      all_lice = sum(lep_total + cal_total, na.rm = TRUE),
-      all_motile_leps = sum(
-        lep_pam, lep_paf, lep_am, lep_af, na.rm = TRUE)
+      all_lice = sum(lep_total + cal_total, na.rm = TRUE)
     ) %>% 
-    dplyr::select(year_fac, all_lice, all_motile_leps, lep_total) %>% 
+    dplyr::select(year_fac, all_lice, lep_motiles, lep_total) %>% 
     tidyr::pivot_longer(
       cols = !year_fac,
       names_to = "lice_group",
@@ -196,12 +194,12 @@ plot_wild_lice_data <- function(wild_lice, output_path) {
   ggplot2::ggsave(
     # output path
     paste0(output_path, "wild-lice-per-fish-per-year.png"),
-    
+
     # plot object
     ggplot2::ggplot(data = wild_lice_grouped) +
-    geom_errorbar(aes(x = year_fac, ymin = lo_ci, ymax = up_ci, 
-                      group = lice_group), 
-                  width = 0, size = 1, colour = "black", 
+    geom_errorbar(aes(x = year_fac, ymin = lo_ci, ymax = up_ci,
+                      group = lice_group),
+                  width = 0, size = 1, colour = "black",
                   position = position_dodge(width = 0.8)) +
     geom_point(aes(x = year_fac, y = mean, fill = lice_group),
                colour = "black", shape = 21, size = 4,
@@ -210,7 +208,7 @@ plot_wild_lice_data <- function(wild_lice, output_path) {
     labs(
       x = "Year", y = "Average Lice per Fish (with 95% CI)"
     ) +
-    scale_fill_manual("Lice Groupings", 
+    scale_fill_manual("Lice Groupings",
                       values = c("#469990", "#000075", "#42d4f4"),
                       labels = c("All Lice", "Motile Leps", "All Leps")) +
     theme(
@@ -218,7 +216,9 @@ plot_wild_lice_data <- function(wild_lice, output_path) {
       axis.text.x = element_text(angle = 90, vjust = 0.5),
       legend.position = c(0.2, 0.7)
     ),
-    width = 8, 
+
+    # size arguments
+    width = 8,
     height = 5.5
   )
 }
@@ -536,6 +536,7 @@ clean_farm_lice <- function(old_lice, new_lice, data_output_path,
       labs(x = "Date",  y = "Values")
   )
   
+  return(data.frame(all_lice))
 }
 
 

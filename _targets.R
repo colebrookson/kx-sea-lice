@@ -16,6 +16,7 @@ library(here)
 
 source(here::here("./R/00_functions_global.R"))
 source(here::here("./R/01_functions_clean_data.R"))
+source(here::here("./R/02_functions_lice_regression.R"))
 
 tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2", 
                             "ggthemes", "wesanderson", "lubridate", "janitor",
@@ -96,13 +97,21 @@ list(
       )
     )
   ),
+  ## lice regression ===========================================================
+  tar_target(
+    wild_farm_lice_regression,
+    lice_regression(
+      wild_lice = clean_wild_lice_data,
+      farm_lice = clean_farm_lice_data,
+      mod_output_path = here::here("./outputs/lice-regression/"),
+      plot_output_path = here::here("./figs/lice/regression/")
+    )
+  ),
   ## useful plots/extra content ================================================
   tar_target(wild_lice_per_fish_plot,
              plot_wild_lice_data(
-               clean_wild_lice_data,
-               here::here(
-                 "./figs/wild-lice/"
-               )
+               wild_lice = clean_wild_lice_data,
+               output_path = here::here("./figs/wild-lice/")
              )
   )
 )
