@@ -21,7 +21,7 @@ source(here::here("./R/03_functions_mapping.R"))
 
 tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2", 
                             "ggthemes", "wesanderson", "lubridate", "janitor",
-                            "tibble", "ggrepel"))
+                            "tibble", "ggrepel", "sp"))
 options(dplyr.summarise.inform = FALSE)
 
 list(

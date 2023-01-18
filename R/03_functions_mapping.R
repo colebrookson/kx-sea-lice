@@ -23,7 +23,7 @@ clean_farm_locations <- function(farm_locations){
   #'
   
   # filter to just the farms we're concerned with in this analysis
-  farm_locs <- farm_locs %>% 
+  farm_locs <- farm_locations %>% 
     dplyr::filter(
       site %in% c("Lochalsh", "Jackson Pass", "Kid Bay", "Alexander Inlet",
                   "Sheep Passage", "Goat Cove", "Lime Point")
@@ -115,6 +115,10 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
     # use the cleaning function for this one
     clean_farm_locations(farm_locations))
   
+  # geospatial stuff
+  province = "British Columbia"
+  canada_prov = geo_data[geo_data$NAME_1 %in% province] # subset to just BC
+  
   ggplot2::ggsave(
     
     # output part
@@ -142,7 +146,7 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
                                max.overlaps = 20),
     
     # make the size 
-    height = 8, width = 5
+    height = 8, width = 7
   )
   
 }
