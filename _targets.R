@@ -17,10 +17,11 @@ library(here)
 source(here::here("./R/00_functions_global.R"))
 source(here::here("./R/01_functions_clean_data.R"))
 source(here::here("./R/02_functions_lice_regression.R"))
+source(here::here("./R/03_functions_mapping.R"))
 
 tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2", 
                             "ggthemes", "wesanderson", "lubridate", "janitor",
-                            "tibble"))
+                            "tibble", "ggrepel"))
 options(dplyr.summarise.inform = FALSE)
 
 list(
