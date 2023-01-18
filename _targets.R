@@ -27,16 +27,12 @@ list(
   ## files =====================================================================
   tar_target(
     raw_wild_lice_data,
-    here::here(
-      "./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv"
-    ),
+    here::here("./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv"),
     format = "file"
   ),
   tar_target(
     dates_to_join,
-    here::here(
-      "./data/wild-lice/raw/unique_dates_manually_edited.csv"
-    ),
+    here::here("./data/wild-lice/raw/unique_dates_manually_edited.csv"),
     format = "file"
   ),
   tar_target(
@@ -48,30 +44,27 @@ list(
   ),
   tar_target(
     farm_locations,
-    here::here(
-      "./data/farm-lice/raw/farm_location_metadata.csv"
-    ),
+    here::here("./data/farm-lice/raw/farm_location_metadata.csv"),
     format = "file"
   ),
   tar_target(
     kx_sampling,
-    here::here(
-      "./data/wild-lice/raw/kitasoo_sampling_sites.csv"
-    ),
+    here::here("./data/wild-lice/raw/kitasoo_sampling_sites.csv"),
+    format = "file"
+  ),
+  tar_target(
+    geo_spatial,
+    here::here("./data/geo-spatial/gadm36_CAN_1_sp.rds"),
     format = "file"
   ),
   tar_target(
     old_farm_lice,
-    here::here(
-      "./data/farm-lice/raw/klemtu_farm_lice_data_old.xls"
-    ),
+    here::here("./data/farm-lice/raw/klemtu_farm_lice_data_old.xls"),
     format = "file"
   ),
   tar_target(
     new_farm_lice,
-    here::here(
-      "./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx"
-    )
+    here::here("./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx")
   ),
   ## data cleaning =============================================================
   tar_target(
