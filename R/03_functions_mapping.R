@@ -86,5 +86,64 @@ clean_kitasoo_sampling <- function(kx_sampling, all_farm_locs) {
       # use this so in the plot I can make the labels different fonts
       ff = ifelse(type == "farm", "bold", "plain")
     )
+  
+  return(all_locations)
+}
+
+# make_sampling_map ============================================================
+make_sampling_map <- function(farm_locations, kx_sampling, geo_data, 
+                              output_path) {
+  #' Take the all_locations data and make the plot with the geospatial data 
+  #' 
+  #' @description The geospatial data has been pre-downloaded, so take that 
+  #' data along with the cleaned location data and 
+  #' 
+  #' @param kx_sampling file. Information on all the sampling locations in the
+  #' sampling region
+  #' @param farm_locations file. Information on all the farms in the region
+  #' @param geo_data file. The geo-spatial data rds file
+  #' @param output_path character. Where to save the plot
+  #'  
+  #' @usage clean_kitasoo_sampling(kx_sampling)
+  #' @return clean data frame 
+  #'
+  
+  # make the data that we need
+  all_locations <- clean_kitasoo_sampling(
+    # this data can be just used
+    kx_sampling, 
+    # use the cleaning function for this one
+    clean_farm_locations(farm_locations))
+  
+  ggplot2::ggsave(
+    
+    # output part
+    paste0(output_path, "study-region-map.png"),
+    
+    # make and save the actual plot
+    ggplot2::ggplot() +
+      geom_polygon(data = canada_prov,
+                   aes(x = long, y = lat, group = group),
+                   colour = "black",
+                   size = 0.01,
+                   fill = "grey65") +
+      coord_cartesian(xlim = c(-128.8, -128.1), ylim = c(52.2, 52.95)) + 
+      geom_point(data = all_locations,
+                 aes(x = long, y = lat, fill = type, shape = type),
+                 size = 4) + 
+      ggthemes::theme_base() +
+      labs(x = "Longitude (°)", y = "Latitude (°)") +
+      scale_shape_manual("Location", values = c(21, 22)) + 
+      scale_fill_manual("Location", values = c("purple", "gold2")) +
+      ggrepel::geom_text_repel(data = all_locations,
+                               aes(x = long, y = lat, 
+                                   label = site, fontface = ff),
+                               size = 3,
+                               max.overlaps = 20),
+    
+    # make the size 
+    height = 8, width = 5
+  )
+  
 }
 

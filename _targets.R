@@ -108,10 +108,20 @@ list(
     )
   ),
   ## useful plots/extra content ================================================
-  tar_target(wild_lice_per_fish_plot,
-             plot_wild_lice_data(
-               wild_lice = clean_wild_lice_data,
-               output_path = here::here("./figs/wild-lice/")
-             )
+  tar_target(
+    wild_lice_per_fish_plot,
+    plot_wild_lice_data(
+      wild_lice = clean_wild_lice_data,
+      output_path = here::here("./figs/wild-lice/")
+    )
+  ),
+  tar_target(
+    study_map,
+    make_sampling_map(
+      farm_locations = get_data_csv(farm_locations),
+      kx_sampling = get_data_csv(kx_sampling),
+      geo_data = readRDS(geo_spatial),
+      output_path = here::here("./figs/maps/")
+    )
   )
 )
