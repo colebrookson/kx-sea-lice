@@ -227,6 +227,13 @@ dplyr::group_by(year_fac) %>%
   )
 
 # farm lice ====================================================================
+library(lubridate)
+library(dplyr)
+library(janitor)
+library(tibble)
+library(readxl)
+library(here)
+library(readr)
 
 old_lice <- readxl::read_excel(
   here("./data/farm-lice/raw/klemtu_farm_lice_data_old.xls"),
@@ -235,10 +242,6 @@ new_lice <- readxl::read_excel(
   here("./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx"), 
                                sheet = 5)
 
-library(lubridate)
-library(dplyr)
-library(janitor)
-library(tibble)
 
 # remove obs with NAs in the date column 
 old_lice <- old_lice %>% 
@@ -294,8 +297,40 @@ farm_locs <- readr::read_csv(
 farm_locs <- farm_locs %>% 
   dplyr::filter(
     site %in% c("Lochalsh", "Jackson Pass", "Kid Bay", "Alexander Inlet",
-                "Sheep Passage", "Goat Cove", "Lime Point", "")
-  )
+                "Sheep Passage", "Goat Cove", "Lime Point")
+  ) %>% 
+  dplyr::select(site, latitude, longitude, area) 
+
+# manually put in cougar bay
+cougar_add <- data.frame(
+  site = "Cougar Bay",
+  latitude = 52.743511,
+  longitude = -128.587263,
+  area = 7
+)
+
+all_farm_locs <- rbind(farm_locs, cougar_add) %>% 
+  dplyr::rename(
+    lat = latitude,
+    long = longitude
+  ) %>% 
+  dplyr::mutate(type = "farm")
+
+# get the sampling area info 
+kx_sampling <- read_csv(here("./data/wild-lice/raw/kitasoo_sampling_sites.csv"))
+
+kx_sampling <- kx_sampling %>% 
+  dplyr::rename(
+    site = name,
+    long = lon
+  ) %>% 
+  dplyr::select(site, lat, long) %>% 
+  dplyr::mutate(
+    area = 7,
+    type = "sampling"
+  ) 
+
+all_locations <- rbind(all_farm_locs, kx_sampling)
 
 length(unique(old_lice %>% select(farm, month, year)))
 
