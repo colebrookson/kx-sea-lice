@@ -2,6 +2,7 @@ library(dplyr)
 library(here)
 library(readr)
 library(ggplot2)
+library(ggrepel)
 
 farm_locs <- readr::read_csv(
   here("./data/farm-lice/raw/farm_location_metadata.csv")
@@ -43,7 +44,13 @@ kx_sampling <- kx_sampling %>%
     type = "sampling"
   ) 
 
-all_locations <- rbind(all_farm_locs, kx_sampling)
+all_locations <- rbind(all_farm_locs, kx_sampling) %>% 
+  dplyr::mutate(
+    type = as.factor(type)
+  ) %>% 
+  dplyr::mutate(
+    ff = ifelse(type == "farm", "bold", "plain")
+  )
 
 # geospatial stuff
 geo_data = readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
@@ -57,8 +64,18 @@ ggplot() +
                colour = "black",
                size = 0.01,
                fill = "grey65") +
-  coord_cartesian(xlim = c(-128.5, -130.3), ylim = c(52.87, 53.0)) + 
+  coord_cartesian(xlim = c(-128.8, -128.1), ylim = c(52.2, 52.95)) + 
   geom_point(data = all_locations,
-             aes(x = long, y = lat, fill = type),
-             size = 4) 
+             aes(x = long, y = lat, fill = type, shape = type),
+             size = 4) + 
+  ggthemes::theme_base() +
+  labs(x = "Longitude (°)", y = "Latitude (°)") +
+  scale_shape_manual("Location", values = c(21, 22)) + 
+  scale_fill_manual("Location", values = c("purple", "gold2")) +
+  ggrepel::geom_text_repel(data = all_locations,
+                  aes(x = long, y = lat, 
+                      label = site, fontface = ff),
+                  size = 3,
+                  max.overlaps = 20) 
+  
 

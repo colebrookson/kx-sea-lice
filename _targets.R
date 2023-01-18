@@ -54,6 +54,13 @@ list(
     format = "file"
   ),
   tar_target(
+    kx_sampling,
+    here::here(
+      "./data/wild-lice/raw/kitasoo_sampling_sites.csv"
+    ),
+    format = "file"
+  ),
+  tar_target(
     old_farm_lice,
     here::here(
       "./data/farm-lice/raw/klemtu_farm_lice_data_old.xls"
