@@ -260,7 +260,7 @@ clean_pk_sr_data <- function(sr_data, output_path) {
     ) %>% 
     # get rid of NA's
     dplyr::filter_at(
-      vars(spawners, returns), all_vars(!is.na(.))
+      dplyr::vars(spawners, returns), dplyr::all_vars(!is.na(.))
     )
   
   # figure out how many observations per population there is
@@ -272,29 +272,27 @@ clean_pk_sr_data <- function(sr_data, output_path) {
   all_pinks_obs_per_stream <- all_pinks %>% 
     dplyr::mutate(river = as.factor(river)) %>% 
     dplyr::group_by(river) %>% 
-    dplyr::summarize(n = n()) 
+    dplyr::summarize(n = dplyr::n()) 
   
   pke_obs_per_stream <- pinks_even %>% 
     dplyr::mutate(river = as.factor(river)) %>% 
     dplyr::group_by(river) %>% 
-    dplyr::summarize(n = n())
+    dplyr::summarize(n = dplyr::n())
   
   pko_obs_per_stream <- pinks_odd %>% 
     dplyr::mutate(river = as.factor(river)) %>% 
     dplyr::group_by(river) %>% 
-    dplyr::summarize(n = n())
-  
-  min_obs <- min(summary(pke_obs_per_stream$n)[[2]], # [[2]] is 1st quartile
-                 summary(pko_obs_per_stream$n)[[2]])
+    dplyr::summarize(n = dplyr::n())
+
   
   # find the streams to exclude
   pke_streams_to_exclude <- pke_obs_per_stream %>% 
     dplyr::filter(
-      n < min_obs
+      n < 4
     ) 
   pko_streams_to_exclude <- pko_obs_per_stream %>% 
     dplyr::filter(
-      n < min_obs
+      n < 4
     ) 
   
   # note that this could be condensed but it's handy to have a more easily 

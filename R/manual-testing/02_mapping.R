@@ -7,6 +7,9 @@ library(ggrepel)
 farm_locs <- readr::read_csv(
   here("./data/farm-lice/raw/farm_location_metadata.csv")
 )
+pop_ns <- readr::read_csv(
+  here::here("./data/spawner-recruit/raw/conservation_unit_system_site.csv")
+)
 
 farm_locs <- farm_locs %>% 
   dplyr::filter(
@@ -78,4 +81,26 @@ ggplot() +
                   size = 3,
                   max.overlaps = 20) 
   
+
+
+# sr population stuff ==========================================================
+sr_pop_data <- read_csv(here("./data/spawner-recruit/clean/pink-sr-data-clean.csv"))
+sr_pop_sites <- read_csv(here::here("./data/spawner-recruit/raw/conservation_unit_system_site.csv"))
+
+# filter the sites to just the ones in our data
+sr_pop_data_area7 <- sr_pop_data %>% 
+  dplyr::filter(area == 7)
+length(unique(sr_pop_data_area7$river))
+
+sr_pop_sites <- sr_pop_sites %>% 
+  standardize_names(.) %>% 
+  dplyr::filter(system_site %in% unique(sr_pop_data_area7$river)) %>% 
+  dplyr::filter(species_qualified %in% c("PKE", "PKO"))
+
+length(unique(sr_pop_sites$system_site))
+
+
+sites_not_in_nuseds <- unique(sr_pop_data_area7$river[
+  which(sr_pop_data_area7$river %notin% sr_pop_sites$system_site)])
+
 

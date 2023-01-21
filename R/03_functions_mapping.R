@@ -151,3 +151,5 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
   
 }
 
+# clean_population_locations ===================================================
+clean_population_locations <- function(sr_pop_sites)

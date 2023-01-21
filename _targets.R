@@ -39,8 +39,7 @@ list(
   tar_target(
     sr_data,
     here::here(
-      "./data/spawner-recruit/raw/river-level-sr/NCC_streams_SR_data.csv"
-    ),
+      "./data/spawner-recruit/raw/river-level-sr/NCC_streams_SR_data.csv"),
     format = "file"
   ),
   tar_target(
@@ -65,7 +64,13 @@ list(
   ),
   tar_target(
     new_farm_lice,
-    here::here("./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx")
+    here::here("./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx"),
+    format = "file"
+  ),
+  tar_target(
+    sr_pop_sites,
+    here::here("./data/spawner-recruit/raw/conservation_unit_system_site.csv"),
+    format = "file"
   ),
   ## data cleaning =============================================================
   tar_target(
@@ -105,7 +110,7 @@ list(
       wild_lice = clean_wild_lice_data,
       farm_lice = clean_farm_lice_data,
       mod_output_path = here::here("./outputs/lice-regression/"),
-      plot_output_path = here::here("./figs/lice/regression/")
+      plot_output_path = here::here("./figs/regression/")
     )
   ),
   ## useful plots/extra content ================================================

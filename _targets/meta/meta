@@ -14,7 +14,7 @@ farm_locations|stem|7c9aa8ec7801ab3a|0a5855a37f7f0433|c3b5fc02cdc369c1|-18841691
 geo_spatial|stem|6d1f11cf41d68186|9a8037910cf09df6|c3b5fc02cdc369c1|-868371640|/home/cole/Github/kx-sea-lice/./data/geo-spatial/gadm36_CAN_1_sp.rds|t19061.3316046626s|22c665b2510b4b7b|19080844|file|local|vector|||0.415||
 get_data_csv|function|f55fbb93cbb1e4ef|||||||||||||||
 kx_sampling|stem|0b2767ae80dff6ba|89ac9ae29ece3593|c3b5fc02cdc369c1|-1690534363|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/kitasoo_sampling_sites.csv|t19340.8147421333s|6780c20ed7ba8483|607|file|local|vector|||0.001||
-lice_regression|function|21401d3602c73bdf|||||||||||||||
+lice_regression|function|1a2b5cd910599cc4|||||||||||||||
 make_sampling_map|function|ce28d406f2dacc3f|||||||||||||||
 new_farm_lice|stem|b78ffb87e9b3031d|64cdd37e6d0d0f8e|c3b5fc02cdc369c1|1896230505||t19375.8326687627s|24d52ebf1535bba2|123|rds|local|vector|||0.001||
 old_farm_lice|stem|230a0a0eeaa66b1e|8ddef53d1c163c9a|c3b5fc02cdc369c1|-860842241|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19371.1554192771s|e2b8c6da6272f3c0|6212096|file|local|vector|||0||
@@ -24,5 +24,5 @@ sr_data|stem|dc499a6be1fc5456|9656ea9207ccd9fb|c3b5fc02cdc369c1|-1452995489|/hom
 standardize_names|function|5b63229e8588d8eb|||||||||||||||
 std_err|function|3b26304b718e3898|||||||||||||||
 study_map|stem|caff555517658349|9c6910591885d4c8|dc2d79e88bc2e62a|934061817||t19375.8344589801s|bf0d8caacacad815|112|rds|local|vector|||12.324||
-wild_farm_lice_regression|stem|dce36d6e28518782|69b06b3554fd84ed|c70447b0d463bbb8|-1129575649||t19375.8339803265s|758d7d51407f572d|117|rds|local|vector|||3.626||
+wild_farm_lice_regression|stem|388a9f3ff11fb7df|8bf602031d81ebd5|17c47c69b297c214|-1129575649||t19378.8829003204s|303de8fdb625d7f0|113|rds|local|vector|||8.149||
 wild_lice_per_fish_plot|stem|49fc3cf67f9dce34|4aa359f68718bed0|ad6c6249c66f0a8b|1285149232||t19375.8339383361s|758d7d51407f572d|117|rds|local|vector|||2.389||
