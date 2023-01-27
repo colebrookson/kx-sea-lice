@@ -87,6 +87,7 @@ ggplot() +
 sr_pop_data <- read_csv(here("./data/spawner-recruit/clean/pink-sr-data-clean.csv"))
 sr_pop_sites <- read_csv(here::here("./data/spawner-recruit/raw/conservation_unit_system_site.csv"))
 farm_data <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
+farm_locs <- read_csv(here("./data/farm-lice/clean/clean-farm-locs.csv"))
 
 # filter the sites to just the ones in our data
 sr_pop_data_area7 <- sr_pop_data %>% 
@@ -115,7 +116,21 @@ length(unique(sr_pop_sites_filter$system_site))
 sites_not_in_nuseds <- unique(sr_pop_data_area7$river[
   which(sr_pop_data_area7$river %notin% sr_pop_sites_filter$system_site)])
 
+
+farm_data <- farm_data %>% 
+  dplyr::mutate(
+    farm = dplyr::case_when(
+      farm == "Goat" ~ "Goat Cove",
+      farm == "Sheep Pass" ~ "Sheep Passage",
+      farm == "Lime" ~ "Lime Point",
+      farm == "Alexander" ~ "Alexander Inlet",
+      TRUE ~ as.character(farm)
+    )
+  )
+
+
 for(yr in 2005:2020) {
+  
   # get the farms in that time period
   farms_temp <- (farm_data %>% 
     dplyr::filter(year == yr) %>% 
@@ -123,6 +138,20 @@ for(yr in 2005:2020) {
     dplyr::group_by(farm) %>% 
     dplyr::summarize(inventory = mean(mean_inventory, na.rm = TRUE)))$farm
   
+  farm_locs_temp <- farm_locs %>% 
+    dplyr::filter(site %in% farms_temp) %>% 
+    dplyr::select(site, lat, long)
+  
+  # get the populations in that year
+  sr_pop_temp <- sr_pop_data_area7 %>% 
+    # brood year of yr will pass fish farms in year + 1
+    dplyr::filter(brood_year == (yr + 1))
+  # subset to just the locations that were shown to be present in that year
+  site_year_temp <- sr_pop_sites_filter %>% 
+    dplyr::filter(system_site %in% unique(sr_pop_temp$river)) %>% 
+    dplyr::select(system_site, y_lat, x_longt) %>% 
+    unique() %>% 
+    dplyr::rename(site = system_site, lat = y_lat, long = x_longt)
   
 }
 
