@@ -89,18 +89,33 @@ sr_pop_sites <- read_csv(here::here("./data/spawner-recruit/raw/conservation_uni
 
 # filter the sites to just the ones in our data
 sr_pop_data_area7 <- sr_pop_data %>% 
-  dplyr::filter(area == 7)
+  dplyr::filter(area == 7) %>% 
+  dplyr::mutate(
+    # NOTE - there are some of these that I do have location data for, they're 
+    # just under a different name, so take care of those here. 
+    river = dplyr::case_when(
+      river == "COOPER INLET-FANNIE COVE CREEKS" ~ "COOPER INLET CREEKS",
+      river == "KITASOO CREEK" ~ "KITASU CREEK",
+      river == "KILDIDT LAGOON CREEK #2" ~ "KILDIDT LAGOON #2 CREEK",
+      river == "COOPER INLET-FANNIE COVE LH CREEK" ~ "COOPER INLET CREEKS",
+      TRUE ~ as.character(river)
+    )
+  )
 length(unique(sr_pop_data_area7$river))
 
-sr_pop_sites <- sr_pop_sites %>% 
+sr_pop_sites_filter <- sr_pop_sites %>% 
   standardize_names(.) %>% 
   dplyr::filter(system_site %in% unique(sr_pop_data_area7$river)) %>% 
   dplyr::filter(species_qualified %in% c("PKE", "PKO"))
 
-length(unique(sr_pop_sites$system_site))
+length(unique(sr_pop_sites_filter$system_site))
 
 
 sites_not_in_nuseds <- unique(sr_pop_data_area7$river[
-  which(sr_pop_data_area7$river %notin% sr_pop_sites$system_site)])
+  which(sr_pop_data_area7$river %notin% sr_pop_sites_filter$system_site)])
 
 
+
+  
+  
+  
