@@ -10,13 +10,15 @@
 #'
 
 # clean_farm_locations =========================================================
-clean_farm_locations <- function(farm_locations){
+clean_farm_locations <- function(farm_locations, output_path){
   #' Take data on the farm locations and clean and prepare them to be used
   #' 
   #' @description Since the data on the farm locations isn't perfect (there's
   #' one farm missing), do that cleaning manually
   #' 
   #' @param farm_locations file. Information on all the farms in the region
+  #' @param output_path character. Location to write out the locations of 
+  #' the farms 
   #'  
   #' @usage clean_farm_locations(farm_locations)
   #' @return clean data frame 
@@ -45,6 +47,8 @@ clean_farm_locations <- function(farm_locations){
       long = longitude
     ) %>% 
     dplyr::mutate(type = "farm")
+  
+  readr::write_csv(all_farm_locs, paste0(output_path, "clean-farm-locs.csv"))
   
   return(all_farm_locs)
 }
@@ -92,7 +96,7 @@ clean_kitasoo_sampling <- function(kx_sampling, all_farm_locs) {
 
 # make_sampling_map ============================================================
 make_sampling_map <- function(farm_locations, kx_sampling, geo_data, 
-                              output_path) {
+                              output_path, farm_path) {
   #' Take the all_locations data and make the plot with the geospatial data 
   #' 
   #' @description The geospatial data has been pre-downloaded, so take that 
@@ -103,6 +107,7 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
   #' @param farm_locations file. Information on all the farms in the region
   #' @param geo_data file. The geo-spatial data rds file
   #' @param output_path character. Where to save the plot
+  #' @param farm_path character. Where to save the data of the farm locations
   #'  
   #' @usage clean_kitasoo_sampling(kx_sampling)
   #' @return clean data frame 
@@ -113,7 +118,7 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
     # this data can be just used
     kx_sampling, 
     # use the cleaning function for this one
-    clean_farm_locations(farm_locations))
+    clean_farm_locations(farm_locations, farm_path))
   
   # geospatial stuff
   province = "British Columbia"
@@ -152,4 +157,4 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
 }
 
 # clean_population_locations ===================================================
-clean_population_locations <- function(sr_pop_sites)
+# clean_population_locations <- function(sr_pop_sites)

@@ -1,28 +1,29 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
 %notin%|function|c5de772db35799a7|||||||||||||||
 clean_farm_lice|function|d837905b1f149909|||||||||||||||
-clean_farm_lice_data|stem|679534c0b1f6f4a4|ab58216727568033|344543f2fa4cc0fc|1445379850||t19375.833897179s|c1b59600a5757d63|11098|rds|local|vector|||0.714|Expecting numeric in H1219  R1219C8 got no counts fish transfers. NAs introduced by coercion|
+clean_farm_lice_data|stem|b9fda8306c714dda|ab58216727568033|ff99455c7be578ba|1445379850||t19384.7047553937s|c1b59600a5757d63|11098|rds|local|vector|||4.034|Expecting numeric in H1219  R1219C8 got no counts fish transfers. NAs introduced by coercion|
 clean_farm_loc_data|function|0a5258107be7135b|||||||||||||||
-clean_farm_locations|function|198336f025ab9fd8|||||||||||||||
+clean_farm_locations|function|46431a854a18bd08|||||||||||||||
 clean_kitasoo_sampling|function|2d712ed9aa26ba3b|||||||||||||||
-clean_pink_spawner_recruit_data|stem|4dbb6333041555a7|8134c724a125a19e|668e6837cde0eaac|1143075027||t19375.8326774663s|dce8f9ec65542dd4|238185|rds|local|vector|||0.668||
-clean_pk_sr_data|function|7ed45cf34910dd02|||||||||||||||
+clean_pink_spawner_recruit_data|stem|71517624ee919da9|8134c724a125a19e|f65dfbdadd8f411f|1143075027||t19384.703974838s|dce8f9ec65542dd4|238185|rds|local|vector|||3.178||
+clean_pk_sr_data|function|dec80c5e107515c4|||||||||||||||
 clean_wild_lice|function|ead71563ece61bb3|||||||||||||||
-clean_wild_lice_data|stem|becf4e4140395eae|b46e97954db35645|717aad8fe02c78d7|-13439032||t19375.8339106048s|fa5a00bd9557323a|120242|rds|local|vector|||1.089|One or more parsing issues, see problems for details|
-dates_to_join|stem|1c0be8222a6c269f|ebd1dfe2658f8cc1|c3b5fc02cdc369c1|235570657|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/unique_dates_manually_edited.csv|t19369.1463297283s|8b9a29a5ea833366|9400|file|local|vector|||0.177||
-farm_locations|stem|7c9aa8ec7801ab3a|0a5855a37f7f0433|c3b5fc02cdc369c1|-1884169169|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/farm_location_metadata.csv|t19340.1633181332s|39911213ec660508|5486|file|local|vector|||0.176||
-geo_spatial|stem|6d1f11cf41d68186|9a8037910cf09df6|c3b5fc02cdc369c1|-868371640|/home/cole/Github/kx-sea-lice/./data/geo-spatial/gadm36_CAN_1_sp.rds|t19061.3316046626s|22c665b2510b4b7b|19080844|file|local|vector|||0.415||
+clean_wild_lice_data|stem|5b5bf7b31998a0fd|b46e97954db35645|717aad8fe02c78d7|-13439032||t19384.7048283567s|fa5a00bd9557323a|120242|rds|local|vector|||5.924|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat|
+dates_to_join|stem|1c0be8222a6c269f|ebd1dfe2658f8cc1|c3b5fc02cdc369c1|235570657|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/unique_dates_manually_edited.csv|t19373.7156780571s|8b9a29a5ea833366|9400|file|local|vector|||0.177||
+farm_locations|stem|7c9aa8ec7801ab3a|0a5855a37f7f0433|c3b5fc02cdc369c1|-1884169169|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/farm_location_metadata.csv|t19367.7948639884s|39911213ec660508|5486|file|local|vector|||0.176||
+geo_spatial|stem|6d1f11cf41d68186|9a8037910cf09df6|c3b5fc02cdc369c1|-868371640|/home/cole/Github/kx-sea-lice/./data/geo-spatial/gadm36_CAN_1_sp.rds|t19384.670100299s|22c665b2510b4b7b|19080844|file|local|vector|||0.415||
 get_data_csv|function|f55fbb93cbb1e4ef|||||||||||||||
-kx_sampling|stem|0b2767ae80dff6ba|89ac9ae29ece3593|c3b5fc02cdc369c1|-1690534363|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/kitasoo_sampling_sites.csv|t19340.8147421333s|6780c20ed7ba8483|607|file|local|vector|||0.001||
+kx_sampling|stem|0b2767ae80dff6ba|89ac9ae29ece3593|c3b5fc02cdc369c1|-1690534363|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/kitasoo_sampling_sites.csv|t19340.6718442613s|6780c20ed7ba8483|607|file|local|vector|||0.001||
 lice_regression|function|1a2b5cd910599cc4|||||||||||||||
-make_sampling_map|function|ce28d406f2dacc3f|||||||||||||||
-new_farm_lice|stem|b78ffb87e9b3031d|64cdd37e6d0d0f8e|c3b5fc02cdc369c1|1896230505||t19375.8326687627s|24d52ebf1535bba2|123|rds|local|vector|||0.001||
-old_farm_lice|stem|230a0a0eeaa66b1e|8ddef53d1c163c9a|c3b5fc02cdc369c1|-860842241|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19371.1554192771s|e2b8c6da6272f3c0|6212096|file|local|vector|||0||
+make_sampling_map|function|d4846185b99af2e2|||||||||||||||
+new_farm_lice|stem|429ddc53ca8d4c53|64cdd37e6d0d0f8e|c3b5fc02cdc369c1|1896230505|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx|t19367.7948644977s|13cadd82fda31a7e|1394218|file|local|vector|||3.089||
+old_farm_lice|stem|230a0a0eeaa66b1e|8ddef53d1c163c9a|c3b5fc02cdc369c1|-860842241|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19373.7156761587s|e2b8c6da6272f3c0|6212096|file|local|vector|||0||
 plot_wild_lice_data|function|629373191331b595|||||||||||||||
-raw_wild_lice_data|stem|7d7e0462623be403|c00b1b91feb5c5a6|c3b5fc02cdc369c1|1321957318|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv|t19365.8983720276s|db325842a66b0784|3469616|file|local|vector|||0.001||
-sr_data|stem|dc499a6be1fc5456|9656ea9207ccd9fb|c3b5fc02cdc369c1|-1452995489|/home/cole/Github/kx-sea-lice/./data/spawner-recruit/raw/river-level-sr/NCC_streams_SR_data.csv|t18971.5809722222s|36f04190578cee74|19557605|file|local|vector|||0.173||
+raw_wild_lice_data|stem|7d7e0462623be403|c00b1b91feb5c5a6|c3b5fc02cdc369c1|1321957318|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv|t19367.7948717196s|db325842a66b0784|3469616|file|local|vector|||0.001||
+sr_data|stem|dc499a6be1fc5456|9656ea9207ccd9fb|c3b5fc02cdc369c1|-1452995489|/home/cole/Github/kx-sea-lice/./data/spawner-recruit/raw/river-level-sr/NCC_streams_SR_data.csv|t19367.794868479s|36f04190578cee74|19557605|file|local|vector|||0.173||
+sr_pop_sites|stem|08098f29dab02d6b|3e188540ea438f58|c3b5fc02cdc369c1|406721660|/home/cole/Github/kx-sea-lice/./data/spawner-recruit/raw/conservation_unit_system_site.csv|t19384.6701033082s|6df27c2a6b4a7b07|3353373|file|local|vector|||0.004||
 standardize_names|function|5b63229e8588d8eb|||||||||||||||
 std_err|function|3b26304b718e3898|||||||||||||||
-study_map|stem|caff555517658349|9c6910591885d4c8|dc2d79e88bc2e62a|934061817||t19375.8344589801s|bf0d8caacacad815|112|rds|local|vector|||12.324||
-wild_farm_lice_regression|stem|388a9f3ff11fb7df|8bf602031d81ebd5|17c47c69b297c214|-1129575649||t19378.8829003204s|303de8fdb625d7f0|113|rds|local|vector|||8.149||
-wild_lice_per_fish_plot|stem|49fc3cf67f9dce34|4aa359f68718bed0|ad6c6249c66f0a8b|1285149232||t19375.8339383361s|758d7d51407f572d|117|rds|local|vector|||2.389||
+study_map|stem|31ba2bd45a97c9f3|e289be8a48f3d687|4b51f87c48b7968c|934061817||t19384.7047082641s|303de8fdb625d7f0|113|rds|local|vector|||63.333||
+wild_farm_lice_regression|stem|722bdebb3346bf78|8bf602031d81ebd5|5f8687312d27ef29|-1129575649||t19384.7053984496s|303de8fdb625d7f0|113|rds|local|vector|||37.513||
+wild_lice_per_fish_plot|stem|42e13a49b2bc6698|4aa359f68718bed0|9e285c52c39095c8|1285149232||t19384.7049639123s|758d7d51407f572d|117|rds|local|vector|||11.69||

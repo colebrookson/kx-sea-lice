@@ -86,6 +86,7 @@ ggplot() +
 # sr population stuff ==========================================================
 sr_pop_data <- read_csv(here("./data/spawner-recruit/clean/pink-sr-data-clean.csv"))
 sr_pop_sites <- read_csv(here::here("./data/spawner-recruit/raw/conservation_unit_system_site.csv"))
+farm_data <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
 
 # filter the sites to just the ones in our data
 sr_pop_data_area7 <- sr_pop_data %>% 
@@ -114,7 +115,16 @@ length(unique(sr_pop_sites_filter$system_site))
 sites_not_in_nuseds <- unique(sr_pop_data_area7$river[
   which(sr_pop_data_area7$river %notin% sr_pop_sites_filter$system_site)])
 
-
+for(yr in 2005:2020) {
+  # get the farms in that time period
+  farms_temp <- (farm_data %>% 
+    dplyr::filter(year == yr) %>% 
+    dplyr::filter(month %in% c(3, 4)) %>% 
+    dplyr::group_by(farm) %>% 
+    dplyr::summarize(inventory = mean(mean_inventory, na.rm = TRUE)))$farm
+  
+  
+}
 
   
   

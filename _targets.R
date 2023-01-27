@@ -127,7 +127,8 @@ list(
       farm_locations = get_data_csv(farm_locations),
       kx_sampling = get_data_csv(kx_sampling),
       geo_data = readRDS(geo_spatial),
-      output_path = here::here("./figs/maps/")
+      output_path = here::here("./figs/maps/"),
+      farm_path = here::here("./data/farm-lice/clean/")
     )
   )
 )
