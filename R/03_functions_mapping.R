@@ -134,7 +134,7 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
       geom_polygon(data = canada_prov,
                    aes(x = long, y = lat, group = group),
                    colour = "black",
-                   size = 0.01,
+                   linewidth = 0.01,
                    fill = "grey65") +
       coord_cartesian(xlim = c(-128.8, -128.1), ylim = c(52.2, 52.95)) + 
       geom_point(data = all_locations,

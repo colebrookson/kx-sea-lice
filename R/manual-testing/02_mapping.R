@@ -65,7 +65,7 @@ ggplot() +
   geom_polygon(data = canada_prov,
                aes(x = long, y = lat, group = group),
                colour = "black",
-               size = 0.01,
+               linewidth = 0.01,
                fill = "grey65") +
   coord_cartesian(xlim = c(-128.8, -128.1), ylim = c(52.2, 52.95)) + 
   geom_point(data = all_locations,
@@ -128,6 +128,13 @@ farm_data <- farm_data %>%
     )
   )
 
+site_data_by_year <- data.frame(
+  site_name = as.character(),
+  brood_year = as.numeric(),
+  lat = as.numeric(),
+  long = as.numeric(),
+  site_num = as.numeric()
+)
 
 for(yr in 2005:2020) {
   
@@ -145,13 +152,59 @@ for(yr in 2005:2020) {
   # get the populations in that year
   sr_pop_temp <- sr_pop_data_area7 %>% 
     # brood year of yr will pass fish farms in year + 1
-    dplyr::filter(brood_year == (yr + 1))
+    dplyr::filter(brood_year == (yr - 1))
   # subset to just the locations that were shown to be present in that year
   site_year_temp <- sr_pop_sites_filter %>% 
     dplyr::filter(system_site %in% unique(sr_pop_temp$river)) %>% 
     dplyr::select(system_site, y_lat, x_longt) %>% 
     unique() %>% 
-    dplyr::rename(site = system_site, lat = y_lat, long = x_longt)
+    dplyr::rename(site_name = system_site, lat = y_lat, long = x_longt) %>% 
+    dplyr::mutate(site_num = seq_len(nrow(.)),
+                  brood_year = unique(sr_pop_temp$brood_year)) %>% 
+    dplyr::select(site_name, brood_year, lat, long, site_num)
+  # keep these data in the larger dataframe to refer back to
+  site_data_by_year <- rbind(
+    site_data_by_year,
+    site_year_temp
+  )
+  
+  # put the farm locations and the population locations together
+  locs_temp <- rbind(
+    (farm_locs_temp %>% 
+      dplyr::mutate(type = "farm")),
+    (site_year_temp %>% 
+      dplyr::mutate(type = "population") %>% 
+    dplyr::mutate(type = as.factor(type),
+                  site = as.character(site_num)) %>% 
+    dplyr::select(site, lat, long, type))
+    ) %>%
+    # this is being done to the whole resulting df
+    dplyr::mutate(
+      ff = ifelse(type == "farm", "bold", "plain")
+    )
+  
+  ggplot() +
+    geom_polygon(data = canada_prov,
+                 aes(x = long, y = lat, group = group),
+                 colour = "black",
+                 linewidth = 0.01,
+                 fill = "grey65") +
+    coord_cartesian(xlim = c(-128.8, -127.75), ylim = c(52, 53)) + 
+    geom_point(data = locs_temp,
+               aes(x = long, y = lat, fill = type, shape = type),
+               size = 2) + 
+    ggthemes::theme_base() +
+    labs(x = "Longitude (°)", y = "Latitude (°)",
+         title = paste0(yr, ", brood year ", (yr-1))) +
+    scale_shape_manual("Location", values = c(21, 22)) + 
+    scale_fill_manual("Location", values = c("purple", "gold2")) +
+    ggrepel::geom_text_repel(data = locs_temp,
+                             aes(x = long, y = lat, 
+                                 label = site, fontface = ff),
+                             size = 3,
+                             max.overlaps = 20)
+  
+  ggasve()
   
 }
 
