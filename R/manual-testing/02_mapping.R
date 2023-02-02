@@ -204,7 +204,7 @@ for(yr in 2005:2020) {
                              size = 3,
                              max.overlaps = 20)
   
-  ggasve()
+  ggasve(paste0(output_path, "map-by-year-", yr, ".png"))
   
 }
 

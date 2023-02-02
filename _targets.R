@@ -103,6 +103,13 @@ list(
       )
     )
   ),
+  tar_target(
+    clean_farm_locs,
+    clean_farm_locations(
+      farm_locations = get_data_csv(farm_locations),
+      output_path = here::here("./data/farm-lice/clean/")
+    )
+  ),
   ## lice regression ===========================================================
   tar_target(
     wild_farm_lice_regression,
@@ -129,6 +136,18 @@ list(
       geo_data = readRDS(geo_spatial),
       output_path = here::here("./figs/maps/"),
       farm_path = here::here("./data/farm-lice/clean/")
+    )
+  ),
+  tar_target(
+    yearly_popn_exposure_maps,
+    make_yearly_popn_maps(
+      sr_pop_data = clean_pink_spawner_recruit_data,
+      sr_pop_sites = get_data_csv(sr_pop_sites),
+      geo_data = readRDS(geo_spatial),
+      farm_data = clean_farm_lice_data,
+      farm_locs = clean_farm_locs,
+      fig_output = here::here("./figs/maps/yearly-pop-maps/"),
+      data_output = here::here("./data/spawner-recruit/clean")
     )
   )
 )

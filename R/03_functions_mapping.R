@@ -156,5 +156,170 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
   
 }
 
+# make_yearly_popn_maps ========================================================
+make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
+                                  farm_data, farm_locs, fig_output, 
+                                  data_output) {
+  #' Maps of each year's population and farm co-occurrence
+  #' 
+  #' @description To determine which farms are high, medium, or low risk, we
+  #' need yearly maps to show which populations might pass farms
+  #' 
+  #' @param sr_pop_data dataframe. The cleaned pink SR data
+  #' @param sr_pop_sites file. Information on all the populations locations
+  #' @param geo_data file. The geo-spatial data rds file
+  #' @param farm_data dataframe. Data of the info for the different farms
+  #' @param farm_locs dataframe. The cleaned data of the different 
+  #' locations of the farms
+  #' @param fig_output character. Where to save the figure files
+  #' @param data_output character. Where to save the data files 
+  #'  
+  #' @usage make_yearly_popn_maps(sr_pop_data, sr_pop_sites, geo_data,
+  #' farm_data, clean_farm_locs, output_path)
+  #' @return NA
+  #'
+  
+  # geospatial stuff
+  province = "British Columbia"
+  canada_prov = geo_data[geo_data$NAME_1 %in% province] # subset to just BC
+  
+  # filter the sites to just the ones in our data
+  sr_pop_data_area7 <- sr_pop_data %>% 
+    dplyr::filter(area == 7) %>% 
+    dplyr::mutate(
+      # NOTE - there are some of these that I do have location data for, they're 
+      # just under a different name, so take care of those here. 
+      river = dplyr::case_when(
+        river == "COOPER INLET-FANNIE COVE CREEKS" ~ "COOPER INLET CREEKS",
+        river == "KITASOO CREEK" ~ "KITASU CREEK",
+        river == "KILDIDT LAGOON CREEK #2" ~ "KILDIDT LAGOON #2 CREEK",
+        river == "COOPER INLET-FANNIE COVE LH CREEK" ~ "COOPER INLET CREEKS",
+        TRUE ~ as.character(river)
+      )
+    )
+
+    # clean up the SR data to keep the species we want
+  sr_pop_sites_filter <- sr_pop_sites %>% 
+    standardize_names(.) %>% 
+    dplyr::filter(system_site %in% unique(sr_pop_data_area7$river)) %>% 
+    dplyr::filter(species_qualified %in% c("PKE", "PKO"))
+
+  # look at the sites that we can't find in NuSEDS
+  sites_not_in_nuseds <- data.frame(
+    rivers = unique(sr_pop_data_area7$river[
+    which(sr_pop_data_area7$river %notin% sr_pop_sites_filter$system_site)]))
+  readr::write_csv(sites_not_in_nuseds,
+                   paste0(data_output, "sites-not-in-NuSEDS.csv"))
+  
+  # clean the farm data names so they match up between the dataframe
+  farm_data <- farm_data %>% 
+    dplyr::mutate(
+      farm = dplyr::case_when(
+        farm == "Goat" ~ "Goat Cove",
+        farm == "Sheep Pass" ~ "Sheep Passage",
+        farm == "Lime" ~ "Lime Point",
+        farm == "Alexander" ~ "Alexander Inlet",
+        TRUE ~ as.character(farm)
+      )
+    )
+  
+  # this is an empty dataframe to pack 
+  site_data_by_year <- data.frame(
+    site_name = as.character(),
+    brood_year = as.numeric(),
+    lat = as.numeric(),
+    long = as.numeric(),
+    site_num = as.numeric()
+  )
+  
+  for(yr in 2005:2020) {
+    
+    # get the farms in that time period
+    farms_temp <- (farm_data %>% 
+                     dplyr::filter(year == yr) %>% 
+                     dplyr::filter(month %in% c(3, 4)) %>% 
+                     dplyr::group_by(farm) %>% 
+                     dplyr::summarize(inventory = 
+                                        mean(mean_inventory, 
+                                             na.rm = TRUE)))$farm
+    
+    farm_locs_temp <- farm_locs %>% 
+      dplyr::filter(site %in% farms_temp) %>% 
+      dplyr::select(site, lat, long)
+    
+    # get the populations in that year
+    sr_pop_temp <- sr_pop_data_area7 %>% 
+      # brood year of yr will pass fish farms in year + 1
+      dplyr::filter(brood_year == (yr - 1))
+    # subset to just the locations that were shown to be present in that year
+    site_year_temp <- sr_pop_sites_filter %>% 
+      dplyr::filter(system_site %in% unique(sr_pop_temp$river)) %>% 
+      dplyr::select(system_site, y_lat, x_longt) %>% 
+      unique() %>% 
+      dplyr::rename(site_name = system_site, lat = y_lat, long = x_longt) %>% 
+      dplyr::mutate(site_num = seq_len(nrow(.)),
+                    brood_year = unique(sr_pop_temp$brood_year)) %>% 
+      dplyr::select(site_name, brood_year, lat, long, site_num)
+    # keep these data in the larger dataframe to refer back to
+    site_data_by_year <- rbind(
+      site_data_by_year,
+      site_year_temp
+    )
+    
+    # put the farm locations and the population locations together
+    locs_temp <- rbind(
+      (farm_locs_temp %>% 
+         dplyr::mutate(type = "farm")),
+      (site_year_temp %>% 
+         dplyr::mutate(type = "population") %>% 
+         dplyr::mutate(type = as.factor(type),
+                       site = as.character(site_num)) %>% 
+         dplyr::select(site, lat, long, type))
+    ) %>%
+      # this is being done to the whole resulting df
+      dplyr::mutate(
+        ff = ifelse(type == "farm", "bold", "plain")
+      )
+    
+    # make and save the dataframe
+    ggplot2::ggsave( 
+      
+      # output path
+      paste0(fig_output, "map-by-year-", yr, ".png"),
+    
+      # make the plot
+      ggplot2::ggplot() +
+        geom_polygon(data = canada_prov,
+                     aes(x = long, y = lat, group = group),
+                     colour = "black",
+                     linewidth = 0.01,
+                     fill = "grey65") +
+        coord_cartesian(xlim = c(-128.8, -127.75), ylim = c(52, 53)) + 
+        geom_point(data = locs_temp,
+                   aes(x = long, y = lat, fill = type, shape = type),
+                   size = 2) + 
+        ggthemes::theme_base() +
+        labs(x = "Longitude (°)", y = "Latitude (°)",
+             title = paste0(yr, ", brood year ", (yr-1))) +
+        scale_shape_manual("Location", values = c(21, 22)) + 
+        scale_fill_manual("Location", values = c("purple", "gold2")) +
+        ggrepel::geom_text_repel(data = locs_temp,
+                                 aes(x = long, y = lat, 
+                                     label = site, fontface = ff),
+                                 size = 3,
+                                 max.overlaps = 20)
+    )
+    
+  }
+  
+  # write out the data with the corresponding names/numbers for each year
+  readr::write_csv(
+    site_data_by_year,
+    paste0(data_output, "site-name-combos-for-exposed-populations.csv")
+  )
+  
+  
+}
+
 # clean_population_locations ===================================================
 # clean_population_locations <- function(sr_pop_sites)
