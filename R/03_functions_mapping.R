@@ -151,7 +151,7 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
                                max.overlaps = 20),
     
     # make the size 
-    height = 8, width = 7
+    height = 8, width = 9
   )
   
 }
@@ -307,7 +307,10 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
                                  aes(x = long, y = lat, 
                                      label = site, fontface = ff),
                                  size = 3,
-                                 max.overlaps = 20)
+                                 max.overlaps = 20),
+      
+      # make the size 
+      height = 8, width = 9
     )
     
   }

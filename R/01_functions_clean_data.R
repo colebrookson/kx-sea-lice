@@ -516,7 +516,9 @@ clean_farm_lice <- function(old_lice, new_lice, data_output_path,
       theme(
         axis.text.x = element_text(angle = 90, vjust = 0.5)
       ) + 
-      labs(x = "Date",  y = "Values")
+      labs(x = "Date",  y = "Values"),
+    
+    height = 6, width = 10
   )
   
   return(data.frame(all_lice))
