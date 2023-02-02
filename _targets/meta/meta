@@ -29,4 +29,4 @@ std_err|function|3b26304b718e3898|||||||||||||||
 study_map|stem|caff555517658349|e289be8a48f3d687|411e2a9d69fa8675|934061817||t19389.9782390967s|bf0d8caacacad815|112|rds|local|vector|||8.714||
 wild_farm_lice_regression|stem|388a9f3ff11fb7df|8bf602031d81ebd5|17c47c69b297c214|-1129575649||t19390.0223076903s|303de8fdb625d7f0|113|rds|local|vector|||7.805||
 wild_lice_per_fish_plot|stem|49fc3cf67f9dce34|4aa359f68718bed0|ad6c6249c66f0a8b|1285149232||t19390.0222172745s|758d7d51407f572d|117|rds|local|vector|||2.473|1m22mUsing size aesthetic for lines was deprecated in ggplot2 3.4.0.36mℹ39m Please use linewidth instead.. 1m22mThe size argument of element_rect is deprecated as of ggplot2 3.4.0.36mℹ39m Please use the linewidth argument instead.|
-yearly_popn_exposure_maps|stem|ea082b46061c91e3|437041579ec97ec8|9c56c3756f5eee98|1227065649||t19390.0221881544s|02288f1a76e9bb39|1940|rds|local|vector|||101.901||
+yearly_popn_exposure_maps|stem|ea082b46061c91e3|9e84c5929b6c1c01|9c56c3756f5eee98|1227065649||t19390.0255855776s|02288f1a76e9bb39|1940|rds|local|vector|||101.529||

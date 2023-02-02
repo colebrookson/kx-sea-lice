@@ -147,7 +147,7 @@ list(
       farm_data = clean_farm_lice_data,
       farm_locs = clean_farm_locs,
       fig_output = here::here("./figs/maps/yearly-pop-maps/"),
-      data_output = here::here("./data/spawner-recruit/clean")
+      data_output = here::here("./data/spawner-recruit/clean/")
     )
   )
 )
