@@ -147,13 +147,13 @@ x = pink_sr %>%
 all_areas <- unique(pink_sr$area)
 
 # setting the hypothetical value of c
-for(c in seq(0, 1, 0.01)) {
+for(c in seq(0, 1, 0.1)) {
   
   # set up list for storage
   c_list <- vector(mode = "list", length = 1000)
   
   # number of times this happens
-  for(i in 1:1000) {
+  for(i in 1:10) {
     
     start_time <- Sys.time()
     # make dataframe to fill
@@ -216,7 +216,7 @@ for(c in seq(0, 1, 0.01)) {
     end_time - start_time
   }
 }
-
+saveRDS(c_list, here("./outputs/power-analysis/list-of-dfs.rds"))
 
 
 summary(null_model)
@@ -279,11 +279,20 @@ for(c in seq(0, 1, 0.01)) {
               # set population level density dependence
               b_i_vals[[paste0("spawners:river", 
                                # get the population on hand
-                               temp_df[[row, "river"]])]]
+                               c_level_df[which(c_level_df$brood_year == 
+                                                  as.character(curr_year) & 
+                                                  c_level_df$area == curr_area), 
+                                          ][[row, "river"]])]]
               # number of spawners
-              * temp_df[[row, "spawners"]]) -
+              * c_level_df[which(c_level_df$brood_year == 
+                                   as.character(curr_year) & 
+                                   c_level_df$area == curr_area), 
+                           ][[row, "spawners"]]) -
             # the c term and lice goes here
-            (c * temp_df[[row, "lice"]]) +
+            (c * c_level_df[which(c_level_df$brood_year == 
+                                    as.character(curr_year) & 
+                                    c_level_df$area == curr_area), 
+                            ][[row, "lice"]]) +
             # yearly variation
             year_re +
             # area within year variation
