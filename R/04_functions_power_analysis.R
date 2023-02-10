@@ -58,3 +58,10 @@ ggplot(data = df) +
   geom_vline(aes(xintercept = -3.5), colour = "red", linetype = "dashed") +
   geom_hline(aes(yintercept = df$power[which(df$c == -3.5)]), colour = "red",
              linetype = "dashed") #### 0.13
+
+
+
+
+
+
+

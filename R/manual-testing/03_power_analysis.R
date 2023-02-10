@@ -6,10 +6,13 @@ library(ggplot2)
 library(lme4)
 library(lubridate)
 library(glmmTMB)
+library(stringr)
 
 farm_lice <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
 pink_sr_df <- read_csv(here("./data/spawner-recruit/clean/pink-sr-data-clean.csv"))
 wild_lice <- read_csv(here("./data/wild-lice/clean/clean-wild-lice-df.csv"))
+
+# wild lice regression =========================================================
 
 # first regression for the wild lice
 wild_lice <- wild_lice %>% 
@@ -58,6 +61,7 @@ predicted_yearly_lice <- data.frame(
     area = 7
   )
 
+# set up lice data in the stock recruit data ===================================
 
 # keep only the relevant info for pinks
 pink_sr <- pink_sr_df %>% 
@@ -79,36 +83,23 @@ pink_sr[which(pink_sr$area == "7" &
 pink_sr[which(pink_sr$area != "7"), "lice"] <- 0
 # make effect in area 7 before 1994 into 0
 pink_sr[which(pink_sr$area == "7" & 
-                pink_sr$lice_year < 2005), "lice"] <- 0
+                pink_sr$lice_year < 1994), "lice"] <- 0
 
-for(year in c(min(pink_sr$lice_year):max(pink_sr$lice_year))) {
-  for(area in unique(pink_sr$area)) {
-    if(area == "7") {
-      if(year > 2004) {
+for(year in c(2005:max(pink_sr$lice_year))) {
         pink_sr[which(pink_sr$area == "7" & 
                         pink_sr$lice_year == year), "lice"] <-
           predicted_yearly_lice[which(
             predicted_yearly_lice$year == year), "fit"]
-      } else if(year %in% c(1994:2004)) {
-        pink_sr[which(pink_sr$area == "7" & 
-                        pink_sr$lice_year == year), "lice"] <- NA
-      } else {
-        pink_sr[which(pink_sr$area == area & 
-                        pink_sr$lice_year == year), "lice"] <- 0
-      }
-    } else {
-      pink_sr[which(pink_sr$area == area & 
-                      pink_sr$lice_year == year), "lice"] <- 0
-    }
-  }
 }
 
 # to double check the loop worked properly, there should only be the number of 
 # NA's equal to the number of observations between years 1994 and 2004 that are
 # in area 7
 nrow(pink_sr[which(pink_sr$area == "7" & 
-                     pink_sr$brood_year %in% c(1994:2004)), ])
+                     pink_sr$lice_year %in% c(1994:2004)), ])
 nrow(pink_sr[which(is.na(pink_sr$lice)), ])
+
+# fit stock recruit model for pre-lice years ===================================
 
 # fit model for pre-affect years
 pink_sr_pre_2005 <- pink_sr %>% 
@@ -126,6 +117,15 @@ null_model <- lme4::lmer(survival ~ spawners:river + (1|brood_year/area),
 # get the fixed effects values here to use in the loops
 r <- lme4::fixef(null_model)[[1]]
 b_i_vals <- lme4::fixef(null_model)
+# because the first value (r) is essentially the reference value for the pop'ns
+# that has to also act as the value for the "missing" level of the fixed effect
+all_rivers <- unique(pink_sr$river)
+missing_level <- all_rivers[which(all_rivers %notin% 
+                                    stringr::str_remove(names(b_i_vals), 
+                                                        "spawners:river"))]
+# adding in the name here so the whole loop below works properly
+names(b_i_vals) <- c(paste0("spawners:river", missing_level), 
+                     names(b_i_vals)[2:length(b_i_vals)])
 
 # get the estimated variance for the three types of random effects
 re_sd <- lme4::VarCorr(null_model)
@@ -133,39 +133,87 @@ sd_area_year <- attr(re_sd$`area:brood_year`, "stddev")
 sd_year <- attr(re_sd$brood_year, "stddev")
 resid_sd <- sigma(null_model)
 
+# set up and run loops for power analysis ======================================
+
 # set areas here
 all_areas <- unique(pink_sr[which(pink_sr$brood_year > 2004), "area"])
 
-# number of times this happens
-for(i in 1:1000) {
+# look for any populations that have more than one count in a year 
+x = pink_sr %>% 
+  group_by(area, river, brood_year) %>% 
+  summarize(n = n())
+
+# set areas here
+all_areas <- unique(pink_sr$area)
+
+# setting the hypothetical value of c
+for(c in seq(0, 1, 0.01)) {
   
-  # setting the hypothetical value of c
-  for(c in seq(0, 1, 0.01)) {
+  # set up list for storage
+  c_list <- vector(mode = "list", length = 1000)
+  
+  # number of times this happens
+  for(i in 1:1000) {
+    
+    start_time <- Sys.time()
+    # make dataframe to fill
+    c_level_df <- pink_sr
+    c_level_df$survival <- as.numeric(NA)
     
     # years we have data for
-    for(year in 2005:2015) {
-      year_re <- rnorm(0, sd_year) # set the year random effect value
+    for(curr_year in ##################### year loop ###########################
+        c(min(pink_sr$brood_year):max(pink_sr$brood_year))) {
+      # set the year random effect value
+      year_re <- rnorm(n = 1, mean = 0, sd = sd_year) 
       
-      for(area in all_areas) {
-        area_re <- rnorm(0, sd_area_year) # set the area w/in year random effect value
+      for(curr_area in all_areas) { ############### area loop ##################
+        # set the area w/in year random effect value
+        area_re <- rnorm(n = 1, mean = 0, sd = sd_area_year) 
         
         # get temporary subset of data 
-        temp_df <- pink_sr[which(pink_sr$brood_year == as.character(year) & 
-                                   pink_sr$area == area), ]
-        if(nrow(temp_df)) {
+        temp_df <- c_level_df[which(c_level_df$brood_year == 
+                                      as.character(curr_year) & 
+                                      c_level_df$area == curr_area), ]
+        if(nrow(temp_df) == 0) {
           next
         }
-        temp_pops <- unique(temp_df$river)
         
-        for(popn in temp_pops) {
-        
+        for(row in seq_len(nrow(temp_df))) { ####### population loop ###########
+          # get the population on hand
+          popn <- temp_df[[row, "river"]]
+          
+          # set population level density dependence
           b_i <- b_i_vals[[paste0("spawners:river", popn)]]
-          survival <- r - b_i * temp[which(river == popn), "recruits"] -
+          
+          # calculate survival
+          survival <- 
+            # r, and b * N(t-2)
+            r - (b_i * temp_df[[row, "spawners"]]) -
             # the c term and lice goes here
-            
+            (c * temp_df[[row, "lice"]]) +
+            # yearly variation
+            year_re +
+            # area within year variation
+            area_re + 
+            # residual variation 
+            resid_sd
+          
+          # put survival value in temporary dataframe
+          temp_df[row, "survival"] <- survival
         }
+        # put the survival values in the larger dataframe 
+        c_level_df[which(c_level_df$brood_year == as.character(curr_year) & 
+                           c_level_df$area == curr_area), "survival"] <- 
+          # this was just filled in the previous loop
+          temp_df[which(temp_df$brood_year == 
+                          as.character(curr_year) & 
+                          temp_df$area == curr_area), "survival"]
       }
     }
+    
+    c_list[[i]] <- c_level_df
+    end_time <- Sys.time()
+    end_time - start_time
   }
 }
 
@@ -177,22 +225,88 @@ summary(null_model)
 
 
 
-
-
-data(sleepstudy,package="lme4")
-g0 <- glmmTMB(Reaction~Days+(Days|Subject),sleepstudy)
-
-nd <- data.frame(
-  Days = unique(sleepstudy$Days),
-  Subject = NA
-)
-
-predict(g0, sleepstudy, type = "response")
-## Predict new Subject
-nd <- sleepstudy[1,]
-nd$Subject <- "new"
-predict(g0, newdata=nd, type = "response")
-## population-level prediction
-nd_pop <- data.frame(Days=unique(sleepstudy$Days),
-                     Subject=NA)
-predict(g0, newdata=nd_pop)
+for(c in seq(0, 1, 0.01)) {
+  
+  # set up list for storage
+  c_list <- vector(mode = "list", length = 1000)
+  
+  # number of times this happens
+  for(i in 1:1000) {
+    
+    start_time <- Sys.time()
+    # make dataframe to fill
+    c_level_df <- pink_sr
+    c_level_df$survival <- as.numeric(NA)
+    
+    # years we have data for
+    for(curr_year in ##################### year loop ###########################
+        c(min(pink_sr$brood_year):max(pink_sr$brood_year))) {
+      # set the year random effect value
+      year_re <- rnorm(n = 1, mean = 0, sd = sd_year) 
+      
+      for(curr_area in all_areas) { ############### area loop ##################
+        # set the area w/in year random effect value
+        area_re <- rnorm(n = 1, mean = 0, sd = sd_area_year) 
+        
+        # get temporary subset of data 
+        # temp_df <- c_level_df[which(c_level_df$brood_year == 
+        #                               as.character(curr_year) & 
+        #                               c_level_df$area == curr_area), ]
+        
+        # this is looping through what is commented out above as being assigned
+        # to temp_df -- this is just faster
+        for(row in seq_len(
+          nrow(
+            c_level_df[which(c_level_df$brood_year == 
+                             as.character(curr_year) & 
+                             c_level_df$area == curr_area), ])
+            )
+          ) { ####### population loop ###########
+          
+          
+          # calculate survival
+          
+          # temp_df[row, "survival"] <- 
+          
+          # so instead of doing it how it's commented out above, I'm assinging
+          # it straight to the c_level_df, by using the subset as is put above
+          # plus another subset here with "row" the iterator and the "survival"
+          # column, again, it's just faster
+          c_level_df[which(c_level_df$brood_year == as.character(curr_year) & 
+                    c_level_df$area == curr_area), ][[row, "survival"]] <-
+            # r, and b * N(t-2)
+            r - (
+              # set population level density dependence
+              b_i_vals[[paste0("spawners:river", 
+                               # get the population on hand
+                               temp_df[[row, "river"]])]]
+              # number of spawners
+              * temp_df[[row, "spawners"]]) -
+            # the c term and lice goes here
+            (c * temp_df[[row, "lice"]]) +
+            # yearly variation
+            year_re +
+            # area within year variation
+            area_re + 
+            # residual variation 
+            resid_sd
+        }
+        
+        ## the below only needs to be here if we use temp_df which we've shown 
+        ## we don't need to 
+        
+        # # put the survival values in the larger dataframe 
+        # c_level_df[which(c_level_df$brood_year == as.character(curr_year) & 
+        #                    c_level_df$area == curr_area), "survival"] <- 
+        #   # this was just filled in the previous loop
+        #   temp_df[which(temp_df$brood_year == 
+        #                   as.character(curr_year) & 
+        #                   temp_df$area == curr_area), "survival"]
+      }
+    }
+    
+    c_list[[i]] <- c_level_df
+    end_time <- Sys.time()
+    end_time - start_time
+  }
+}
