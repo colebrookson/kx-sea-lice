@@ -90,8 +90,8 @@ farm_data <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
 farm_locs <- read_csv(here("./data/farm-lice/clean/clean-farm-locs.csv"))
 
 # filter the sites to just the ones in our data
-sr_pop_data_area7 <- sr_pop_data %>% 
-  dplyr::filter(area == 7) %>% 
+sr_pop_data_area67 <- sr_pop_data %>% 
+  dplyr::filter(area %in% c(6, 7)) %>% 
   dplyr::mutate(
     # NOTE - there are some of these that I do have location data for, they're 
     # just under a different name, so take care of those here. 
@@ -100,21 +100,26 @@ sr_pop_data_area7 <- sr_pop_data %>%
       river == "KITASOO CREEK" ~ "KITASU CREEK",
       river == "KILDIDT LAGOON CREEK #2" ~ "KILDIDT LAGOON #2 CREEK",
       river == "COOPER INLET-FANNIE COVE LH CREEK" ~ "COOPER INLET CREEKS",
+      river == "STANNARD CREEK-EAST BRANCH" ~ "STANNARD CREEK",
+      river == "NOBLE CREEK" ~ "NOBLE  CREEK",
       TRUE ~ as.character(river)
     )
   )
-length(unique(sr_pop_data_area7$river))
+length(unique(sr_pop_data_area67$river))
 
 sr_pop_sites_filter <- sr_pop_sites %>% 
   standardize_names(.) %>% 
-  dplyr::filter(system_site %in% unique(sr_pop_data_area7$river)) %>% 
+  dplyr::filter(system_site %in% unique(sr_pop_data_area67$river)) %>% 
   dplyr::filter(species_qualified %in% c("PKE", "PKO"))
 
 length(unique(sr_pop_sites_filter$system_site))
 
 
-sites_not_in_nuseds <- unique(sr_pop_data_area7$river[
-  which(sr_pop_data_area7$river %notin% sr_pop_sites_filter$system_site)])
+sites_not_in_nuseds <- unique(sr_pop_data_area67$river[
+  which(sr_pop_data_area67$river %notin% sr_pop_sites_filter$system_site)])
+
+sr_pop_data_locs <- sr_pop_data %>% 
+  dplyr::filter(area %in% c(6, 7))
 
 
 farm_data <- farm_data %>% 

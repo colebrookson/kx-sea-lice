@@ -184,32 +184,8 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
   canada_prov = geo_data[geo_data$NAME_1 %in% province] # subset to just BC
   
   # filter the sites to just the ones in our data
-  sr_pop_data_area7 <- sr_pop_data %>% 
-    dplyr::filter(area == 7) %>% 
-    dplyr::mutate(
-      # NOTE - there are some of these that I do have location data for, they're 
-      # just under a different name, so take care of those here. 
-      river = dplyr::case_when(
-        river == "COOPER INLET-FANNIE COVE CREEKS" ~ "COOPER INLET CREEKS",
-        river == "KITASOO CREEK" ~ "KITASU CREEK",
-        river == "KILDIDT LAGOON CREEK #2" ~ "KILDIDT LAGOON #2 CREEK",
-        river == "COOPER INLET-FANNIE COVE LH CREEK" ~ "COOPER INLET CREEKS",
-        TRUE ~ as.character(river)
-      )
-    )
-
-    # clean up the SR data to keep the species we want
-  sr_pop_sites_filter <- sr_pop_sites %>% 
-    standardize_names(.) %>% 
-    dplyr::filter(system_site %in% unique(sr_pop_data_area7$river)) %>% 
-    dplyr::filter(species_qualified %in% c("PKE", "PKO"))
-
-  # look at the sites that we can't find in NuSEDS
-  sites_not_in_nuseds <- data.frame(
-    rivers = unique(sr_pop_data_area7$river[
-    which(sr_pop_data_area7$river %notin% sr_pop_sites_filter$system_site)]))
-  readr::write_csv(sites_not_in_nuseds,
-                   paste0(data_output, "sites-not-in-NuSEDS.csv"))
+  sr_pop_data_area67 <- sr_pop_data %>% 
+    dplyr::filter(area %in% c(6, 7))
   
   # clean the farm data names so they match up between the dataframe
   farm_data <- farm_data %>% 
@@ -223,7 +199,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
       )
     )
   
-  # this is an empty dataframe to pack 
+  # this is an empty dataframe to fill in 
   site_data_by_year <- data.frame(
     site_name = as.character(),
     brood_year = as.numeric(),
