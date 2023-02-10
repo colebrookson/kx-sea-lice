@@ -34,12 +34,12 @@ wild_lice_glmm_nb <- glmmTMB::glmmTMB(
 
 summary(wild_lice_glmm_nb)
 
-wild_lice_glmm_poi <- glmmTMB::glmmTMB(
-  lep_total ~ year + (1 | week) + (1 | site),
-  family = poisson(link = "log"),
-  data = wild_lice
-)
-AIC(wild_lice_glmm_nb,wild_lice_glmm_poi) # nb is better 
+# wild_lice_glmm_poi <- glmmTMB::glmmTMB(
+#   lep_total ~ year + (1 | week) + (1 | site),
+#   family = poisson(link = "log"),
+#   data = wild_lice
+# )
+# AIC(wild_lice_glmm_nb,wild_lice_glmm_poi) # nb is better 
 
 predict_data <- data.frame(
   year = as.character(c(2005:2022)),
@@ -135,27 +135,25 @@ resid_sd <- sigma(null_model)
 
 # set up and run loops for power analysis ======================================
 
-# set areas here
-all_areas <- unique(pink_sr[which(pink_sr$brood_year > 2004), "area"])
-
 # look for any populations that have more than one count in a year 
-x = pink_sr %>% 
-  group_by(area, river, brood_year) %>% 
-  summarize(n = n())
+# x = pink_sr %>% 
+#   group_by(area, river, brood_year) %>% 
+#   summarize(n = n())
 
 # set areas here
 all_areas <- unique(pink_sr$area)
 
 # setting the hypothetical value of c
+# set up list for storage
+c_list <- vector(mode = "list", length = 11)
+c_counter <- 1
 for(c in seq(0, 1, 0.1)) {
   
-  # set up list for storage
-  c_list <- vector(mode = "list", length = 1000)
-  
   # number of times this happens
+  # set sub-c list 
+  c_i_list <- vector(mode = "list", length = 10)
   for(i in 1:10) {
     
-    start_time <- Sys.time()
     # make dataframe to fill
     c_level_df <- pink_sr
     c_level_df$survival <- as.numeric(NA)
@@ -179,6 +177,9 @@ for(c in seq(0, 1, 0.1)) {
         }
         
         for(row in seq_len(nrow(temp_df))) { ####### population loop ###########
+          # draw pop & year level variance
+          epsilon <- rnorm(1, mean = 0, sd = resid_sd)
+          
           # get the population on hand
           popn <- temp_df[[row, "river"]]
           
@@ -196,7 +197,7 @@ for(c in seq(0, 1, 0.1)) {
             # area within year variation
             area_re + 
             # residual variation 
-            resid_sd
+            epsilon
           
           # put survival value in temporary dataframe
           temp_df[row, "survival"] <- survival
@@ -211,17 +212,38 @@ for(c in seq(0, 1, 0.1)) {
       }
     }
     
-    c_list[[i]] <- c_level_df
-    end_time <- Sys.time()
-    end_time - start_time
+    c_i_list[[i]] <- c_level_df
+    print(paste0(i, " out of 110"))
   }
+  c_list[[c_counter]]  <- c_i_list
 }
 saveRDS(c_list, here("./outputs/power-analysis/list-of-dfs.rds"))
 
 
-summary(null_model)
+# now loop through the data and fit the models =================================
 
 
+
+
+# empty lists for outer objects
+outer_liklihoods_c <- vector(mode = "list", length = length(c_list))
+
+for(i in seq_len(length(c_list))) {
+  
+  # empty lists for inner objects 
+  inner_liklihood_null <- vector(mode = "list", length = length(c_list[[1]]))
+  inner_liklihood_alt <- vector(mode = "list", length = length(c_list[[1]]))
+  inner_lrt <- vector(mode = "list", length = length(c_list))
+  
+  for(j in seq_len(length(c_list[[i]]))) {
+    df <- c_list[[i]][[j]]
+    
+    null_mod <- lme4::lmer(survival ~ spawners:river + (1|brood_year/area),
+                           data = df)
+    
+    alt_mod <- 
+  }
+}
 
 
 
@@ -315,7 +337,6 @@ for(c in seq(0, 1, 0.01)) {
     }
     
     c_list[[i]] <- c_level_df
-    end_time <- Sys.time()
-    end_time - start_time
+    print()
   }
 }
