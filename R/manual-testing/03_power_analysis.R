@@ -113,19 +113,22 @@ pink_sr_pre_2005 <- pink_sr %>%
 # fit null model pre-power analysis
 null_model <- lme4::lmer(survival ~ spawners:river + (1|brood_year/area),
                          data = pink_sr_pre_2005)
+summary(null_model)
 
 # get the fixed effects values here to use in the loops
 r <- lme4::fixef(null_model)[[1]]
 b_i_vals <- lme4::fixef(null_model)
-# because the first value (r) is essentially the reference value for the pop'ns
-# that has to also act as the value for the "missing" level of the fixed effect
-all_rivers <- unique(pink_sr$river)
+
+# So there's this "missing" level and it's because Carpenter Bay doesn't
+# actually fit a value since it has no data. We need to replace this with an NA
+all_rivers <- unique(pink_sr_pre_2005$river)
 missing_level <- all_rivers[which(all_rivers %notin% 
                                     stringr::str_remove(names(b_i_vals), 
                                                         "spawners:river"))]
 # adding in the name here so the whole loop below works properly
 names(b_i_vals) <- c(paste0("spawners:river", missing_level), 
                      names(b_i_vals)[2:length(b_i_vals)])
+b_i_vals[1] <- as.numeric(NA)
 
 # get the estimated variance for the three types of random effects
 re_sd <- lme4::VarCorr(null_model)
@@ -189,7 +192,7 @@ for(c in seq(0, 1, 0.1)) {
           # calculate survival
           survival <- 
             # r, and b * N(t-2)
-            r - (b_i * temp_df[[row, "spawners"]]) -
+            r + (b_i * temp_df[[row, "spawners"]]) -
             # the c term and lice goes here
             (c * temp_df[[row, "lice"]]) +
             # yearly variation
@@ -345,8 +348,5 @@ outer_liklihoods_c <- foreach::foreach(
               lrt_pval = inner_lrt))
 }
 saveRDS(outer_liklihoods_c, here("./outputs/power-analysis/list-of-lrts.rds"))
-
-
-
 
 parallel::stopCluster(cl = cluster)
