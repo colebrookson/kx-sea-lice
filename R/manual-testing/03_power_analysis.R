@@ -12,6 +12,8 @@ farm_lice <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
 pink_sr_df <- read_csv(here("./data/spawner-recruit/clean/pink-sr-data-clean.csv"))
 wild_lice <- read_csv(here("./data/wild-lice/clean/clean-wild-lice-df.csv"))
 
+source(here("./R/00_functions_global.R"))
+
 # wild lice regression =========================================================
 
 # first regression for the wild lice
@@ -148,9 +150,9 @@ all_areas <- unique(pink_sr$area)
 
 # setting the hypothetical value of c
 # set up list for storage
-c_list <- vector(mode = "list", length = 11)
+c_list <- vector(mode = "list", length = 6)
 c_counter <- 1
-for(c in seq(0, 1, 0.1)) {
+for(c in seq(0, 0.5, 0.1)) {
   
   # number of times this happens
   # set sub-c list 
