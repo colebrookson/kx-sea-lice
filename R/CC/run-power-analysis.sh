@@ -14,4 +14,4 @@ module load StdEnv/2020 r/4.2.1
 
 export R_LIBS=~/.local/R/$EBVERSIONR/
 
-parallel R ~/scratch/kx-sea-lice/R/CC/00_power_analysis.R ::: {1::32}
+parallel R ~/scratch/kx-sea-lice/R/CC/00_power_analysis.R ::: {1..32}
