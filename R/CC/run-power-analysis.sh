@@ -8,7 +8,7 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=100G
-#SBATCH --time=0-00:60:00
+#SBATCH --time=0-04:30:00
 
 module load StdEnv/2020 r/4.2.1
 

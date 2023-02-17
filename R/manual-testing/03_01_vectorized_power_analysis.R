@@ -2,11 +2,12 @@
 library(here)
 library(readr)
 library(magrittr)
+library(Matrix)
 library(lme4)
 
 # set the i value 
 i <- args[1]
-
+start_time <- Sys.time()
 # pull in the data with the info needed
 fit_items <- readr::read_csv(
   here::here("./outputs/power-analysis/fit-null-model-objects.csv")
@@ -29,7 +30,7 @@ colnames(c_mat) <- c("c", "null_like", "alt_like", "p")
 
 # set the c value for this iteration 
 matrix_counter <- 1
-for(c in seq(0, 1, 1)) {
+for(c in seq(0, 1, 0.01)) {
   # year random effects
   year_df <- data.frame(
     year = as.factor(unique(pink_sr$brood_year)),
@@ -99,8 +100,10 @@ for(c in seq(0, 1, 1)) {
 
 readr::write_csv(
   x = data.frame(c_mat),
-  path = paste0(
+  file = paste0(
     here::here("./outputs/power-analysis/saved-runs/"),
     "c-matrix-", i, ".csv"
   )
 )
+end_time <- Sys.time()
+print(end_time - start_time)
