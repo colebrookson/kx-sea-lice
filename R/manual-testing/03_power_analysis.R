@@ -138,6 +138,16 @@ sd_area_year <- attr(re_sd$`area:brood_year`, "stddev")
 sd_year <- attr(re_sd$brood_year, "stddev")
 resid_sd <- sigma(null_model)
 
+df_fit_items <- data.frame(
+  resid_sd = resid_sd,
+  sd_area_year = sd_area_year[[1]],
+  sd_year = sd_year[[1]]
+)
+
+readr::write_csv(df_fit_items, 
+                 file = 
+                   here::here("./outputs/power-analysis/fit-null-model-objects/"))
+
 # set up and run loops for power analysis ======================================
 
 # look for any populations that have more than one count in a year 

@@ -27,7 +27,16 @@ df_pop <- data.frame(
 
 dplyr::left_join(df, df_year, by = "year") %>% 
   dplyr::left_join(., df_region_year, by = c("year", "region")) %>% 
-  dplyr::left_join(., df_pop, by =)
+  dplyr::left_join(., df_pop, by = "popn")
+
+# try to replicate with the real version 
+
+# set the c value and the i value 
+c <- args[1]
+i <- args [2]
+
+
+
 
 
 
