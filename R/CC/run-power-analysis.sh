@@ -10,8 +10,8 @@
 #SBATCH --mem=100G
 #SBATCH --time=0-04:30:00
 
-module load StdEnv/2020 r/4.2.1
+module load StdEnv/2020 gcc/11.3.0 r/4.2.1
 
 export R_LIBS=~/.local/R/$EBVERSIONR/
 
-parallel R ~/scratch/kx-sea-lice/R/CC/00_power_analysis.R ::: {1..32}
+parallel R CMD BATCH --no-save --no-restore --file=~/scratch/kx-sea-lice/R/CC/00_power_analysis.R ::: {1..32}
