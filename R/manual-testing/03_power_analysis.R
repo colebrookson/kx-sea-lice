@@ -131,6 +131,11 @@ missing_level <- all_rivers[which(all_rivers %notin%
 names(b_i_vals) <- c(paste0("spawners:river", missing_level), 
                      names(b_i_vals)[2:length(b_i_vals)])
 b_i_vals[1] <- as.numeric(NA)
+b_i_df <- data.frame(b_i_vals)
+b_i_df$popn <- rownames(b_i_df)
+rownames(b_i_df) <- NULL
+# clean up the river names
+b_i_df$popn <- stringr::str_remove(b_i_df$popn, "spawners:river")
 
 # get the estimated variance for the three types of random effects
 re_sd <- lme4::VarCorr(null_model)
@@ -139,6 +144,7 @@ sd_year <- attr(re_sd$brood_year, "stddev")
 resid_sd <- sigma(null_model)
 
 df_fit_items <- data.frame(
+  r = r,
   resid_sd = resid_sd,
   sd_area_year = sd_area_year[[1]],
   sd_year = sd_year[[1]]
@@ -150,6 +156,10 @@ readr::write_csv(
 readr::write_csv(
   x = pink_sr,
   path = here::here("./outputs/power-analysis/pink-sr-data-ready-for-sims.csv")
+)
+readr::write_csv(
+  x = b_i_df,
+  path = here::here("./outputs/power-analysis/b-i-df.csv")
 )
 # set up and run loops for power analysis ======================================
 
@@ -365,3 +375,39 @@ outer_liklihoods_c <- foreach::foreach(
 saveRDS(outer_liklihoods_c, here("./outputs/power-analysis/list-of-lrts.rds"))
 
 parallel::stopCluster(cl = cluster)
+
+
+
+
+
+# small version of making the dataframes 
+# make fake dataframe with the "data"
+# df <- data.frame(
+#   year = as.factor(c(rep(c(2010:2015), 10))),
+#   region = as.factor(c(rep(c("X", "Y", "Z"), 20))),
+#   popn = as.factor(c(rep(c("river1", "river2", "river3", "river4"), 15)))
+# )
+# 
+# # draw year level random effects
+# df_year <- data.frame(
+#   year = as.factor(c(2010:2015)),
+#   year_re = rnorm(6, mean = 0, sd = sd_year)
+# )
+# 
+# # make area within year random effects
+# df_region_year <- data.frame(
+#   expand.grid("year" = unique(df$year), "region" = unique(df$region))
+# )
+# df_region_year$area_re <- rnorm(nrow(df_region_year), 
+#                                 mean = 0, 
+#                                 sd = sd_area_year)
+# 
+# # make population level density dependence values (i.e. b_i)
+# df_pop <- data.frame(
+#   popn = unique(df$popn),
+#   bi = c(-0.1, 0.2, -0.3, -0.4)
+# )
+# 
+# dplyr::left_join(df, df_year, by = "year") %>% 
+#   dplyr::left_join(., df_region_year, by = c("year", "region")) %>% 
+#   dplyr::left_join(., df_pop, by = "popn")

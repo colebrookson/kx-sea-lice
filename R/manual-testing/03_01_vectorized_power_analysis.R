@@ -1,50 +1,50 @@
-# make fake dataframe with the "data"
-df <- data.frame(
-  year = as.factor(c(rep(c(2010:2015), 10))),
-  region = as.factor(c(rep(c("X", "Y", "Z"), 20))),
-  popn = as.factor(c(rep(c("river1", "river2", "river3", "river4"), 15)))
-)
-
-# draw year level random effects
-df_year <- data.frame(
-  year = as.factor(c(2010:2015)),
-  year_re = rnorm(6, mean = 0, sd = sd_year)
-)
-
-# make area within year random effects
-df_region_year <- data.frame(
-  expand.grid("year" = unique(df$year), "region" = unique(df$region))
-)
-df_region_year$area_re <- rnorm(nrow(df_region_year), 
-                                mean = 0, 
-                                sd = sd_area_year)
-
-# make population level density dependence values (i.e. b_i)
-df_pop <- data.frame(
-  popn = unique(df$popn),
-  bi = c(-0.1, 0.2, -0.3, -0.4)
-)
-
-dplyr::left_join(df, df_year, by = "year") %>% 
-  dplyr::left_join(., df_region_year, by = c("year", "region")) %>% 
-  dplyr::left_join(., df_pop, by = "popn")
-
 # try to replicate with the real version 
 
 # set the i value 
 i <- args[1]
 
-
+# pull in the data with the info needed
 fit_items <- readr::read_csv(
   here::here("./outputs/power-analysis/fit-null-model-objects.csv")
 )
 pink_sr <- readr::read_csv(
   here::here("./outputs/power-analysis/pink-sr-data-ready-for-sims.csv")
 )
+b_i_df <- readr::read_csv(
+  here::here("./outputs/power-analysis/b-i-df.csv")
+) 
+b_i_df$popn <- as.factor(b_i_df$popn)
+# make the other dataframes that need to be pulled together 
 
+# year random effects
+year_df <- data.frame(
+  year = as.factor(unique(pink_sr$brood_year)),
+  year_re = rnorm(n = length(unique(pink_sr$brood_year)),
+                  mean = 0,
+                  sd = fit_items$sd_year)
+)
+# area and year level random effect
+area_year_df <- data.frame(
+  # make a unique combination of each brood year/ area combo 
+  expand.grid(
+    "year" = as.factor(unique(pink_sr$brood_year)), 
+    "area" = as.factor(unique(pink_sr$area))  
+  )
+)
+# draw the actual random effect
+area_year_df$area_re <- rnorm(
+  n = nrow(area_year_df),
+  mean = 0,
+  sd = fit_items$sd_area_year
+)
+# add in the b_i values 
+b_i_df$epsilon <- rnorm(n = nrow(b_i_df), mean = 0, sd = fit_items$resid_sd)
 
+# now join all dataframes together
+pink_sr$year <- as.factor(pink_sr$brood_year) # to have a factor to join with
+pink_sr$popn <- as.factor(pink_sr$river) # to have a factor to join with
 
+joined_df <- dplyr::left_join(pink_sr, year_df, by = "year") %>% 
+  dplyr::left_join(., area_year_df, by = c("year", "area"))
 
-
-  
 
