@@ -144,10 +144,13 @@ df_fit_items <- data.frame(
   sd_year = sd_year[[1]]
 )
 
-readr::write_csv(df_fit_items, 
-                 file = 
-                   here::here("./outputs/power-analysis/fit-null-model-objects/"))
-
+readr::write_csv(
+  x = df_fit_items, 
+  path = here::here("./outputs/power-analysis/fit-null-model-objects.csv"))
+readr::write_csv(
+  x = pink_sr,
+  path = here::here("./outputs/power-analysis/pink-sr-data-ready-for-sims.csv")
+)
 # set up and run loops for power analysis ======================================
 
 # look for any populations that have more than one count in a year 

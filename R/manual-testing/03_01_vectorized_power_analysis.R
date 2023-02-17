@@ -31,10 +31,16 @@ dplyr::left_join(df, df_year, by = "year") %>%
 
 # try to replicate with the real version 
 
-# set the c value and the i value 
-c <- args[1]
-i <- args [2]
+# set the i value 
+i <- args[1]
 
+
+fit_items <- readr::read_csv(
+  here::here("./outputs/power-analysis/fit-null-model-objects.csv")
+)
+pink_sr <- readr::read_csv(
+  here::here("./outputs/power-analysis/pink-sr-data-ready-for-sims.csv")
+)
 
 
 
