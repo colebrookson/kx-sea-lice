@@ -3,6 +3,7 @@ library(readr)
 library(magrittr)
 library(Matrix)
 library(lme4)
+library(dplyr)
 
 # set the i value 
 i <- commandArgs(trailingOnly=TRUE)
@@ -27,6 +28,7 @@ c_mat <- matrix(NA, nrow = length(seq(0, 1, 0.01)),
 colnames(c_mat) <- c("c", "null_like", "alt_like", "p")
 
 # set the c value for this iteration 
+start_time <- Sys.time()
 matrix_counter <- 1
 for(c in seq(0, 1, 1)) {
   # year random effects
@@ -94,8 +96,10 @@ for(c in seq(0, 1, 1)) {
   
   # iterate matrix counter
   matrix_counter <- matrix_counter + 1
+  print(c)
 }
-
+end_time <- Sys.time()
+print(end_time - start_time)
 readr::write_csv(
   x = data.frame(c_mat),
   file = paste0(
