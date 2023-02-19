@@ -6,8 +6,8 @@ library(lme4)
 library(dplyr)
 
 # set the i value 
-i <- commandArgs(trailingOnly = TRUE)
-i <- as.integer(i)
+#i <- commandArgs(trailingOnly = TRUE)
+i <- sample(c(1:100), 1)
 print(i)
 # pull in the data with the info needed
 fit_items <- readr::read_csv(
