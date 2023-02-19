@@ -6,9 +6,10 @@ library(lme4)
 library(dplyr)
 
 # set the i value 
-#i <- commandArgs(trailingOnly = TRUE)
-i <- sample(c(1:100), 1)
-print(i)
+i <- commandArgs(trailingOnly = TRUE)
+if(length(i) > 1) {
+  i <- i[length(i)]
+}
 # # pull in the data with the info needed
 # fit_items <- readr::read_csv(
 #   "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/fit-null-model-objects.csv"
@@ -103,10 +104,17 @@ print(i)
 # }
 # end_time <- Sys.time()
 # print(end_time - start_time)
-# readr::write_csv(
-#   x = data.frame(c_mat),
-#   file = paste0(
-#     "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs/",
-#     "c-matrix-", i, ".csv"
-#   )
-# )
+
+test_df <- data.frame(
+  i = i,
+  x = 1
+)
+
+ readr::write_csv(
+   x = test_df,
+   #x = data.frame(c_mat),
+   file = paste0(
+     "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs/",
+     "c-matrix-", i, ".csv"
+   )
+ )

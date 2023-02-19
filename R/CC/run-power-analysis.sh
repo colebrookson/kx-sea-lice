@@ -7,11 +7,11 @@
 #SBATCH --mail-type=REQUEUE 
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=100G
-#SBATCH --time=0-00:10:00
+#SBATCH --mem-per-cpu=1G
+#SBATCH --time=0-00:00:02
 
-module load StdEnv/2020 gcc/11.3.0 r/4.2.1
+module load gcc/11.3.0 r/4.2.1
 
 export R_LIBS=/home/brookson/scratch/.local/R/$EBVERSIONR/
 
-parallel ' Rscript ~/scratch/kx-sea-lice/R/CC/00_power_analysis.R {}'
+parallel -j $SLURM_CPUS_PER_TASK 'Rscript ~/scratch/kx-sea-lice/R/CC/00_power_analysis.R {}' ::: {1..4}
