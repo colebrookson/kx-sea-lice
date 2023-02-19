@@ -6,7 +6,7 @@ library(lme4)
 library(dplyr)
 
 # set the i value 
-i <- commandArgs(trailingOnly=TRUE)
+i <- 1
 # pull in the data with the info needed
 fit_items <- readr::read_csv(
   "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/fit-null-model-objects.csv"
@@ -30,7 +30,7 @@ colnames(c_mat) <- c("c", "null_like", "alt_like", "p")
 # set the c value for this iteration 
 start_time <- Sys.time()
 matrix_counter <- 1
-for(c in seq(0, 1, 1)) {
+for(c in 1:1) {
   # year random effects
   year_df <- data.frame(
     year = as.factor(unique(pink_sr$brood_year)),
@@ -77,13 +77,14 @@ for(c in seq(0, 1, 1)) {
     joined_df$area_re + 
     # residual variation 
     joined_df$epsilon)
-  
+  print("did the survival calc")
   # now fit the model 
   null_mod <- lme4::lmer(survival_temp ~ spawners:river + (1|year/area), 
                          data = joined_df)
   alt_mod <- lme4::lmer(survival_temp ~ spawners:river + lice + 
                           (1|year/area),
                         data = joined_df)
+  print("fit the models")
   null_logLik <- stats::logLik(null_mod)
   alt_logLik <- stats::logLik(alt_mod)
   # do the test
