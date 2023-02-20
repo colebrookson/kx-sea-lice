@@ -83,9 +83,9 @@ c <- 1
     # residual variation
     joined_df$epsilon)
   print("did the survival calc")
-  # # now fit the model
-  # null_mod <- lme4::lmer(survival_temp ~ spawners:river + (1|year/area),
-  #                        data = joined_df)
+  # now fit the model
+  null_mod <- lme4::lmer(survival_temp ~ spawners:river + (1|year/area),
+                         data = joined_df)
   # alt_mod <- lme4::lmer(survival_temp ~ spawners:river + lice +
   #                         (1|year/area),
   #                       data = joined_df)
