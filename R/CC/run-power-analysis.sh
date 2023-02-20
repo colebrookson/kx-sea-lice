@@ -8,7 +8,7 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem-per-cpu=2G
-#SBATCH --time=0-00:01:00
+#SBATCH --time=0-00:10:00
 
 module load gcc/11.3.0 r/4.2.1
 
