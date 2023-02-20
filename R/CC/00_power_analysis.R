@@ -86,23 +86,23 @@ c <- 1
   # now fit the model
   null_mod <- lme4::lmer(survival_temp ~ spawners:river + (1|year/area),
                          data = joined_df)
-  # alt_mod <- lme4::lmer(survival_temp ~ spawners:river + lice +
-  #                         (1|year/area),
-  #                       data = joined_df)
-  # print("fit the models")
-  # null_logLik <- stats::logLik(null_mod)
-  # alt_logLik <- stats::logLik(alt_mod)
-  # # do the test
-  # teststat <- -2 * (as.numeric(null_logLik) - as.numeric(alt_logLik))
-  # df_diff <- attr(alt_logLik, "df") - attr(null_logLik, "df")
-  # p_val <- pchisq(teststat, df = df_diff, lower.tail = FALSE)
-  # 
-  # # fill in matrix row
-  # c_mat[matrix_counter, ] <- c(c, null_logLik, alt_logLik, p_val)
-  # 
-  # # iterate matrix counter
-  # matrix_counter <- matrix_counter + 1
-  # print(c)
+  alt_mod <- lme4::lmer(survival_temp ~ spawners:river + lice +
+                          (1|year/area),
+                        data = joined_df)
+print("fit the models")
+null_logLik <- stats::logLik(null_mod)
+alt_logLik <- stats::logLik(alt_mod)
+# do the test
+teststat <- -2 * (as.numeric(null_logLik) - as.numeric(alt_logLik))
+df_diff <- attr(alt_logLik, "df") - attr(null_logLik, "df")
+p_val <- pchisq(teststat, df = df_diff, lower.tail = FALSE)
+
+# fill in matrix row
+c_mat[matrix_counter, ] <- c(c, null_logLik, alt_logLik, p_val)
+
+# iterate matrix counter
+matrix_counter <- matrix_counter + 1
+print(c)
 #}
 end_time <- Sys.time()
 print(end_time - start_time)
