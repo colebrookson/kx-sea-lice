@@ -6,12 +6,12 @@ library(lme4)
 library(dplyr, quietly = TRUE)
 
 # set the i value 
-#i <- commandArgs(trailingOnly = TRUE)
-#if(length(i) > 1) {
-#  i <- i[length(i)]
-#}
-#print(i)
-i <- 100
+i <- commandArgs(trailingOnly = TRUE)
+if(length(i) > 1) {
+ i <- i[length(i)]
+}
+print(i)
+# i <- 100
 # pull in the data with the info needed
 fit_items <- readr::read_csv(
   "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/fit-null-model-objects.csv"
