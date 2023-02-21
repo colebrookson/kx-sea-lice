@@ -14,4 +14,4 @@ module load gcc/11.3.0 r/4.2.1
 
 export R_LIBS=/home/brookson/scratch/.local/R/$EBVERSIONR/
 
-parallel -j $SLURM_CPU_PER_TASK 'Rscript ~/scratch/kx-sea-lice/R/CC/00_power_analysis.R {}' ::: {1..2}
+parallel -j $SLURM_CPUS_PER_TASK 'Rscript ~/scratch/kx-sea-lice/R/CC/00_power_analysis.R {}' ::: {1..2}
