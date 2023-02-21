@@ -6,11 +6,12 @@ library(lme4)
 library(dplyr, quietly = TRUE)
 
 # set the i value 
-i <- commandArgs(trailingOnly = TRUE)
-if(length(i) > 1) {
-  i <- i[length(i)]
-}
-print(i)
+#i <- commandArgs(trailingOnly = TRUE)
+#if(length(i) > 1) {
+#  i <- i[length(i)]
+#}
+#print(i)
+i <- 100
 # pull in the data with the info needed
 fit_items <- readr::read_csv(
   "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/fit-null-model-objects.csv"
@@ -89,6 +90,7 @@ c <- 1
   alt_mod <- lme4::lmer(survival_temp ~ spawners:river + lice +
                           (1|year/area),
                         data = joined_df)
+  saveRDS(alt_mod, "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs/test-mod.rds")
 print("fit the models")
 null_logLik <- stats::logLik(null_mod)
 alt_logLik <- stats::logLik(alt_mod)
