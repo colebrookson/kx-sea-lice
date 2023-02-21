@@ -14,13 +14,13 @@ library(dplyr, quietly = TRUE)
 i <- 100
 # pull in the data with the info needed
 fit_items <- readr::read_csv(
-  "~/Github/kx-sea-lice/outputs/power-analysis/fit-null-model-objects.csv"
+  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/fit-null-model-objects.csv"
 )
 pink_sr <- readr::read_csv(
-  "~/Github/kx-sea-lice/outputs/power-analysis/pink-sr-data-ready-for-sims.csv"
+  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/pink-sr-data-ready-for-sims.csv"
 )
 b_i_df <- readr::read_csv(
-  "~/Github/kx-sea-lice/outputs/power-analysis/b-i-df.csv"
+  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/b-i-df.csv"
 )
 b_i_df$popn <- as.factor(b_i_df$popn)
 # add in r
@@ -111,7 +111,7 @@ readr::write_csv(
    #x = test_df,
    x = data.frame(joined_df),
    file = paste0(
-     "~/Github/kx-sea-lice/outputs/power-analysis/saved-runs/",
+     "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs/",
      "c-matrix-", i, ".csv"
    )
  )
