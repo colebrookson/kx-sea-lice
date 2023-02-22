@@ -3,15 +3,15 @@ library(readr)
 library(magrittr)
 library(Matrix)
 library(lme4)
-library(dplyr, quietly = TRUE)
+library(dplyr)
 
 # set the i value 
-# i <- commandArgs(trailingOnly = TRUE)
-# if(length(i) > 1) {
-#  i <- i[length(i)]
-# }
-# print(i)
-i <- sample(c(1:100), size = 1)
+i <- commandArgs(trailingOnly = TRUE)
+if(length(i) > 1) {
+ i <- i[length(i)]
+}
+print(i)
+#i <- sample(c(1:100), size = 1)
 # pull in the data with the info needed
 fit_items <- readr::read_csv(
   "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/fit-null-model-objects.csv"
@@ -84,6 +84,7 @@ for(c in 1:1) {
     joined_df$epsilon)
   print("did the survival calc")
   # now fit the model
+  readr::write_csv(joined_df, paste0("/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs", "test-write.csv"))
   null_mod <- lme4::lmer(survival_temp ~ spawners:river + (1|year/area),
                          data = joined_df)
   alt_mod <- lme4::lmer(survival_temp ~ spawners:river + lice +
@@ -107,11 +108,12 @@ for(c in 1:1) {
 end_time <- Sys.time()
 print(end_time - start_time)
 
-readr::write_csv(
+#readr::write_csv(
    #x = test_df,
-   x = data.frame(joined_df),
-   file = paste0(
-     "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs/",
-     "c-matrix-", i, ".csv"
-   )
- )
+#   x = data.frame(joined_df),
+#   file = paste0(
+#     "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs/",
+#     "c-matrix-", i, ".csv"
+#   )
+#)
+
