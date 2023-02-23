@@ -3,15 +3,14 @@ library(readr)
 library(magrittr)
 library(Matrix)
 library(lme4)
-library(dplyr, quietly = TRUE)
+suppressPackageStartupMessages(library(dplyr, quietly= TRUE))
 
 # set the i value 
 i <- commandArgs(trailingOnly=FALSE)
 if(length(i) > 1) {
  i <- i[length(i)]
 }
-print(i)
-#i <- sample(c(1:100), size = 1)
+
 # pull in the data with the info needed
 fit_items <- readr::read_csv(
   "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/fit-null-model-objects.csv",
@@ -85,7 +84,6 @@ for(c in seq(0, 1, 0.01)) {
     joined_df$area_re +
     # residual variation
     joined_df$epsilon)
-  print("did the survival calc")
   # now fit the model
   
   null_mod <- lme4::lmer(survival_temp ~ spawners:river + (1|year/area),
@@ -93,7 +91,7 @@ for(c in seq(0, 1, 0.01)) {
   alt_mod <- lme4::lmer(survival_temp ~ spawners:river + lice +
                           (1|year/area),
                         data = joined_df)
-  print("fit the models")
+
   null_logLik <- stats::logLik(null_mod)
   alt_logLik <- stats::logLik(alt_mod)
   # do the test
@@ -106,17 +104,17 @@ for(c in seq(0, 1, 0.01)) {
   
   # iterate matrix counter
   matrix_counter <- matrix_counter + 1
-  print(c)
+  if(c in seq(0, 1, 0.1)) {
+    print(paste0("i = ", i, ", c = ", c))
+  }
 }
 end_time <- Sys.time()
 print(end_time - start_time)
 
 readr::write_csv(
-   #x = test_df,
    x = data.frame(c_mat),
    file = paste0(
      "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs/",
      "c-matrix-", i, ".csv"
    )
 )
-
