@@ -8,7 +8,7 @@
 #SBATCH --job-name="power sim 1"
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --mem-per-cpu=2048
+#SBATCH --mem-per-cpu=3G
 #SBATCH --time=0-08:30:00
 
 module load StdEnv/2020 gcc/9.3.0 openmpi/4.0.3 glost/0.3.1 r/4.2.1

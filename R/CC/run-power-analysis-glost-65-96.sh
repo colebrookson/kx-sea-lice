@@ -8,11 +8,11 @@
 #SBATCH --job-name="power sims 65 to 96"
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=32
-#SBATCH --mem-per-cpu=2048
+#SBATCH --mem-per-cpu=3G
 #SBATCH --time=0-08:30:00
 
 module load StdEnv/2020 gcc/9.3.0 openmpi/4.0.3 glost/0.3.1 r/4.2.1
 
 export R_LIBS=/home/brookson/scratch/.local/R/$EBVERSIONR/
 
-srun glost_launch /home/brookson/scratch/kx-sea-lice/R/CC/power-analysis-tasks-01-32.txt
+srun glost_launch /home/brookson/scratch/kx-sea-lice/R/CC/power-analysis-tasks-65-96.txt
