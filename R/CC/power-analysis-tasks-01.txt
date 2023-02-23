@@ -1,0 +1,1 @@
+nargument=1 && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analysis.R ${nargument}

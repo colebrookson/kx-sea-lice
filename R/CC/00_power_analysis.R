@@ -3,7 +3,7 @@ library(readr)
 library(magrittr)
 library(Matrix)
 library(lme4)
-library(dplyr)
+library(dplyr, quietly = TRUE)
 
 # set the i value 
 i <- commandArgs(trailingOnly=FALSE)
@@ -14,13 +14,16 @@ print(i)
 #i <- sample(c(1:100), size = 1)
 # pull in the data with the info needed
 fit_items <- readr::read_csv(
-  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/fit-null-model-objects.csv"
+  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/fit-null-model-objects.csv",
+  show_col_types = FALSE
 )
-pink_sr <- readr::read_csv(
-  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/pink-sr-data-ready-for-sims.csv"
+pink_sr <- readr::read_csv( 
+  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/pink-sr-data-ready-for-sims.csv",
+  show_col_types = FALSE
 )
 b_i_df <- readr::read_csv(
-  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/b-i-df.csv"
+  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/b-i-df.csv",
+  show_col_types = FALSE
 )
 b_i_df$popn <- as.factor(b_i_df$popn)
 # add in r
@@ -35,7 +38,7 @@ colnames(c_mat) <- c("c", "null_like", "alt_like", "p")
 # set the c value for this iteration
 start_time <- Sys.time()
 matrix_counter <- 1
-for(c in seq(0, 1, 0.01) {
+for(c in seq(0, 1, 0.01)) {
   # year random effects
   year_df <- data.frame(
     year = as.factor(unique(pink_sr$brood_year)),
