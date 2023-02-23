@@ -1,0 +1,2 @@
+nargument=1 && Rscript /home/brookson/kx-sea-lice/R/CC/00_power_analysis.R 
+nargument=2 && Rscript /home/brookson/kx-sea-lice/R/CC/00_power_analysis.R
