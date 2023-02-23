@@ -6,7 +6,7 @@ library(lme4)
 library(dplyr)
 
 # set the i value 
-i <- commandArgs(trailingOnly = TRUE)
+i <- commandArgs(trailingOnly=FALSE)
 if(length(i) > 1) {
  i <- i[length(i)]
 }
@@ -35,7 +35,7 @@ colnames(c_mat) <- c("c", "null_like", "alt_like", "p")
 # set the c value for this iteration
 start_time <- Sys.time()
 matrix_counter <- 1
-for(c in 1:1) {
+for(c in seq(0, 1, 0.01) {
   # year random effects
   year_df <- data.frame(
     year = as.factor(unique(pink_sr$brood_year)),
@@ -84,7 +84,7 @@ for(c in 1:1) {
     joined_df$epsilon)
   print("did the survival calc")
   # now fit the model
-  readr::write_csv(joined_df, paste0("/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs", "test-write.csv"))
+  
   null_mod <- lme4::lmer(survival_temp ~ spawners:river + (1|year/area),
                          data = joined_df)
   alt_mod <- lme4::lmer(survival_temp ~ spawners:river + lice +
@@ -108,12 +108,12 @@ for(c in 1:1) {
 end_time <- Sys.time()
 print(end_time - start_time)
 
-#readr::write_csv(
+readr::write_csv(
    #x = test_df,
-#   x = data.frame(joined_df),
-#   file = paste0(
-#     "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs/",
-#     "c-matrix-", i, ".csv"
-#   )
-#)
+   x = data.frame(c_mat),
+   file = paste0(
+     "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs/",
+     "c-matrix-", i, ".csv"
+   )
+)
 

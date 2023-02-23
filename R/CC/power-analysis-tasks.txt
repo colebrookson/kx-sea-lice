@@ -1,2 +1,4 @@
-nargument=1 && Rscript /home/brookson/kx-sea-lice/R/CC/00_power_analysis.R 
-nargument=2 && Rscript /home/brookson/kx-sea-lice/R/CC/00_power_analysis.R
+nargument=333 && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analysis.R ${nargument}
+nargument=222 && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analysis.R ${nargument}
+  
+
