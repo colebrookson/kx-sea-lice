@@ -8,7 +8,7 @@
 #SBATCH --job-name="power sims 33 to 64"
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=32
-#SBATCH --mem-per-cpu=2.5GB
+#SBATCH --mem-per-cpu=2GB
 #SBATCH --time=0-08:30:00
 
 module load StdEnv/2020 gcc/9.3.0 openmpi/4.0.3 glost/0.3.1 r/4.2.1
