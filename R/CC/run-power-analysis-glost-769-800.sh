@@ -5,7 +5,7 @@
 #SBATCH --mail-type=END 
 #SBATCH --mail-type=FAIL 
 #SBATCH --mail-type=REQUEUE 
-#SBATCH --job-name=power sims 769 to 800
+#SBATCH --job-name='power sims 769 to 800'
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=32
 #SBATCH --mem-per-cpu=3GB
