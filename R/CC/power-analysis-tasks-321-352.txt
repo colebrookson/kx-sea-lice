@@ -29,3 +29,4 @@ nargument=348 && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analys
 nargument=349 && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analysis.R ${nargument}
 nargument=350 && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analysis.R ${nargument}
 nargument=351 && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analysis.R ${nargument}
+nargument=352 && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analysis.R ${nargument}

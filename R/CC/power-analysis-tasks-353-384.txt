@@ -1,4 +1,3 @@
-nargument=352 && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analysis.R ${nargument}
 nargument=353 && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analysis.R ${nargument}
 nargument=354 && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analysis.R ${nargument}
 nargument=355 && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analysis.R ${nargument}
