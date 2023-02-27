@@ -104,7 +104,7 @@ for(c in seq(0, 1, 0.01)) {
   
   # iterate matrix counter
   matrix_counter <- matrix_counter + 1
-  if(c in seq(0, 1, 0.1)) {
+  if(c %in% seq(0, 1, 0.1)) {
     print(paste0("i = ", i, ", c = ", c))
   }
 }
@@ -115,6 +115,6 @@ readr::write_csv(
    x = data.frame(c_mat),
    file = paste0(
      "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs/",
-     "c-matrix-", i, ".csv"
+     "c-matrix-", sprintf("%04d", as.integer(i)), ".csv"
    )
 )
