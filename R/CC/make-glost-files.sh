@@ -14,4 +14,19 @@ do
         envname='${nargument}'
         echo "nargument=${j} && Rscript /home/brookson/scratch/kx-sea-lice/R/CC/00_power_analysis.R ${envname}" >> ~/Github/kx-sea-lice/R/CC/power-analysis-tasks-${i}-${var}.txt 
     done
+
+done
+for i in {97..993..32}
+do
+    if [ "${i}" -lt "993" ] 
+    then
+        var=$(($i + 31))
+    fi
+    if [ "${i}" -eq "993" ]
+    then 
+        var=$(($i + 7))
+    fi
+    do
+        sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' ~/Github/kx-sea-lice/R/CC/power-analysis-tasks-${i}-${var}.txt
+    done
 done
