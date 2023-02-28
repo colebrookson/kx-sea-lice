@@ -1,7 +1,14 @@
 #!/bin/bash
-for i in {97..961..32}
+for i in {1..993..32}
 do 
-    j=$((${i} + 31))
+    if [ "${i}" -lt "993" ] 
+    then
+        j=$(($i + 31))
+    fi
+    if [ "${i}" -eq "993" ]
+    then 
+        j=$(($i + 7))
+    fi
     var='$EBVERSIONR'
     echo "#!/bin/bash
 
@@ -20,5 +27,5 @@ module load StdEnv/2020 gcc/9.3.0 openmpi/4.0.3 glost/0.3.1 r/4.2.1
 
 export R_LIBS=/home/brookson/scratch/.local/R/$var/
 
-srun glost_launch /home/brookson/scratch/kx-sea-lice/R/CC/power-analysis-tasks-${i}-${j}.txt" >> ~/Github/kx-sea-lice/R/CC/run-power-analysis-glost-${i}-${j}.sh 
+srun glost_launch /home/brookson/scratch/kx-sea-lice/R/CC/power-analysis-tasks-${i}-${j}.txt" >> ~/Github/kx-sea-lice/R/CC/run-power-analysis-${i}-${j}.sh 
 done 
