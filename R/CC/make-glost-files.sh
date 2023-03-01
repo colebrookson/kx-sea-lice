@@ -1,13 +1,13 @@
 #!/bin/bash
-for i in {97..993..32}
+for i in {97..996..31}
 do
-    if [ "${i}" -lt "993" ] 
+    if [ "${i}" -lt "996" ] 
     then
-        var=$(($i + 31))
+        var=$(($i + 30))
     fi
-    if [ "${i}" -eq "993" ]
+    if [ "${i}" -eq "996" ]
     then 
-        var=$(($i + 7))
+        var=$(($i + 4))
     fi
     for ((j=$i; j<=$var; j++))
     do

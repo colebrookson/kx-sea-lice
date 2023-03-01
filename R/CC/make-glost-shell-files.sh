@@ -1,13 +1,13 @@
 #!/bin/bash
-for i in {1..993..32}
+for i in {97..996..31}
 do 
-    if [ "${i}" -lt "993" ] 
+    if [ "${i}" -lt "996" ] 
     then
-        j=$(($i + 31))
+        j=$(($i + 30))
     fi
-    if [ "${i}" -eq "993" ]
+    if [ "${i}" -eq "996" ]
     then 
-        j=$(($i + 7))
+        j=$(($i + 4))
     fi
     var='$EBVERSIONR'
     echo "#!/bin/bash
