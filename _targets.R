@@ -72,6 +72,11 @@ list(
     here::here("./data/spawner-recruit/raw/conservation_unit_system_site.csv"),
     format = "file"
   ),
+  tar_target(
+    all_power_sims,
+    here::here("./outputs/power-analysis/all-power-analysis-runs.csv"),
+    format = "file"
+  ),
   ## data cleaning =============================================================
   tar_target(
     clean_wild_lice_data,
