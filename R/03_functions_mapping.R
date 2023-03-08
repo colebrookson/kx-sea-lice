@@ -223,8 +223,12 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
       dplyr::filter(site %in% farms_temp) %>% 
       dplyr::select(site, lat, long)
     
+    sr_pop_sites_filter <- sr_pop_sites %>% 
+      standardize_names(.) %>% 
+      dplyr::filter(system_site %in% unique(sr_pop_data_area67$river)) 
+    
     # get the populations in that year
-    sr_pop_temp <- sr_pop_data_area7 %>% 
+    sr_pop_temp <- sr_pop_data_area67 %>% 
       # brood year of yr will pass fish farms in year + 1
       dplyr::filter(brood_year == (yr - 1))
     # subset to just the locations that were shown to be present in that year
@@ -270,7 +274,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
                      colour = "black",
                      linewidth = 0.01,
                      fill = "grey65") +
-        coord_cartesian(xlim = c(-128.8, -127.75), ylim = c(52, 53)) + 
+        coord_cartesian(xlim = c(-129.5, -127.75), ylim = c(52, 54)) + 
         geom_point(data = locs_temp,
                    aes(x = long, y = lat, fill = type, shape = type),
                    size = 2) + 
@@ -301,4 +305,3 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
 }
 
 # clean_population_locations ===================================================
-# clean_population_locations <- function(sr_pop_sites)

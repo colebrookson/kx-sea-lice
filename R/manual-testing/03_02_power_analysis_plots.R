@@ -34,11 +34,12 @@ all_power_sims <- all_power_sims %>%
   )
 
 ggplot(data = all_power_sims) + 
-  geom_point(aes(x = c, y = prop)) + 
+  geom_smooth(aes(x = c, y = prop)) +
+  geom_point(aes(x = c, y = prop), colour = "black", alpha = 0.5, size = 1) + 
   labs(x = "C", y = "Power") + 
   ggthemes::theme_base() + 
   geom_vline(aes(xintercept = 0.19), linetype = "dashed", colour = "red") + 
   geom_hline(aes(
     yintercept = all_power_sims[which(all_power_sims$c == 0.19), "prop"][[1]]
-    ), linetype = "dashed", colour = "red")
+    ), linetype = "dashed", colour = "red") 
 

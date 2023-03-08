@@ -155,7 +155,7 @@ for(yr in 2005:2020) {
     dplyr::select(site, lat, long)
   
   # get the populations in that year
-  sr_pop_temp <- sr_pop_data_area7 %>% 
+  sr_pop_temp <- sr_pop_data_locs %>% 
     # brood year of yr will pass fish farms in year + 1
     dplyr::filter(brood_year == (yr - 1))
   # subset to just the locations that were shown to be present in that year
@@ -194,7 +194,7 @@ for(yr in 2005:2020) {
                  colour = "black",
                  linewidth = 0.01,
                  fill = "grey65") +
-    coord_cartesian(xlim = c(-128.8, -127.75), ylim = c(52, 53)) + 
+    coord_cartesian(xlim = c(-129.5, -127.75), ylim = c(52, 54)) + 
     geom_point(data = locs_temp,
                aes(x = long, y = lat, fill = type, shape = type),
                size = 2) + 

@@ -18,6 +18,7 @@ source(here::here("./R/00_functions_global.R"))
 source(here::here("./R/01_functions_clean_data.R"))
 source(here::here("./R/02_functions_lice_regression.R"))
 source(here::here("./R/03_functions_mapping.R"))
+source(here::here("./R/04_functions_power_analysis.R"))
 
 tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2", 
                             "ggthemes", "wesanderson", "lubridate", "janitor",
@@ -123,6 +124,23 @@ list(
       farm_lice = clean_farm_lice_data,
       mod_output_path = here::here("./outputs/lice-regression/"),
       plot_output_path = here::here("./figs/regression/")
+    )
+  ),
+  ## power analysis ============================================================
+  #' NOTE:
+  #' Nearly all of the power analysis proper is not included in this targets 
+  #' pipeline. That is because the simulations required were set up to run on 
+  #' Compute Canada Alliance servers, separate from this desktop-appropriate
+  #' analysis. The files used to actually run that analysis can be found
+  #' in the folder: `./R/CC/` and the outputs from that set of simulations are
+  #' located in the folder `./outputs/power-analysis/saved-runs/` but all other
+  #' analysis of those files, namely the summarizing and plotting of those data
+  #' from the outputs are done in this target below
+  tar_target(
+    power_analysis,
+    plot_power(
+      all_power_sims = get_data_csv(all_power_sims),
+      output_path = here::here("./figs/power-analysis")
     )
   ),
   ## useful plots/extra content ================================================
