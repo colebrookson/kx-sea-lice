@@ -303,5 +303,3 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
   
   
 }
-
-# clean_population_locations ===================================================
