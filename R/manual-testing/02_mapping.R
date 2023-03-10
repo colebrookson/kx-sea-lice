@@ -60,6 +60,8 @@ geo_data = readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
 province = "British Columbia"
 canada_prov = geo_data[geo_data$NAME_1 %in% province] # subset to just BC
 
+geo_data <- ggplot2::map_data("world")
+geo_data_can <- geo_data[which(geo_data$region == "Canada"),]
 
 ggplot() +
   geom_polygon(data = canada_prov,
@@ -190,11 +192,10 @@ for(yr in 2005:2020) {
   
   ggplot() +
     geom_polygon(data = canada_prov,
-                 aes(x = long, y = lat, group = group),
                  colour = "black",
                  linewidth = 0.01,
                  fill = "grey65") +
-    coord_cartesian(xlim = c(-129.5, -127.75), ylim = c(52, 54)) + 
+    coord_sf(xlim = c(-129.5, -127.75), ylim = c(52, 54)) + 
     geom_point(data = locs_temp,
                aes(x = long, y = lat, fill = type, shape = type),
                size = 2) + 
@@ -202,12 +203,13 @@ for(yr in 2005:2020) {
     labs(x = "Longitude (°)", y = "Latitude (°)",
          title = paste0(yr, ", brood year ", (yr-1))) +
     scale_shape_manual("Location", values = c(21, 22)) + 
-    scale_fill_manual("Location", values = c("purple", "gold2")) +
+    scale_fill_manual("Location", values = c("purple", "gold2"))  +
     ggrepel::geom_text_repel(data = locs_temp,
                              aes(x = long, y = lat, 
                                  label = site, fontface = ff),
                              size = 3,
                              max.overlaps = 20)
+
   
   ggasve(paste0(output_path, "map-by-year-", yr, ".png"))
   
