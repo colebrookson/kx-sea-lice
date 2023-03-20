@@ -43,6 +43,7 @@ names(xx) <- sheets
 # Pulling out the sheets we want to use #
 agebyCU_raw = xx[[1]]
 TRTCbyCU = xx[[6]]
+escape = xx[[5]]
 
 # Set up version of age table to work with #
 agebyCU = agebyCU_raw
@@ -131,3 +132,5 @@ for (i in 1:nrow(agebyCU)){
 }
 
 write.csv(agebyCU, "agebyCU_infilled_2023-Mar-17.csv", row.names = FALSE)
+write.csv(TRTCbyCU, "TRTCbyCU_2023-Mar-17.csv", row.names = FALSE)
+write.csv(escape, "escape_NCC_2023-Mar-20.csv", row.names = FALSE)
