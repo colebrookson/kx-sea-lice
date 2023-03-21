@@ -3,10 +3,10 @@
 # Author: Emma Atkinson
 # Description: Central Coast river-level SR data compilation
 # Notes: Code to compile river-level SR data for all species, updated for sub-contract work for Kitasoo-Xai'xais Stewardship Authority
-#        Requires: stream-level escapement, Conservation Unit-level age table, and Statistical Area-level age table.
+#        Requires: stream-level escapement & conservation unit-level age table from PSF Salmon Watersheds Program.
 #        Output: stream-level stock-recruitment (S-R) data for all species (where sufficient data were available)
 #        *Note that output S-R data relies on any assumptions made in the compilation of the stream-level escapement 
-#          and age-at-return data compilation. 
+#         and age-at-return data compilation. 
 
 # --- Prepping environment --- #
 
@@ -37,12 +37,12 @@ col2 <- wes_palette("Zissou1")[4]
 col3 <- wes_palette("Zissou1")[5]
 
 # --- Read in data --- #
-dat_full = read.csv("agebyCU_infilled_2023-Mar-17.csv", header=TRUE, stringsAsFactors = FALSE)
-trtc = read.csv("TRTCbyCU_2023-Mar-17.csv", header=TRUE, stringsAsFactors = FALSE)
+dat_full = read.csv("agebyCU_infilled_2023-03-21.csv", header=TRUE, stringsAsFactors = FALSE)
+trtc = read.csv("TRTCbyCU_2023-03-21.csv", header=TRUE, stringsAsFactors = FALSE)
 
 dat = dat_full[which(dat_full$SpeciesId %in% c("CM","CO","PKe","PKo")),]
 
-
+# set directory for where to save plots
 setwd(here("data","spawner-recruit","raw","EA-river-level-SR-2023-update","diagnostic-plots"))
 
 for (cu in unique(dat$CU)){
@@ -54,7 +54,7 @@ Ymax = max(dat[dat$CU==cu,]$BroodYear)
 spp = dat[dat$CU==cu,]$SpeciesId[1]
 
 #windows()
-pdf(paste(cu, cu_name, "diagnostics.pdf", sep="_"), width=9, height=8, pointsize=12)
+pdf(paste(Sys.Date(), cu, cu_name, "diagnostics.pdf", sep="_"), width=9, height=8, pointsize=12)
 #pdf("test.pdf", width=9, height=8, pointsize=12)
 
 par(mfrow=c(2,2),mar=c(4,4,1,2), oma=c(0,0,4,0))
