@@ -5,7 +5,7 @@ library(Matrix)
 library(lme4)
 library(dplyr, quietly = TRUE)
 
-# set the i value 
+# set the i value sq
 i <- commandArgs(trailingOnly = TRUE)
 if(length(i) > 1) {
   i <- i[length(i)]
