@@ -3,6 +3,8 @@ library(PBSmapping)
 library(dplyr)
 library(magrittr)
 library(sf)
+library(sp)
+library(raster)
 
 data(nepacLLhigh)
 
@@ -14,5 +16,9 @@ PBSmapping::plotMap(nepacLLhigh,
 
 # attempt to convert data to a polygon format
 poly <- nepacLLhigh %>% 
-  sf::st_as_sf(coords = c("lon", "lat"), 
-         crs = 32611)
+  sf::st_as_sf(coords = c("X", "Y"), 
+         crs = 32611) 
+
+
+sf_airports <- st_as_sf(shp_airports) 
+sf_airports_polygons <- st_polygonize(sf_airports)
