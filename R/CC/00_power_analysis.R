@@ -1,4 +1,4 @@
-# jset up 
+# set up 
 library(readr)
 library(magrittr)
 library(Matrix)

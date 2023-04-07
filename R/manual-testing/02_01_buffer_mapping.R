@@ -2,14 +2,17 @@
 library(PBSmapping)
 library(dplyr)
 library(magrittr)
+library(sf)
 
 data(nepacLLhigh)
 
-# filter the data to just the area we care about
-nepac_filter <- nepacLLhigh %>% 
-  dplyr::filter(Y > 52 & Y < 53) %>% 
-  dplyr::filter(X > -129 & X < -127.75)
-
+# look at the plot
 PBSmapping::plotMap(nepacLLhigh, 
                     xlim = c(-129, -127.75), 
                     ylim = c(52, 53))
+
+
+# attempt to convert data to a polygon format
+poly <- nepacLLhigh %>% 
+  sf::st_as_sf(coords = c("lon", "lat"), 
+         crs = 32611)

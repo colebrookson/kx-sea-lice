@@ -2,66 +2,61 @@
 ##' AUTHOR: Cole B. Brookson
 ##' DATE OF CREATION: 2023-01-18
 #'
-#' This file contains the functions that map the locations and sites we're 
-#' interested in for this project 
+#' This file contains the functions that process the files run on the compute
+#' canada cluster (outside the targets framework) and plots the results
 #'
 #'All functions are documented using the roxygen2 framework and the docstring
 #'library
 #'
 
-# collect_data =================================================================
-collect_data <- function() {
-  #' Pull in all the required data to do this analysis and put them together 
-  #' into one object
+# plot_power =================================================================
+plot_power <- function(all_power_sims, output_path) {
+  #' Pull in all the required data to do this analysis and plot the results
   #' 
-  #' @description Since this essentially needs all the data to fit the actual
-  #' S-R model, this will be the 
+  #' @description The simulations have all run and now this function takes in 
+  #' the values from those simulations and plots the power/c relationship
   #' 
-  #' @param farm_locations file. Information on all the farms in the region
-  #' @param output_path character. Location to write out the locations of 
-  #' the farms 
+  #' @param all_power_sims file. All of the simulated power analysis info
+  #' @param output_path character. Location to write out the plot
   #'  
-  #' @usage clean_farm_locations(farm_locations)
-  #' @return clean data frame 
+  #' @usage plot_power(all_power_sims, output_path)
+  #' @return NA
   #'
   
+  # sort the data and do some calculations =====================================
+  all_power_sims <- all_power_sims %>%
+    # add in a one/zero for if the p value is < 0.05
+    dplyr::rowwise() %>%
+    dplyr::mutate(
+      better = ifelse(p <= 0.05, 1, 0)
+    ) %>%
+    dplyr::group_by(c) %>%
+    dplyr::summarize(
+      n = n(),
+      count = sum(better)
+    ) %>%
+    dplyr::mutate(
+      prop = count / n
+    )
+
+  # make and save plot =========================================================
+  ggplot2::ggsave(
+
+    #filename
+    paste0(output_path, "power-plot.png"),
+
+    # the plot itself
+    ggplot(data = all_power_sims) +
+      geom_smooth(aes(x = c, y = prop)) +
+      geom_point(aes(x = c, y = prop), colour = "black", alpha = 0.5, size = 1) +
+      labs(x = "C", y = "Power") +
+      ggthemes::theme_base() +
+      geom_vline(aes(xintercept = 0.19), linetype = "dashed", colour = "red") +
+      geom_hline(aes(
+        yintercept = all_power_sims[which(all_power_sims$c == 0.19), "prop"][[1]]
+      ), linetype = "dashed", colour = "red"),
+
+    # size of the plot
+    height = 5, width = 6
+  )
 }
-
-
-
-
-x <- seq(-5, 5, 0.1)
-
-sigmoid = function(x) {
-  1 / (5 + exp(-x))
-}
-
-y <- sigmoid(x)
-plot(x, y)
-
-df <- data.frame(
-  c = x,
-  power = y
-)
-
-library(ggplot2)
-library(ggthemes)
-
-ggplot(data = df) +
-  geom_line(aes(x = c, y = power),
-            linewidth = 2) +
-  ggthemes::theme_base() +
-  scale_x_continuous(breaks = seq(-5, 5, 2.5), 
-                 labels = c(0, 0.25, 0.5, 0.75, 1.0)) + 
-  scale_y_continuous(breaks = c(0.00, 0.05, 0.1, 0.15, 0.2),
-                     labels = c(0, 0.25, 0.5, 0.75, 1)) + 
-  geom_vline(aes(xintercept = -3.5), colour = "red", linetype = "dashed") +
-  geom_hline(aes(yintercept = df$power[which(df$c == -3.5)]), colour = "red",
-             linetype = "dashed") #### 0.13
-
-
-
-
-
-
-

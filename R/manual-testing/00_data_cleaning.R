@@ -13,6 +13,7 @@ library(here)
 library(magrittr)
 library(dplyr)
 library(ggplot2)
+library(patchwork)
 
 # wild lice ==================================================================== 
 wild_lice <- readr::read_csv(
@@ -121,6 +122,112 @@ all_pinks_rivers <- all_pinks %>%
     brood_year
   )  
 
+# plot of pinks per area per year ==============================================
+pink_df <- readr::read_csv(
+  here("./data/spawner-recruit/clean/pink-sr-data-clean.csv"))
+
+# group by area/year
+pink_df_obs <- pink_df %>% 
+  dplyr::mutate(
+    area = ifelse(
+      area %in% c("02E", "02W"), 2, area
+    )
+  ) %>% 
+  dplyr::filter(
+    brood_year >= 2005
+  ) %>% 
+  dplyr::mutate(brood_year = as.integer(brood_year)) %>% 
+  dplyr::group_by(area, brood_year) %>% 
+  dplyr::summarize(n = n())
+
+pink_df_obs_all <- pink_df_obs %>% 
+  dplyr::group_by(brood_year) %>% 
+  dplyr::summarize(n = sum(n)) %>% 
+  dplyr::mutate(area = "all") %>% 
+  dplyr::select(area, brood_year, n)
+
+pink_df_plot <- rbind(pink_df_obs, pink_df_obs_all)
+
+pink_df_all_only_safe <- pink_df_plot %>% 
+  dplyr::filter(area %in% c("6", "7", "8", "9", "10")) %>% 
+  dplyr::group_by(brood_year) %>% 
+  dplyr::summarize(n = sum(n)) %>% 
+  dplyr::mutate(area = "all") %>% 
+  dplyr::select(area, brood_year, n)
+
+pink_df_plot_only_safe <- rbind(
+  pink_df_plot %>% 
+    dplyr::filter(area %in% c("6", "7", "8", "9", "10")),
+  pink_df_all_only_safe
+) 
+
+p_all_areas <- ggplot(data = pink_df_obs) + 
+  geom_point(aes(x = brood_year, y = n, fill = area), shape = 21) + 
+  geom_line(aes(x = brood_year, y = n, colour = area, linetype = area),
+            alpha = 0.45) +
+  scale_x_continuous(breaks = c(2005:2015)) +
+  ggthemes::theme_base() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+  ) + 
+  labs(x = "Brood Year", y = "Number of Observations per year", 
+       title = "All areas")
+
+p_all_all_areas <- ggplot(data = pink_df_plot) + 
+  geom_point(aes(x = brood_year, y = n, fill = area), shape = 21) + 
+  geom_line(aes(x = brood_year, y = n, colour = area, linetype = area),
+            alpha = 0.45) +
+  scale_x_continuous(breaks = c(2005:2015)) +
+  ggthemes::theme_base() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+  ) + 
+  labs(x = "Brood Year", y = "Number of Observations per year", 
+       title = "All areas")
+p_all_areas + p_all_all_areas
+
+
+p_only_6_10 <- ggplot(data = pink_df_obs %>% 
+         dplyr::filter(area %in% c(6:10))) + 
+  geom_point(aes(x = brood_year, y = n, fill = area), shape = 21) + 
+  geom_line(aes(x = brood_year, y = n, colour = area, linetype = area),
+            alpha = 0.45) +
+  scale_x_continuous(breaks = c(2005:2015)) +
+  ggthemes::theme_base() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+  ) + 
+  labs(x = "Brood Year", y = "Number of Observations per year", 
+       title = "Areas 6-10")
+
+p_all_only_6_10 <- ggplot(data = pink_df_plot_only_safe) + 
+  geom_point(aes(x = brood_year, y = n, fill = area), shape = 21) + 
+  geom_line(aes(x = brood_year, y = n, colour = area, linetype = area),
+            alpha = 0.45) +
+  scale_x_continuous(breaks = c(2005:2015)) +
+  ggthemes::theme_base() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+  ) + 
+  labs(x = "Brood Year", y = "Number of Observations per year", 
+       title = "Areas 6-10")
+
+p_only_6_10 + p_all_only_6_10
+
+
+(p_all_areas + p_all_all_areas) / (p_only_6_10 + p_all_only_6_10)
+
+pink_compare <- cbind(pink_df_plot %>% dplyr::filter(area == "all") %>% 
+                        dplyr::mutate(n_all = n), 
+                      pink_df_plot_only_safe %>% 
+                        dplyr::ungroup() %>% 
+                        dplyr::filter(area == "all") %>% 
+                        dplyr::mutate(n_safe = n) %>% 
+                        dplyr::select(n_safe)) %>% 
+  dplyr::mutate(
+    diff = n_all - n_safe
+  )
+mean(pink_compare$diff)
 
 # wild lice data ===============================================================
 wild_lice <- readr::read_csv(here("./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv"))

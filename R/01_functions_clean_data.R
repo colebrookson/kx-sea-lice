@@ -321,6 +321,9 @@ clean_pk_sr_data <- function(sr_data, output_path) {
     paste0(output_path, "pink-sr-data-clean.csv")
   )
   
+  # Make a plot of obs per area/year 
+  
+  
   return(all_pinks_rivers)
 }
 
