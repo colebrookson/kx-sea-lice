@@ -55,7 +55,7 @@ for (g in unique(dat$pop)){
     
   if (FALSE %in% is.na(d$Spawners)){ # don't plot if there aren't any data
     
-    pdf(paste(Sys.Date(), g, "_stream_level_diagnostics.pdf", sep="_"), width=9, height=5, pointsize=12)
+    pdf(paste(Sys.Date(), g, "_stream_level_diagnostics.pdf", sep="_"), width=11, height=5, pointsize=12)
     par(mfrow=c(1,2),mar=c(4,4,1,2), oma=c(0,0,4,0))
     
     
@@ -66,14 +66,43 @@ for (g in unique(dat$pop)){
         ymax = 1.5*max(d$Spawners, na.rm=TRUE)
       }
       
+      if (spp %in% c("CM","CO")){
         plot(d$BroodYear, d$Spawners, type="l", lwd=2, col=alpha(col1, 0.75), bty="n", xlab="Brood year", ylab="Numbers of fish", ylim=c(0,ymax))
         points(d$BroodYear, d$Spawners, pch=21, col=col1, bg=NA, cex=0.9)
-        lines(d$BroodYear, d$Returns, type="l", lwd=3, col=alpha(col2, 0.75))
-        points(d$BroodYear, d$Returns, pch=21, col=col2, bg=NA, cex=0.9)
+        lines(d$BroodYear, d$Recruits, type="l", lwd=3, col=alpha(col2, 0.75))
+        points(d$BroodYear, d$Recruits, pch=21, col=col2, bg=NA, cex=0.9)
+        legend("topright", c("Spawners","Recruits"),
+               col=c(col1,col2), lwd=c(2,2), pch=c(21,21),
+               bty="n", cex=0.8)
+      }
+      
+      if (spp == "PKE"){
+        
+        d = d[d$BroodYear %% 2 == 0,]
+        
+        plot(d$BroodYear, d$Spawners, type="l", lwd=2, col=alpha(col1, 0.75), bty="n", xlab="Brood year", ylab="Numbers of fish", ylim=c(0,ymax))
+        points(d$BroodYear, d$Spawners, pch=21, col=col1, bg=NA, cex=0.9)
+        lines(d$BroodYear, d$Recruits, type="l", lwd=3, col=alpha(col2, 0.75))
+        points(d$BroodYear, d$Recruits, pch=21, col=col2, bg=NA, cex=0.9)
         legend("topright", c("Spawners","Recruits"),
                col=c(col1,col2), lwd=c(2,2), pch=c(21,21),
                bty="n", cex=0.8)
         
+      }
+    
+    if (spp == "PKO"){
+      
+      d = d[d$BroodYear %% 2 != 0,]
+      
+      plot(d$BroodYear, d$Spawners, type="l", lwd=2, col=alpha(col1, 0.75), bty="n", xlab="Brood year", ylab="Numbers of fish", ylim=c(0,ymax))
+      points(d$BroodYear, d$Spawners, pch=21, col=col1, bg=NA, cex=0.9)
+      lines(d$BroodYear, d$Recruits, type="l", lwd=3, col=alpha(col2, 0.75))
+      points(d$BroodYear, d$Recruits, pch=21, col=col2, bg=NA, cex=0.9)
+      legend("topright", c("Spawners","Recruits"),
+             col=c(col1,col2), lwd=c(2,2), pch=c(21,21),
+             bty="n", cex=0.8)
+      
+    }
         
         if (spp == "CM"){
               plot(d$BroodYear, d$Recruits_Age3/d$Recruits, type="l", lwd=2, col=alpha(col1, 0.75), bty="n", xlab="Brood year", ylab="Proportion of recruits", ylim=c(0,1))
