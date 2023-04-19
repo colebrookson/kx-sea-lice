@@ -63,6 +63,15 @@ predicted_yearly_lice <- data.frame(
     area = 7
   )
 
+pred_yearly <- predicted_yearly_lice %>% 
+  dplyr::filter(year < 2021) %>% 
+  dplyr::mutate(farms = c(2, 4, 3, 4, 5, 6, 4, 4, 5, 4, 5, 5, 3, 4, 3, 4))
+ggplot(data = pred_yearly) + 
+  geom_point(aes(x = farms, y = fit), colour = "purple", size = 2) + 
+  ggthemes::theme_base() + 
+  ylim(c(0, 0.8))
+
+
 # set up lice data in the stock recruit data ===================================
 
 # keep only the relevant info for pinks
