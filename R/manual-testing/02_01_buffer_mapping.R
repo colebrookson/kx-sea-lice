@@ -22,3 +22,8 @@ poly <- nepacLLhigh %>%
 
 sf_airports <- st_as_sf(shp_airports) 
 sf_airports_polygons <- st_polygonize(sf_airports)
+
+
+
+# data from stamen
+library(ggmap)
