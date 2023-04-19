@@ -1,5 +1,5 @@
 # Date created: 20-Mar-2023
-# Last updated: 20-Mar-2023
+# Last updated: 19-Apr-2023
 # Author: Emma Atkinson
 # Description: Central Coast river-level SR data compilation
 # Notes: Code to compile river-level SR data for all species, updated for sub-contract work for Kitasoo-Xai'xais Stewardship Authority
@@ -7,6 +7,8 @@
 #        Output: stream-level stock-recruitment (S-R) data for all species (where sufficient data were available)
 #        *Note that output S-R data relies on any assumptions made in the compilation of the stream-level escapement 
 #         and age-at-return data compilation. 
+#
+#         This script cleans up the river-level escapement data and checks for duplicate populations/systems
 
 # --- Prepping environment --- #
 

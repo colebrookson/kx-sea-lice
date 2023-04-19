@@ -1,5 +1,5 @@
 # Date created: 16-Mar-2023
-# Last updated: 16-Mar-2023
+# Last updated: 19-Apr-2023
 # Author: Emma Atkinson
 # Description: Central Coast river-level SR data compilation
 # Notes: Code to compile river-level SR data for all species, updated for sub-contract work for Kitasoo-Xai'xais Stewardship Authority
@@ -7,6 +7,9 @@
 #        Output: stream-level stock-recruitment (S-R) data for all species (where sufficient data were available)
 #        *Note that output S-R data relies on any assumptions made in the compilation of the stream-level escapement 
 #         and age-at-return data compilation. 
+#
+#         This script generates river-level diagnostic plots visualising spawner-recruitment time series and 
+#         age distribution of recruitment cohorts
 
 # --- Prepping environment --- #
 
@@ -37,7 +40,7 @@ col2 <- wes_palette("Zissou1")[4]
 col3 <- wes_palette("Zissou1")[5]
 
 # --- Read in data --- #
-dat = read.csv("NCC_streams_river-level_SR_data_2023-04-18.csv", header=TRUE, stringsAsFactors = FALSE)
+dat = read.csv("NCC_streams_river-level_SR_data_2023-04-19.csv", header=TRUE, stringsAsFactors = FALSE)
 
 # make a unique population ID for plotting
 dat$pop = paste(dat$Species, dat$GFE_ID, sep="-")
