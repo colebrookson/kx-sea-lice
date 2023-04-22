@@ -40,7 +40,11 @@ list(
   tar_target(
     sr_data,
     here::here(
-      "./data/spawner-recruit/raw/river-level-sr/NCC_streams_SR_data.csv"),
+      paste0(
+        "./data/spawner-recruit/raw/river-level-sr/",
+        "NCC_streams_river-level_SR_data_2023-04-19.csv"
+      )
+      ),
     format = "file"
   ),
   tar_target(
@@ -103,6 +107,24 @@ list(
   tar_target(
     clean_pink_spawner_recruit_data,
     clean_pk_sr_data(
+      get_data_csv(sr_data),
+      here::here(
+        "./data/spawner-recruit/clean/"
+      )
+    )
+  ),
+  tar_target(
+    clean_chum_spawner_recruit_data,
+    clean_chum_sr_data(
+      get_data_csv(sr_data),
+      here::here(
+        "./data/spawner-recruit/clean/"
+      )
+    )
+  ),
+  tar_target(
+    clean_coho_spawner_recruit_data,
+    clean_coho_sr_data(
       get_data_csv(sr_data),
       here::here(
         "./data/spawner-recruit/clean/"

@@ -250,7 +250,7 @@ clean_pk_sr_data <- function(sr_data, output_path) {
       lat = yLAT,
       area = StatArea,
       con_unit = CU,
-      con_unit_2 = CU_2,
+      #con_unit_2 = CU_2,
       spawners = Spawners,
       returns = Returns,
       recruits = Recruits
@@ -262,6 +262,8 @@ clean_pk_sr_data <- function(sr_data, output_path) {
     dplyr::filter_at(
       dplyr::vars(spawners, returns), dplyr::all_vars(!is.na(.))
     )
+  
+  names(all_pinks) <- tolower(names(all_pinks))
   
   # figure out how many observations per population there is
   pinks_even <- all_pinks %>% 
@@ -325,6 +327,91 @@ clean_pk_sr_data <- function(sr_data, output_path) {
   
   
   return(all_pinks_rivers)
+}
+
+# clean_coho_sr_data ===========================================================
+clean_coho_sr_data <- function(sr_data, output_path) {
+  #' Take in the raw spawner-recruit data and clean and write out the clean 
+  #' version for coho 
+  #' 
+  #' @description Data needs to be renamed, cleaned up a bit, do this with this 
+  #' one function 
+  #' 
+  #' @param sr_data file. the raw SR data
+  #' @param output_path character. Path to where to save the plot
+  #'  
+  #' @usage clean_coho_sr_data(sr_data, output_path)
+  #' @return the clean sr data
+  #' 
+  
+  # basic cleaning (renaming etc)
+  coho <- sr_data %>% 
+    dplyr::rename(
+      gfe_id = GFE_ID,
+      brood_year = BroodYear,
+      river = River,
+      species = Species,
+      indicator = Indicator,
+      long = xLONG,
+      lat = yLAT,
+      area = StatArea,
+      con_unit = CU,
+      #con_unit_2 = CU_2,
+      spawners = Spawners,
+      returns = Returns,
+      recruits = Recruits
+    ) %>% 
+    dplyr::filter(
+      species == "CO"
+    ) %>% 
+    # get rid of NA's
+    dplyr::filter_at(
+      dplyr::vars(spawners, returns), dplyr::all_vars(!is.na(.))
+    )
+  
+  names(coho) <- tolower(names(coho))
+  
+  # figure out how many observations per population there is
+  all_coho_obs_per_stream <- coho %>% 
+    dplyr::mutate(river = as.factor(river)) %>% 
+    dplyr::group_by(river) %>% 
+    dplyr::summarize(n = n()) 
+  
+  # find the streams to exclude
+  coho_streams_to_exclude <- all_coho_obs_per_stream %>% 
+    dplyr::filter(
+      n < 4
+    )
+  
+  # note that this could be condensed but it's handy to have a more easily 
+  # accessible list of all the streams that we're keeping and the 
+  # number of observations at each stream 
+  coho_streams_to_keep <- all_pinks_obs_per_stream %>% 
+    dplyr::filter(
+      river %notin% coho_streams_to_exclude$river
+    )
+  readr::write_csv(
+    streams_to_keep,
+    paste0(output_path, "coho-obs-per-stream.csv")
+  )
+  
+  # make the dataframe to move on with 
+  coho_all_rivers <- coho %>% 
+    dplyr::filter(
+      river %in% coho_streams_to_keep$river
+    ) %>% 
+    dplyr::arrange(
+      brood_year
+    )  
+  readr::write_csv(
+    coho_all_rivers,
+    paste0(output_path, "coho-sr-data-clean.csv")
+  )
+  
+  # Make a plot of obs per area/year 
+  
+  
+  return(coho_all_rivers)
 }
 
 # clean_farm_lice ==============================================================

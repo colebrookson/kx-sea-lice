@@ -55,7 +55,7 @@ ggplot(data = pink_sr) +
 
 # the stream level data
 
-stream_sr <- read_csv(here("./data/spawner-recruit/raw/river-level-sr/NCC_streams_SR_data.csv")) %>% 
+stream_sr <- read_csv(here("./data/spawner-recruit/raw/river-level-sr/NCC_streams_river-level_SR_data_2023-04-19.csv")) %>% 
   dplyr::rename(
     gfe_id = GFE_ID,
     brood_year = BroodYear,
@@ -66,12 +66,15 @@ stream_sr <- read_csv(here("./data/spawner-recruit/raw/river-level-sr/NCC_stream
     lat = yLAT,
     area = StatArea,
     con_unit = CU,
-    con_unit_2 = CU_2,
+    #con_unit_2 = CU_2,
     spawners = Spawners,
     returns = Returns,
     recruits = Recruits
-  )
+  ) 
+names(stream_sr) <- tolower(names(stream_sr))
 
+
+## clean pinks =================================================================
 all_pinks <- stream_sr %>% 
   dplyr::filter(species %in% c("PKE", "PKO")) %>% 
   # get rid of NA's
@@ -123,6 +126,64 @@ all_pinks_rivers <- all_pinks %>%
   dplyr::arrange(
     brood_year
   )  
+
+## clean chum ==================================================================
+chum <- stream_sr %>% 
+  dplyr::filter(species == "CM") %>% 
+  # get rid of NA's
+  dplyr::filter_at(
+    vars(spawners, returns), all_vars(!is.na(.))
+  )
+
+all_chum_obs_per_stream <- chum %>% 
+  dplyr::mutate(river = as.factor(river)) %>% 
+  dplyr::group_by(river) %>% 
+  dplyr::summarize(n = n()) 
+
+chum_streams_to_exclude <- all_chum_obs_per_stream %>% 
+  dplyr::filter(
+    n < 4
+  ) 
+chum_streams_to_keep <- all_pinks_obs_per_stream %>% 
+  dplyr::filter(
+    river %notin% chum_streams_to_exclude$river
+  )
+chum_all_rivers <- chum %>% 
+  dplyr::filter(
+    river %in% chum_streams_to_keep$river
+  ) %>% 
+  dplyr::arrange(
+    brood_year
+  )  
+
+## coho ========================================================================
+coho <- stream_sr %>%
+  dplyr::filter(species == "CO") %>%
+  # get rid of NA's
+  dplyr::filter_at(
+    vars(spawners, returns), all_vars(!is.na(.))
+  )
+
+all_coho_obs_per_stream <- coho %>%
+  dplyr::mutate(river = as.factor(river)) %>%
+  dplyr::group_by(river) %>%
+  dplyr::summarize(n = n())
+
+coho_streams_to_exclude <- all_coho_obs_per_stream %>%
+  dplyr::filter(
+    n < 4
+  )
+coho_streams_to_keep <- all_pinks_obs_per_stream %>%
+  dplyr::filter(
+    river %notin% coho_streams_to_exclude$river
+  )
+coho_all_rivers <- coho %>%
+  dplyr::filter(
+    river %in% coho_streams_to_keep$river
+  ) %>%
+  dplyr::arrange(
+    brood_year
+  )
 
 # plot of pinks per area per year ==============================================
 pink_df <- readr::read_csv(
