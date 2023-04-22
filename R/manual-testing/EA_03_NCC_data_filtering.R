@@ -1,5 +1,5 @@
 # Date created: 20-Mar-2023
-# Last updated: 20-Mar-2023
+# Last updated: 19-Apr-2023
 # Author: Emma Atkinson
 # Description: Central Coast river-level SR data compilation
 # Description: Central Coast river-level SR data compilation
@@ -8,6 +8,9 @@
 #        Output: stream-level stock-recruitment (S-R) data for all species (where sufficient data were available)
 #        *Note that output S-R data relies on any assumptions made in the compilation of the stream-level escapement 
 #         and age-at-return data compilation. 
+#
+#        This script checks for discrepancies in CU indices between the escapement and age/exploitation datasets
+#        It also filters out data we won't be using in the compilation 
 
 
 # --- Prepping environment --- #
@@ -41,10 +44,12 @@ species2 <- c(unique(agebyCU$SpeciesId), "SX")
 
 
 # Filter out Chinook and sockeye data because it's a mess and we're not using it for this project #
+# (Update: it's not actually a total mess, there are just a lot of residual CUs in NuSEDS that aren't in the PSF data)
 esc = esc[which(esc$SPP %in% c("CM","CO","PKE","PKO")),]
 agebyCU = agebyCU[which(agebyCU$SpeciesId %in% c("CM","CO","PKe","PKo")),]
 
 # --- STEP 1: Create decoder table between escapement and age data frames --- #
+# Check whether/which CUs are in the escapement data but not in the age data and vice versa
 
 cu_esc <- as.data.frame(matrix(nrow=length(unique(esc$CU_findex)), ncol=5))
 names(cu_esc) <- c("SPP","CU_findex","CU_name","CU_index","Area")
@@ -81,7 +86,7 @@ setdiff(unique(cu_age$CU_index_2),unique(cu_esc$CU_findex))
 # CUs that are in the esc data but not age
 setdiff(unique(cu_esc$CU_findex),unique(cu_age$CU_index_2))
 
-# Update bigger dataframes
+# Update bigger dataframe
 agebyCU$CU_index_2 <- NA
 
 for (cu in unique(agebyCU$CU)){
@@ -90,17 +95,14 @@ for (cu in unique(agebyCU$CU)){
 
 # --- STEP 2: Filter out non-focal areas and CUs based on input from Eric Hertz at PSF --- #
 
-# Get a list of CUs that correspond to excluded Statistical Areas
-# We are not using any data from Areas 1-5 due to lack of clarity on methods used by LGL for run reconstructions #
-cu_exclude = unique(esc[which(esc$Area %in% c("1","2E","02W","3","4","5")),]$CU_findex)
-d = setdiff(cu_exclude, unique(agebyCU$CU_index_2))
-
 #### AGE DATA ####
-# Filter age data for CUs which fall into excluded Areas
-agebyCU_2 = agebyCU[(which(!(agebyCU$CU_index_2 %in% cu_exclude))),]
+# We are not going to filter the age data to exclude Areas 1-5 because it is collated at
+# a CU level and there are a few CUs that include systems in both Area 5 and Area 6.
+# Instead, we'll rely on the filtering of the escapement data to ensure we don't include
+# data from excluded areas. (Per conversation with E. Hertz)
 
 # Filter age data for Bella Coola CUs
-agebyCU_3 = agebyCU_2[(which(!(agebyCU_2$CU_index_2 %in% c("CM-17","CM-16","CO-22")))),]
+agebyCU_2 = agebyCU[(which(!(agebyCU$CU_index_2 %in% c("CM-17","CM-16","CO-22")))),]
 
 #### ESCAPEMENT DATA ####
 # We are not using any data from Areas 1-5 due to lack of clarity on methods used by LGL for run reconstructions #
@@ -112,15 +114,15 @@ esc_3 = esc_2[which(!(esc_2$CU_findex %in% c("CM-17","CM-16","CO-22"))),]
 
 # Now that we have done all this filtering, let's check back on how many remaining discrepancies
 # exist between CU lists in each dataframe
-cu_age = cu_age[cu_age$CU_index_2 %in% unique(agebyCU_3$CU_index_2),]
+cu_age = cu_age[cu_age$CU_index_2 %in% unique(agebyCU_2$CU_index_2),]
 cu_esc = cu_esc[cu_esc$CU_findex %in% unique(esc_3$CU_findex),]
 
-# There are still five CUs that show up in escapement data but not age data
-# (Mostly Hecate CUs)
-setdiff(unique(esc_3$CU_findex),unique(agebyCU_3$CU_index_2))
+# There is still one CU that shows up in escapement data but not age data
+# (Wannock chum - this is a CU for which there are no recent data, not to worry about)
+setdiff(unique(esc_3$CU_findex),unique(agebyCU_2$CU_index_2))
 
 
 # Write filtered/cleaned up data to file
-write.csv(agebyCU_3, paste("agebyCU_NCC_",Sys.Date(),"_CLEANED_FILTERED.csv",sep=""), row.names = FALSE)
+write.csv(agebyCU_2, paste("agebyCU_NCC_",Sys.Date(),"_CLEANED_FILTERED.csv",sep=""), row.names = FALSE)
 write.csv(esc_3, paste("escape_NCC_",Sys.Date(),"_CLEANED_FILTERED.csv",sep=""), row.names = FALSE)
 

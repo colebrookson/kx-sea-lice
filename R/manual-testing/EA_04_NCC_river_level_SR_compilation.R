@@ -1,5 +1,5 @@
 # Date created: 20-Mar-2023
-# Last updated: 20-Mar-2023
+# Last updated: 19-Apr-2023
 # Author: Emma Atkinson
 # Description: Central Coast river-level SR data compilation
 # Description: Central Coast river-level SR data compilation
@@ -8,6 +8,9 @@
 #        Output: stream-level stock-recruitment (S-R) data for all species (where sufficient data were available)
 #        *Note that output S-R data relies on any assumptions made in the compilation of the stream-level escapement 
 #         and age-at-return data compilation. 
+#
+#         This is the main SR compilation script. For each river-level population, pulls spawner data from
+#         escapement dataset and pulls exploitation/age data for appropriate CU to generate recruitment estimate
 
 
 # --- Prepping environment --- #
@@ -33,8 +36,8 @@ setwd(here("data","spawner-recruit","raw","EA-river-level-SR-2023-update"))
 # --- Inputs --- #
 
 # Read in data from NCC database #
-esc <- read.csv("escape_NCC_2023-04-18_CLEANED_FILTERED.csv", header=TRUE, stringsAsFactors = FALSE)
-agebyCU <- read.csv("agebyCU_NCC_2023-04-18_CLEANED_FILTERED.csv", header=TRUE, stringsAsFactors = FALSE)
+esc <- read.csv("escape_NCC_2023-04-19_CLEANED_FILTERED.csv", header=TRUE, stringsAsFactors = FALSE)
+agebyCU <- read.csv("agebyCU_NCC_2023-04-19_CLEANED_FILTERED.csv", header=TRUE, stringsAsFactors = FALSE)
 
 species <- unique(esc$SPP)
 species2 <- unique(agebyCU$SpeciesId)
@@ -275,6 +278,6 @@ setwd(here("data","spawner-recruit","clean"))
 write.csv(compile_riverSR(esc, agebyCU, Ymax), paste("NCC_streams_river-level_SR_data_", Sys.Date(),".csv", sep=""), row.names = FALSE)
 
 
-write.csv(Z, paste("NCC_streams_river-level_SR_data_", Sys.Date(),".csv", sep=""), row.names = FALSE)
+#write.csv(Z, paste("NCC_streams_river-level_SR_data_", Sys.Date(),".csv", sep=""), row.names = FALSE)
 
 
