@@ -30,15 +30,10 @@ ggplot2::ggplot() +
 
 
 ## code for stack overflow
-library(raster)
-library(ggplot2)
-library(sf)
 
+### version with no sf
 canada <- raster::getData("GADM",country="CAN",level=1)
 canada_prov = canada[canada$NAME_1 == "British Columbia"] # subset to just BC
-
-can_prov_sf <- st_as_sf(canada_prov)
-plot(can_prov_sf, )
 
 location <- data.frame(
   name = c("one", "two"),
@@ -56,9 +51,40 @@ ggplot2::ggplot() +
              aes(x = long, y = lat), shape = 21, fill = "red", size = 3) + 
   coord_cartesian(xlim = c(-128.6, -128.2), ylim = c(52.4, 52.95)) + 
   theme_bw() + 
+  labs(x = "Longitude (°)", y = "Latitude (°)") 
+
+
+
+library(raster)
+library(ggplot2)
+library(sf)
+
+canada <- raster::getData("GADM",country="CAN",level=1, download = TRUE)
+canada_prov = canada[canada$NAME_1 == "British Columbia"] # subset to just BC
+
+can_prov_sf <- st_as_sf(canada_prov)
+
+location <- data.frame(
+  name = c("one", "two"),
+  lat = c(52.79883, 52.53555),
+  long = c(-128.3144, -128.3593)
+  ) %>% st_centroid()
+
+ggplot2::ggplot(data = can_prov_sf) +
+  geom_sf() + 
+  coord_sf(xlim = c(-128.8, -128.1), ylim = c(52.2, 52.95), 
+           expand = FALSE) + 
+  geom_point(data = location, 
+             aes(x = long, y = lat), shape = 21, fill = "red", size = 3) + 
+  theme_bw() + 
     labs(x = "Longitude (°)", y = "Latitude (°)") 
 
 
+
+world <- spData::world
+unique(world$geom)
+can <- world[which(world$name_long == "Canada"), ]
+plot(st_geometry(can))
 
 
 data(nepacLLhigh)
