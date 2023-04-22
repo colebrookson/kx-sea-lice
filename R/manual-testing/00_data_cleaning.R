@@ -34,9 +34,11 @@ wild_lice <- wild_lice %>%
   )
 
 # SR data ======================================================================
-psf_df <- readr::read_csv(here::here("./data/spawner-recruit/raw/psf-2022-12-13.csv"))
+psf_df <- readr::read_csv(
+  here::here(
+    "./data/spawner-recruit/clean/NCC_streams_river-level_SR_data_2023-04-19.csv"))
 head(psf_df)
-unique(psf_df$species)
+unique(psf_df$Species)
 
 
 pink_sr <- psf_df %>% 
