@@ -9,13 +9,17 @@ library(here)
 
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
 geo_data_sf <- st_as_sf(geo_data)
-
 geo_data_sf_bc <- geo_data_sf[which(geo_data_sf$NAME_1 == "British Columbia"),]
-non_land <- sf::st_difference(geo_data_sf_bc)
+bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc))
+
+non_land <- sf::st_difference(bb, geo_data_sf_bc)
 
 ggplot() + 
-  geom_sf(data = non_land, color = 'blue', fill = NA) 
+  geom_sf(data = geo_data_sf_bc, color = 'blue', fill = "red") 
 
+
+ggplot() + 
+  geom_sf(data = non_land, color = 'blue', fill = "red") 
 
 
 province = "British Columbia"
@@ -182,3 +186,12 @@ ggplot() +
           color = 'turquoise',
           size = 2) +
   theme_void()
+
+
+
+# new stack overflow code ======================================================
+canada <- raster::getData("GADM",country="CAN",level=1)
+geo_data_sf <- st_as_sf(geo_data)
+geo_data_sf_bc <- geo_data_sf[which(geo_data_sf$NAME_1 == "British Columbia"),]
+non_land <- sf::st_difference(geo_data_sf_bc)
+
