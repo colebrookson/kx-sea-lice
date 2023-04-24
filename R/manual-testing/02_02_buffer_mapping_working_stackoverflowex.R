@@ -19,7 +19,7 @@ sample_bbox <- dget("https://raw.githubusercontent.com/BajczA475/random-data/mai
 # sample the bounding box with regular square points, then connect each point to the closest 9 points
 #  8 should've worked, but left some diagonals out.
 sq_grid_sample <- st_sample(st_as_sfc(st_bbox(moose_lake)), 
-                            size = 10000, type = 'regular') %>% st_as_sf() %>%
+                            size = 1000, type = 'regular') %>% st_as_sf() %>%
   st_connect(.,.,k = 9)
 
 # remove connections that are not within the lake polygon

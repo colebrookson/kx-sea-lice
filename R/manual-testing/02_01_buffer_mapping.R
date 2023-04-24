@@ -34,7 +34,7 @@ bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc))
 # geom object and we're good 
 non_land <- sf::st_difference(bb, geo_data_sf_bc)
 # crop to just the study region
-non_land_study <- sf::st_crop(non_land, xmin = -129.0,
+non_land_study <- sf::st_crop(non_land, xmin = -128.9,
                           xmax = -127.8, ymin = 52.2, 
                           ymax = 53.2)
 utm_geo_data <- st_transform(non_land_study, 
@@ -48,7 +48,7 @@ ggplot() +
 # to the closest 9 points 8 should've worked, but left some diagonals out.
 study_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_geo_data)), 
                             # the size is really large to make a very fine grid
-                            size = 1000, type = 'regular') %>% 
+                            size = 5000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
 
@@ -57,7 +57,7 @@ study_grid_cropped <- study_grid_sample[sf::st_within(
   study_grid_sample, utm_geo_data, sparse = F)]
 
 # make an sfnetwork of the cropped grid
-area_network <- study_grid_cropped %>% as_sfnetwork()
+area_network <- as_sfnetwork(study_grid_cropped)
 
 kid_bay <- farms_utm[which(farms_utm$site == "Kid Bay"),]
 
