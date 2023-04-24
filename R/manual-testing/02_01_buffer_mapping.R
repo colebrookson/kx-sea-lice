@@ -12,11 +12,16 @@ library(sf)
 library(sfnetworks)
 library(nngeo)
 
+bc_shp <- readr::read_csv(here("./data/geo-spatial/BCGW/NTS_BC_COASTLINE_POLYS_125M/250_CST_PY.csv")) %>% 
+  sf::st_as_
+
 # read the data from raster package
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
 # make into sf object
-geo_data_sf <- st_as_sf(geo_data,
-                        crs = "+proj=utm +zone=9")
+geo_data_sf <- st_as_sf(geo_data)
+# utm_geo_data <- st_transform(geo_data_sf, 
+#                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+st_crs(utm_geo_data)
 # filter to just BC and make a bounding box of the whole region
 geo_data_sf_bc <- geo_data_sf[which(geo_data_sf$NAME_1 == "British Columbia"),]
 bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc))
@@ -28,6 +33,8 @@ non_land <- sf::st_difference(bb, geo_data_sf_bc)
 non_land_study <- sf::st_crop(non_land, xmin = -128.9,
                           xmax = -128, ymin = 52.2, 
                           ymax = 53.0)
+utm_geo_data <- st_transform(non_land_study, 
+                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 ggplot() + 
   geom_sf(data = non_land_study, color = 'blue', fill = "red") 
 # sample the bounding box with regular square points, then connect each point 
@@ -37,7 +44,7 @@ study_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(non_land_study)),
                             size = 10000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
-sf::st_crs(study_grid_sample) = 4326
+st_crs(study_grid_sample)
 # remove connections that are not within the water polygon
 study_grid_cropped <- study_grid_sample[sf::st_within(
   study_grid_sample, non_land_study, sparse = F)]

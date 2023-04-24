@@ -1,0 +1,15 @@
+
+------------------
+Order Details
+-----------------
+Order ID: 2281822
+Date: 20230423
+
+----------------------
+Feature Types
+-----------------------
+ - NTS BC Coastline Polygons 1:250,000 - Digital Baseline Mapping ( in directory 250_CST_PY
+
+----------------------------
+Packaged Products
+----------------------------
