@@ -12,8 +12,12 @@ library(sf)
 library(sfnetworks)
 library(nngeo)
 
-bc_shp <- readr::read_csv(here("./data/geo-spatial/BCGW/NTS_BC_COASTLINE_POLYS_125M/250_CST_PY.csv")) %>% 
-  sf::st_as_
+clean_farm_locs <- readr::read_csv(here("./data/farm-lice/clean/clean-farm-locs.csv")) %>% 
+  sf::st_as_sf(., coords = c("long", "lat"))
+sf::st_crs(clean_farm_locs) <- 4326
+  
+farms_utm <- st_transform(clean_farm_locs, 
+                          crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
 # read the data from raster package
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
@@ -30,24 +34,50 @@ bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc))
 # geom object and we're good 
 non_land <- sf::st_difference(bb, geo_data_sf_bc)
 # crop to just the study region
-non_land_study <- sf::st_crop(non_land, xmin = -128.9,
-                          xmax = -128, ymin = 52.2, 
-                          ymax = 53.0)
+non_land_study <- sf::st_crop(non_land, xmin = -129.0,
+                          xmax = -127.8, ymin = 52.2, 
+                          ymax = 53.2)
 utm_geo_data <- st_transform(non_land_study, 
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+#st_crs(utm_geo_data)
 ggplot() + 
   geom_sf(data = non_land_study, color = 'blue', fill = "red") 
+ggplot() + 
+  geom_sf(data = utm_geo_data, color = 'blue', fill = "red") 
 # sample the bounding box with regular square points, then connect each point 
 # to the closest 9 points 8 should've worked, but left some diagonals out.
-study_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(non_land_study)), 
+study_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_geo_data)), 
                             # the size is really large to make a very fine grid
-                            size = 10000, type = 'regular') %>% 
+                            size = 1000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
-st_crs(study_grid_sample)
+
 # remove connections that are not within the water polygon
 study_grid_cropped <- study_grid_sample[sf::st_within(
-  study_grid_sample, non_land_study, sparse = F)]
+  study_grid_sample, utm_geo_data, sparse = F)]
+
+# make an sfnetwork of the cropped grid
+area_network <- study_grid_cropped %>% as_sfnetwork()
+
+kid_bay <- farms_utm[which(farms_utm$site == "Kid Bay"),]
+
+all_paths <- sfnetworks::st_network_paths(
+  area_network,
+  from = kid_bay
+)
+
+ggplot() + 
+  geom_sf(data = study_grid_sample, alpha = .05) +
+  geom_sf(data = study_grid_cropped, color = 'dodgerblue') + 
+  geom_sf(data = utm_geo_data, color = 'blue', fill = NA) + 
+  geom_sf(data = farms_utm[which(farms_utm$site == "Kid Bay"),]) + 
+  geom_sf(data = area_network %>% 
+            activate(edges) %>%
+            slice(all_paths) %>%
+            st_as_sf(),
+          color = 'turquoise',
+          size = 2)
+
 
 
 
@@ -62,7 +92,6 @@ ggplot() +
 province = "British Columbia"
 canada_prov = geo_data[geo_data$NAME_1 %in% province] # subset to just BC
 
-clean_farm_locs <- readr::read_csv(here("./data/farm-lice/clean/clean-farm-locs.csv"))
 
 
 ggplot2::ggplot() +
