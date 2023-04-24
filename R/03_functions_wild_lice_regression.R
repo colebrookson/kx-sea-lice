@@ -9,6 +9,86 @@
 #'library
 #'
 
+# power_prep_pink ==============================================================
+power_prep_pink <- function(farm_lice, pink_sr_df, wild_lice) {
+  #' Fit the actual models we'll need for the power analysis
+  #' 
+  #' @description Fit the model and save the objects for pink salmon to be used
+  #' in the power analysis 
+  #' 
+  #' @param farm_lice dataframe. The clean farm lice dataframe
+  #' @param pink_sr_df dataframe. The clean sr data for pinks alone
+  #' @param wild_lice dataframe. The lice on wild fish data
+  #'  
+  #' @usage power_prep_pink(all_power_sims, output_path)
+  #' @return NA
+  #'
+  
+  ## first regression for the wild lice ========================================
+  wild_lice <- wild_lice %>% 
+    dplyr::rowwise() %>% 
+    dplyr::mutate(
+      date = lubridate::make_date(year, month, day),
+      site = as.factor(site),
+      year = as.factor(year)
+    ) %>% 
+    dplyr::mutate(
+      week = as.factor(lubridate::week(date))
+    )
+  
+  # do first with negative binomial
+  wild_lice_glmm_nb <- glmmTMB::glmmTMB(
+    lep_total ~ year + (1 | week) + (1 | site),
+    family = nbinom2,
+    data = wild_lice
+  )
+  # now with poisson
+  wild_lice_glmm_poi <- glmmTMB::glmmTMB(
+    lep_total ~ year + (1 | week) + (1 | site),
+    family = poisson(link = "log"),
+    data = wild_lice
+  )
+
+  ## do a check to see which model is better ===================================
+  if(AIC(wild_lice_glmm_nb) < (AIC(wild_lice_glmm_poi) + 2)) {
+    # the plus two is to make sure that the nb is at least 2 delta AIC better
+    best_model <- wild_lice_glmm_nb
+  } else if(AIC(wild_lice_glmm_poi) < (AIC(wild_lice_glmm_nb) + 2)) {
+    best_model <- wild_lice_glmm_poi
+  } else {
+    stop("Models not different enough via AIC - requires manual decision")
+  }
+  
+  ## model predictions =========================================================
+  predict_data <- data.frame(
+    year = as.character(c(2005:2022)),
+    week = NA,
+    site = NA
+  )
+  
+  predicted_yearly_lice <- data.frame(
+    year = as.character(c(2005:2022)),
+    stats::predict(
+      object = best_model,
+      newdata = predict_data,
+      re.from = ~0,
+      se.fit = TRUE,
+      type = "response"
+    )
+  ) %>% 
+    dplyr::mutate(
+      area = 7
+    )
+  # get yearly predicted
+  pred_yearly <- predicted_yearly_lice %>% 
+    dplyr::filter(year < 2021) %>% 
+    dplyr::mutate(farms = c(2, 4, 3, 4, 5, 6, 4, 4, 5, 4, 5, 5, 3, 4, 3, 4))
+  ggplot(data = pred_yearly) + 
+    geom_point(aes(x = farms, y = fit), colour = "purple", size = 2) + 
+    ggthemes::theme_base() + 
+    ylim(c(0, 0.8))
+}
+
 farm_lice <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
 pink_sr_df <- read_csv(here("./data/spawner-recruit/clean/pink-sr-data-clean.csv"))
 wild_lice <- read_csv(here("./data/wild-lice/clean/clean-wild-lice-df.csv"))
