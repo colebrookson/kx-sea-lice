@@ -6,20 +6,50 @@ library(sf)
 library(sp)
 library(raster)
 library(here)
+library(ggplot2)
+library(tidyverse)
+library(sf)
+library(sfnetworks)
+library(nngeo)
 
+# read the data from raster package
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
-geo_data_sf <- st_as_sf(geo_data)
+# make into sf object
+geo_data_sf <- st_as_sf(geo_data,
+                        crs = "+proj=utm +zone=9")
+# filter to just BC and make a bounding box of the whole region
 geo_data_sf_bc <- geo_data_sf[which(geo_data_sf$NAME_1 == "British Columbia"),]
 bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc))
-
+# now since we have a polygon of BC, we cant a polygon of the things that 
+# are the waterways, so use the st_differnce of the bounding box and that 
+# geom object and we're good 
 non_land <- sf::st_difference(bb, geo_data_sf_bc)
+# crop to just the study region
+non_land_study <- sf::st_crop(non_land, xmin = -128.9,
+                          xmax = -128, ymin = 52.2, 
+                          ymax = 53.0)
+ggplot() + 
+  geom_sf(data = non_land_study, color = 'blue', fill = "red") 
+# sample the bounding box with regular square points, then connect each point 
+# to the closest 9 points 8 should've worked, but left some diagonals out.
+study_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(non_land_study)), 
+                            # the size is really large to make a very fine grid
+                            size = 10000, type = 'regular') %>% 
+  sf::st_as_sf() %>%
+  nngeo::st_connect(.,.,k = 9) 
+sf::st_crs(study_grid_sample) = 4326
+# remove connections that are not within the water polygon
+study_grid_cropped <- study_grid_sample[sf::st_within(
+  study_grid_sample, non_land_study, sparse = F)]
+
+
 
 ggplot() + 
   geom_sf(data = geo_data_sf_bc, color = 'blue', fill = "red") 
 
 
 ggplot() + 
-  geom_sf(data = non_land, color = 'blue', fill = "red") 
+  geom_sf(data = non_land_study, color = 'blue', fill = "red") 
 
 
 province = "British Columbia"
