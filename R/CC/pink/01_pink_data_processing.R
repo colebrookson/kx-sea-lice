@@ -18,7 +18,7 @@ library(dplyr)
 library(stringr)
 
 # get the files from the directory
-files <- list.files(here("./outputs/power-analysis/saved-runs"))
+files <- list.files(here("./outputs/power-analysis/saved-runs/pink/"))
 
 # set up the dataframe
 df <- data.frame(
@@ -33,7 +33,7 @@ df <- data.frame(
 for(f in files) {
   # read in file
   df_temp <- readr::read_csv(paste0(
-    here("./outputs/power-analysis/saved-runs/"), 
+    here("./outputs/power-analysis/saved-runs/pink/"), 
     f),
     show_col_types = FALSE) %>% 
     # make column of the i 
@@ -49,5 +49,7 @@ for(f in files) {
 }
 
 # write out file
-readr::write_csv(df, 
-                 here("./outputs/power-analysis/all-power-analysis-runs.csv"))
+readr::write_csv(
+  df, 
+  here("./outputs/power-analysis/pink-all-power-analysis-runs.csv")
+)
