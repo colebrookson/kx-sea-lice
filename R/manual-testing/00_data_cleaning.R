@@ -76,11 +76,24 @@ names(stream_sr) <- tolower(names(stream_sr))
 
 ## clean pinks =================================================================
 all_pinks <- stream_sr %>% 
-  dplyr::filter(species %in% c("PKE", "PKO")) %>% 
+  dplyr::filter(species %in% c("PKE", "PKO")) 
+
+no_recruits <- all_pinks %>% 
+  dplyr::group_by(brood_year) %>% 
+  dplyr::summarize(mean_recruits = mean(recruits, na.rm = TRUE)) %>% 
+  dplyr::filter(is.na(mean_recruits))
+
+all_pinks <- all_pinks %>% 
+  # remove years where recruits haven't been measured yet
+  dplyr::filter(brood_year %in% no_recruits$brood_year)
   # get rid of NA's
   dplyr::filter_at(
     vars(spawners, returns), all_vars(!is.na(.))
   )
+
+no_recruits <- all_pinks %>% 
+  group_by(brood_year) %>% 
+  summarize(mean(recruits, na.rm = TRUE))
 
 pinks_even <- all_pinks %>% 
   dplyr::filter(species %in% c("PKE"))
@@ -126,7 +139,7 @@ all_pinks_rivers <- all_pinks %>%
   dplyr::arrange(
     brood_year
   )  
-
+table(all_pinks_rivers$brood_year)
 ## clean chum ==================================================================
 chum <- stream_sr %>% 
   dplyr::filter(species == "CM") %>% 

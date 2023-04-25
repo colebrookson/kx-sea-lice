@@ -257,13 +257,23 @@ clean_pk_sr_data <- function(sr_data, output_path) {
     ) %>% 
     dplyr::filter(
       species %in% c("PKO", "PKE")
-    ) %>% 
-    # get rid of NA's
-    dplyr::filter_at(
-      dplyr::vars(spawners, returns), dplyr::all_vars(!is.na(.))
-    )
+    ) 
   
   names(all_pinks) <- tolower(names(all_pinks))
+  
+  # filter out the years no recruitment has been measured 
+  no_recruits <- all_pinks %>% 
+    dplyr::group_by(brood_year) %>% 
+    dplyr::summarize(mean_recruits = mean(recruits, na.rm = TRUE)) %>% 
+    dplyr::filter(is.na(mean_recruits))
+  
+  all_pinks <- all_pinks %>% 
+    # remove years where recruits haven't been measured yet
+    dplyr::filter(brood_year %notin% no_recruits$brood_year) %>% 
+    # get rid of NA's
+    dplyr::filter_at(
+      vars(spawners, returns), all_vars(!is.na(.))
+    )
   
   # figure out how many observations per population there is
   pinks_even <- all_pinks %>% 
@@ -363,13 +373,23 @@ clean_coho_sr_data <- function(sr_data, output_path) {
     ) %>% 
     dplyr::filter(
       species == "CO"
-    ) %>% 
-    # get rid of NA's
-    dplyr::filter_at(
-      dplyr::vars(spawners, returns), dplyr::all_vars(!is.na(.))
-    )
+    ) 
   
   names(coho) <- tolower(names(coho))
+  
+  # filter out the years no recruitment has been measured 
+  no_recruits <- coho %>% 
+    dplyr::group_by(brood_year) %>% 
+    dplyr::summarize(mean_recruits = mean(recruits, na.rm = TRUE)) %>% 
+    dplyr::filter(is.na(mean_recruits))
+  
+  coho <- coho %>% 
+    # remove years where recruits haven't been measured yet
+    dplyr::filter(brood_year %notin% no_recruits$brood_year) %>% 
+    # get rid of NA's
+    dplyr::filter_at(
+      vars(spawners, returns), all_vars(!is.na(.))
+    )
   
   # figure out how many observations per population there is
   all_coho_obs_per_stream <- coho %>% 
@@ -386,12 +406,12 @@ clean_coho_sr_data <- function(sr_data, output_path) {
   # note that this could be condensed but it's handy to have a more easily 
   # accessible list of all the streams that we're keeping and the 
   # number of observations at each stream 
-  coho_streams_to_keep <- all_pinks_obs_per_stream %>% 
+  coho_streams_to_keep <- all_coho_obs_per_stream %>% 
     dplyr::filter(
       river %notin% coho_streams_to_exclude$river
     )
   readr::write_csv(
-    streams_to_keep,
+    coho_streams_to_keep,
     paste0(output_path, "coho-obs-per-stream.csv")
   )
   
@@ -412,6 +432,100 @@ clean_coho_sr_data <- function(sr_data, output_path) {
   
   
   return(coho_all_rivers)
+}
+# clean_chum_sr_data ===========================================================
+clean_chum_sr_data <- function(sr_data, output_path) {
+  #' Take in the raw spawner-recruit data and clean and write out the clean 
+  #' version for chum 
+  #' 
+  #' @description Data needs to be renamed, cleaned up a bit, do this with this 
+  #' one function 
+  #' 
+  #' @param sr_data file. the raw SR data
+  #' @param output_path character. Path to where to save the plot
+  #'  
+  #' @usage clean_chum_sr_data(sr_data, output_path)
+  #' @return the clean sr data
+  #' 
+  
+  # basic cleaning (renaming etc)
+  chum <- sr_data %>% 
+    dplyr::rename(
+      gfe_id = GFE_ID,
+      brood_year = BroodYear,
+      river = River,
+      species = Species,
+      indicator = Indicator,
+      long = xLONG,
+      lat = yLAT,
+      area = StatArea,
+      con_unit = CU,
+      #con_unit_2 = CU_2,
+      spawners = Spawners,
+      returns = Returns,
+      recruits = Recruits
+    ) %>% 
+    dplyr::filter(
+      species == "CM"
+    ) 
+  
+  names(chum) <- tolower(names(chum))
+  
+  # filter out the years no recruitment has been measured 
+  no_recruits <- chum %>% 
+    dplyr::group_by(brood_year) %>% 
+    dplyr::summarize(mean_recruits = mean(recruits, na.rm = TRUE)) %>% 
+    dplyr::filter(is.na(mean_recruits))
+  
+  chum <- chum %>% 
+    # remove years where recruits haven't been measured yet
+    dplyr::filter(brood_year %notin% no_recruits$brood_year) %>% 
+    # get rid of NA's
+    dplyr::filter_at(
+      vars(spawners, returns), all_vars(!is.na(.))
+    )
+  
+  # figure out how many observations per population there is
+  all_chum_obs_per_stream <- chum %>% 
+    dplyr::mutate(river = as.factor(river)) %>% 
+    dplyr::group_by(river) %>% 
+    dplyr::summarize(n = n()) 
+  
+  # find the streams to exclude
+  chum_streams_to_exclude <- all_chum_obs_per_stream %>% 
+    dplyr::filter(
+      n < 4
+    )
+  
+  # note that this could be condensed but it's handy to have a more easily 
+  # accessible list of all the streams that we're keeping and the 
+  # number of observations at each stream 
+  chum_streams_to_keep <- all_chum_obs_per_stream %>% 
+    dplyr::filter(
+      river %notin% chum_streams_to_exclude$river
+    )
+  readr::write_csv(
+    chum_streams_to_keep,
+    paste0(output_path, "chum-obs-per-stream.csv")
+  )
+  
+  # make the dataframe to move on with 
+  chum_all_rivers <- chum %>% 
+    dplyr::filter(
+      river %in% chum_streams_to_keep$river
+    ) %>% 
+    dplyr::arrange(
+      brood_year
+    )  
+  readr::write_csv(
+    chum_all_rivers,
+    paste0(output_path, "chum-sr-data-clean.csv")
+  )
+  
+  # Make a plot of obs per area/year 
+  
+  
+  return(chum_all_rivers)
 }
 
 # clean_farm_lice ==============================================================

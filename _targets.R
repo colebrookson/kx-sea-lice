@@ -16,13 +16,14 @@ library(here)
 
 source(here::here("./R/00_functions_global.R"))
 source(here::here("./R/01_functions_clean_data.R"))
-source(here::here("./R/02_functions_lice_regression.R"))
-source(here::here("./R/03_functions_mapping.R"))
-source(here::here("./R/04_functions_power_analysis.R"))
+source(here::here("./R/02_functions_lice_v_lice_regression.R"))
+source(here::here("./R/03_functions_wild_lice_regression.R"))
+source(here::here("./R/04_functions_mapping.R"))
+source(here::here("./R/05_functions_power_analysis.R"))
 
 tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2", 
                             "ggthemes", "wesanderson", "lubridate", "janitor",
-                            "tibble", "ggrepel", "sp"))
+                            "tibble", "ggrepel", "sp", "glmmTMB"))
 options(dplyr.summarise.inform = FALSE)
 
 list(
@@ -158,6 +159,20 @@ list(
   #' located in the folder `./outputs/power-analysis/saved-runs/` but all other
   #' analysis of those files, namely the summarizing and plotting of those data
   #' from the outputs are done in this target below
+  tar_target(
+    prep_pink_data_power_analysis,
+    power_prep_pink(
+      wild_lice = clean_wild_lice_data
+    )
+  ),
+  tar_target(
+    power_analysis_prep_pink,
+    power_pink_mod(
+      pred_yearly = prep_pink_data_power_analysis,
+      pink_sr_df = clean_pink_spawner_recruit_data,
+      output_path = here::here("./outputs/power-analysis/")
+    )
+  ),
   tar_target(
     power_analysis,
     plot_power(
