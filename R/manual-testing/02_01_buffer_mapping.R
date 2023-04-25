@@ -80,8 +80,8 @@ ggplot() +
 
 # cut to just the kid bay farm and area
 kid_bay_area <- sf::st_crop(non_land, xmin = -128.6,
-                              xmax = -128, ymin = 52.5, 
-                              ymax = 53.2)
+                              xmax = -128.12, ymin = 52.5, 
+                              ymax = 52.9)
 utm_kid_bay <- st_transform(kid_bay_area, 
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 #st_crs(utm_geo_data)
@@ -90,23 +90,37 @@ ggplot() +
   geom_sf(data = utm_kid_bay, color = 'blue', fill = "red") 
 kid_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_kid_bay)), 
                                    # the size is really large to make a very fine grid
-                                   size = 50000, type = 'regular') %>% 
+                                   size = 5000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
 
 # remove connections that are not within the water polygon
 kid_grid_cropped <- kid_grid_sample[sf::st_within(
   kid_grid_sample, utm_kid_bay, sparse = F)]
-kid_network <- as_sfnetwork(kid_grid_cropped)
-
+kid_network <- as_sfnetwork(kid_grid_cropped, directed = F)
+all_paths <- sfnetworks::st_network_paths(
+  kid_network,
+  from = kid_bay
+)
 ggplot() + 
   geom_sf(data = kid_grid_sample, alpha = .05) +
   geom_sf(data = kid_grid_cropped, color = 'dodgerblue') + 
-  geom_sf(data = utm_kid_bay, color = 'blue', fill = NA) 
+  geom_sf(data = utm_kid_bay, color = 'blue', fill = NA) +
+  geom_sf(data = kid_network %>% 
+            activate(edges) %>%
+            slice(all_paths) %>%
+            st_as_sf(),
+          color = 'turquoise',
+          size = 2)
 
 
-
-
+thin_area <- sf::st_crop(non_land, xmin = -128.5,
+                            xmax = -128.2, ymin = 52.5, 
+                            ymax = 52.7)
+utm_thin_area<- st_transform(thin_area, 
+                            crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+ggplot() + 
+  geom_sf(data = utm_thin_area, color = 'blue', fill = "red") 
 
 
 

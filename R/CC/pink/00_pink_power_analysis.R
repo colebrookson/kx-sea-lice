@@ -13,13 +13,13 @@ if(length(i) > 1) {
 print(i)
 # pull in the data with the info needed
 fit_items <- readr::read_csv(
-  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/pink-fit-null-model-objects.csv"
+  "~/Github/kx-sea-lice/outputs/power-analysis/pink-fit-null-model-objects.csv"
 )
 pink_sr <- readr::read_csv(
-  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/pink-sr-data-ready-for-sims.csv"
+  "~/Github/kx-sea-lice/outputs/power-analysis/pink-sr-data-ready-for-sims.csv"
 )
 b_i_df <- readr::read_csv(
-  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/pink-b-i-df.csv"
+  "~/Github/kx-sea-lice/outputs/power-analysis/pink-b-i-df.csv"
 )
 b_i_df$popn <- as.factor(b_i_df$popn)
 # add in r
@@ -34,8 +34,7 @@ colnames(c_mat) <- c("c", "null_like", "alt_like", "p")
 # set the c value for this iteration
 start_time <- Sys.time()
 matrix_counter <- 1
-#for(c in 1:1) {
-c <- 1
+for(c in seq(0, 1, 0.01)) {
   # year random effects
   year_df <- data.frame(
     year = as.factor(unique(pink_sr$brood_year)),
@@ -63,6 +62,7 @@ c <- 1
   # now join all dataframes together
   pink_sr$year <- as.factor(pink_sr$brood_year) # to have a factor to join with
   pink_sr$popn <- as.factor(pink_sr$river) # to have a factor to join with
+  pink_sr$area <- as.factor(pink_sr$area)
 
   joined_df <- dplyr::left_join(pink_sr, year_df, by = "year") %>%
     dplyr::left_join(., area_year_df, by = c("year", "area")) %>%
@@ -89,21 +89,21 @@ c <- 1
   alt_mod <- lme4::lmer(survival_temp ~ spawners:river + lice +
                           (1|year/area),
                         data = joined_df)
-print("fit the models")
-null_logLik <- stats::logLik(null_mod)
-alt_logLik <- stats::logLik(alt_mod)
-# do the test
-teststat <- -2 * (as.numeric(null_logLik) - as.numeric(alt_logLik))
-df_diff <- attr(alt_logLik, "df") - attr(null_logLik, "df")
-p_val <- pchisq(teststat, df = df_diff, lower.tail = FALSE)
-
-# fill in matrix row
-c_mat[matrix_counter, ] <- c(c, null_logLik, alt_logLik, p_val)
-
-# iterate matrix counter
-matrix_counter <- matrix_counter + 1
-print(c)
-#}
+  print("fit the models")
+  null_logLik <- stats::logLik(null_mod)
+  alt_logLik <- stats::logLik(alt_mod)
+  # do the test
+  teststat <- -2 * (as.numeric(null_logLik) - as.numeric(alt_logLik))
+  df_diff <- attr(alt_logLik, "df") - attr(null_logLik, "df")
+  p_val <- pchisq(teststat, df = df_diff, lower.tail = FALSE)
+  
+  # fill in matrix row
+  c_mat[matrix_counter, ] <- c(c, null_logLik, alt_logLik, p_val)
+  
+  # iterate matrix counter
+  matrix_counter <- matrix_counter + 1
+  print(c)
+}
 end_time <- Sys.time()
 print(end_time - start_time)
 
