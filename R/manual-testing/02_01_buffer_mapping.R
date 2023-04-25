@@ -80,15 +80,14 @@ ggplot() +
 
 # cut to just the kid bay farm and area
 kid_bay_area <- sf::st_crop(non_land, xmin = -128.6,
-                              xmax = -127.8, ymin = 52.1, 
+                              xmax = -128, ymin = 52.5, 
                               ymax = 53.2)
-utm_geo_data <- st_transform(non_land_study, 
+utm_kid_bay <- st_transform(kid_bay_area, 
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 #st_crs(utm_geo_data)
+
 ggplot() + 
-  geom_sf(data = non_land_study, color = 'blue', fill = "red") 
-ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'blue', fill = "red") 
+  geom_sf(data = utm_kid_bay, color = 'blue', fill = "red") 
 
 ggplot() + 
   geom_sf(data = geo_data_sf_bc, color = 'blue', fill = "red") 
