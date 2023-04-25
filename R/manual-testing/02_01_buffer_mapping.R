@@ -35,7 +35,7 @@ bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc))
 non_land <- sf::st_difference(bb, geo_data_sf_bc)
 # crop to just the study region
 non_land_study <- sf::st_crop(non_land, xmin = -128.9,
-                          xmax = -127.8, ymin = 52.2, 
+                          xmax = -127.8, ymin = 52.1, 
                           ymax = 53.2)
 utm_geo_data <- st_transform(non_land_study, 
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
@@ -48,7 +48,7 @@ ggplot() +
 # to the closest 9 points 8 should've worked, but left some diagonals out.
 study_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_geo_data)), 
                             # the size is really large to make a very fine grid
-                            size = 5000, type = 'regular') %>% 
+                            size = 1000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
 
@@ -78,8 +78,17 @@ ggplot() +
           color = 'turquoise',
           size = 2)
 
-
-
+# cut to just the kid bay farm and area
+non_land_study <- sf::st_crop(non_land, xmin = -128.9,
+                              xmax = -127.8, ymin = 52.1, 
+                              ymax = 53.2)
+utm_geo_data <- st_transform(non_land_study, 
+                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+#st_crs(utm_geo_data)
+ggplot() + 
+  geom_sf(data = non_land_study, color = 'blue', fill = "red") 
+ggplot() + 
+  geom_sf(data = utm_geo_data, color = 'blue', fill = "red") 
 
 ggplot() + 
   geom_sf(data = geo_data_sf_bc, color = 'blue', fill = "red") 

@@ -6,7 +6,7 @@ library(lme4)
 library(dplyr, quietly = TRUE)
 
 # set the i value 
-i <- commandArgs(trailingOnly=FALSE)
+i <- commandArgs(trailingOnly=FALSE) 
 if(length(i) > 1) {
  i <- i[length(i)]
 }
