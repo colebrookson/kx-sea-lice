@@ -79,7 +79,7 @@ ggplot() +
           size = 2)
 
 # cut to just the kid bay farm and area
-non_land_study <- sf::st_crop(non_land, xmin = -128.9,
+kid_bay_area <- sf::st_crop(non_land, xmin = -128.6,
                               xmax = -127.8, ymin = 52.1, 
                               ymax = 53.2)
 utm_geo_data <- st_transform(non_land_study, 
