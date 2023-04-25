@@ -339,8 +339,7 @@ net = as_sfnetwork(roxel, directed = FALSE) %>%
   activate("edges") %>%
   mutate(weight = edge_length()) 
 
-paths <- st_network_paths(net %>% activate(nodes), from = 495, to = c(1:701), weights = "weight") %>% 
-  pull(edge_paths)
+paths <- st_network_paths(net %>% activate(nodes), from = 495, to = c(1:701), weights = "weight")
 short_paths <- igraph::shortest_paths(
   graph = net, 
   from = 495,
@@ -375,15 +374,21 @@ ggplot() +
             st_as_sf())  + 
   geom_sf(data = net %>%
             activate("nodes") %>%  
-            slice(495, 485, 162, 628, 161, 701) %>% 
+            slice(495) %>% 
             st_as_sf(), size = 3.5, fill = "orange", colour = "black", shape = 21) +
   geom_sf(data = net %>% 
             activate(edges) %>% 
+            slice(paths) %>%
             filter(weight > units::set_units(100, m) &
                      weight < units::set_units(300, m)) %>% 
-            filter(from == 495) %>% 
-            as_tibble() %>% 
-            st_as_sf(), colour = "firebrick") + 
+            st_as_sf()) + 
+  # geom_sf(data = net %>% 
+  #           activate(edges) %>% 
+  #           filter(weight > units::set_units(100, m) &
+  #                    weight < units::set_units(300, m)) %>% 
+  #           filter(from == 495) %>% 
+  #           as_tibble() %>% 
+  #           st_as_sf(), colour = "firebrick") + 
   #geom_sf(data = sub_graph_small %>% activate(edges) %>% as_tibble() %>% st_as_sf(), lwd = 1, col = 'firebrick') +
   theme_void()
 short_paths = st_network_paths(net, 
