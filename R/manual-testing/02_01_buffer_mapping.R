@@ -60,6 +60,8 @@ study_grid_cropped <- study_grid_sample[sf::st_within(
 area_network <- as_sfnetwork(study_grid_cropped)
 
 kid_bay <- farms_utm[which(farms_utm$site == "Kid Bay"),]
+loch <- farms_utm[which(farms_utm$site == "Lochalsh"),]
+goat <- farms_utm[which(farms_utm$site == "Goat Cove"),]
 
 all_paths <- sfnetworks::st_network_paths(
   area_network,
@@ -90,29 +92,57 @@ ggplot() +
   geom_sf(data = utm_kid_bay, color = 'blue', fill = "red") 
 kid_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_kid_bay)), 
                                    # the size is really large to make a very fine grid
-                                   size = 5000, type = 'regular') %>% 
+                                   size = 50000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
 
 # remove connections that are not within the water polygon
 kid_grid_cropped <- kid_grid_sample[sf::st_within(
   kid_grid_sample, utm_kid_bay, sparse = F)]
-kid_network <- as_sfnetwork(kid_grid_cropped, directed = F)
+
+kid_network <- as_sfnetwork(kid_grid_cropped, directed = T) %>% 
+  activate("edges") %>% 
+  mutate(weight = edge_length()) 
+
 all_paths <- sfnetworks::st_network_paths(
-  kid_network,
+  x = kid_network,
   from = kid_bay
-)
+  )  %>%
+  pull(edge_paths)
+single <- sfnetworks::st_network_paths(
+  x = kid_network,
+  from = kid_bay,
+  to = loch) %>%
+  pull(edge_paths) %>%
+  unlist()
+two <- sfnetworks::st_network_paths(
+  x = kid_network,
+  from = kid_bay,
+  to = loch) %>%
+  pull(edge_paths) %>%
+  unlist()
+
+lengths <- kid_network %>% 
+  st_as_sf() %>% 
+  st_length()
+
 ggplot() + 
-  geom_sf(data = kid_grid_sample, alpha = .05) +
+  #geom_sf(data = kid_grid_sample, alpha = .05) +
   geom_sf(data = kid_grid_cropped, color = 'dodgerblue') + 
   geom_sf(data = utm_kid_bay, color = 'blue', fill = NA) +
   geom_sf(data = kid_network %>% 
             activate(edges) %>%
-            slice(all_paths) %>%
+            slice(two) %>%
             st_as_sf(),
           color = 'turquoise',
           size = 2)
 
+under_30 <- kid_network %>% 
+  activate(edges) %>% 
+  slice(all_paths) %>%
+  st_as_sf() %>% 
+  st_combine() %>%
+  st_length()
 
 thin_area <- sf::st_crop(non_land, xmin = -128.5,
                             xmax = -128.2, ymin = 52.5, 
@@ -296,9 +326,6 @@ ggplot() +
 
 
 
-# new stack overflow code ======================================================
-canada <- raster::getData("GADM",country="CAN",level=1)
-geo_data_sf <- st_as_sf(geo_data)
-geo_data_sf_bc <- geo_data_sf[which(geo_data_sf$NAME_1 == "British Columbia"),]
-non_land <- sf::st_difference(geo_data_sf_bc)
+# checking out routing code to see if I can find a solution ====================
+
 
