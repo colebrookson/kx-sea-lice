@@ -13,6 +13,7 @@ do
     echo "#!/bin/bash
 
 #SBATCH --mail-user=cole.brookson@gmail.com
+#SBATCH --account=def-bat3man
 #SBATCH --mail-type=BEGIN 
 #SBATCH --mail-type=END 
 #SBATCH --mail-type=FAIL 

@@ -88,13 +88,32 @@ utm_kid_bay <- st_transform(kid_bay_area,
 
 ggplot() + 
   geom_sf(data = utm_kid_bay, color = 'blue', fill = "red") 
+kid_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_kid_bay)), 
+                                   # the size is really large to make a very fine grid
+                                   size = 50000, type = 'regular') %>% 
+  sf::st_as_sf() %>%
+  nngeo::st_connect(.,.,k = 9) 
+
+# remove connections that are not within the water polygon
+kid_grid_cropped <- kid_grid_sample[sf::st_within(
+  kid_grid_sample, utm_kid_bay, sparse = F)]
+kid_network <- as_sfnetwork(kid_grid_cropped)
 
 ggplot() + 
-  geom_sf(data = geo_data_sf_bc, color = 'blue', fill = "red") 
+  geom_sf(data = kid_grid_sample, alpha = .05) +
+  geom_sf(data = kid_grid_cropped, color = 'dodgerblue') + 
+  geom_sf(data = utm_kid_bay, color = 'blue', fill = NA) 
 
 
-ggplot() + 
-  geom_sf(data = non_land_study, color = 'blue', fill = "red") 
+
+
+
+
+
+
+
+
+
 
 
 province = "British Columbia"
