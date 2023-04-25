@@ -327,5 +327,58 @@ ggplot() +
 
 
 # checking out routing code to see if I can find a solution ====================
+library(sfnetworks)
+library(sf)
+library(tidygraph)
+library(dplyr)
+library(purrr)
+library(TSP)
 
+net = as_sfnetwork(roxel, directed = FALSE) %>%
+  st_transform(3035) %>%
+  activate("edges") %>%
+  mutate(weight = edge_length()) %>% 
+  filter(weight < 100)
 
+paths = st_network_paths(net, from = 495, weights = "weight")
+
+ggplot() +
+  geom_sf(data = net %>%
+            activate("edges") %>%  
+            st_as_sf(), colour = "grey90") +
+  geom_sf(data = net %>%
+            activate("nodes") %>%  
+            st_as_sf())  + 
+  geom_sf(data = net %>%
+            activate("nodes") %>%  
+            slice(495) %>% 
+            st_as_sf(), size = 3.5, fill = "orange", colour = "black", shape = 21) +
+  theme_void()
+short_paths = st_network_paths(net, 
+                               from = 495,
+                               to = c(458, 121), 
+                               weights = "weight") %>% 
+  pull(edge_paths) %>% 
+  unlist()
+net %>% 
+  activate("edges") %>% 
+  st_as_sf() %>% 
+  slice(short_paths) %>% 
+  st_length()
+  
+
+ggplot() +
+  geom_sf(data = net %>%
+            activate("edges") %>%  
+            st_as_sf(), colour = "grey90") +
+  geom_sf(data = net %>%
+            activate("nodes") %>%  
+            st_as_sf())  + 
+  geom_sf(data = net %>%
+            activate("nodes") %>%  
+            slice(495) %>% 
+            st_as_sf(), size = 3.5, fill = "orange", colour = "black", shape = 21) +
+  geom_sf(data = paths %>% 
+            activate("edges") %>% 
+            slice())
+  theme_void()

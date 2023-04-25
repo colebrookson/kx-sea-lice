@@ -13,7 +13,7 @@ if(length(i) > 1) {
 print(i)
 # pull in the data with the info needed
 fit_items <- readr::read_csv(
-  " /home/brookson/scratch/kx-sea-lice/outputs/power-analysis/pink-fit-null-model-objects.csv"
+  "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/pink-fit-null-model-objects.csv"
 )
 pink_sr <- readr::read_csv(
   "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/pink-sr-data-ready-for-sims.csv"
