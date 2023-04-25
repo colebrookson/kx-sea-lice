@@ -109,9 +109,9 @@ print(end_time - start_time)
 
 readr::write_csv(
    #x = test_df,
-   x = data.frame(joined_df),
+   x = data.frame(c_mat),
    file = paste0(
-     "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs/pink",
+     "/home/brookson/scratch/kx-sea-lice/outputs/power-analysis/saved-runs/pink/",
      "c-matrix-", i, ".csv"
    )
  )
