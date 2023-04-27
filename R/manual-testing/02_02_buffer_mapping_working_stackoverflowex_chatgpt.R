@@ -31,23 +31,53 @@ end_nodes <- c("d", "f")
 net = as_sfnetwork(roxel, directed = FALSE) %>%
   st_transform(3035) %>%
   activate("edges") %>%
-  mutate(weight = edge_length()) 
+  mutate(weight = edge_length())
 
-start_node <- 495
-short_paths_sf <- st_network_paths(
-  net %>% activate(nodes), 
-  from = 495, 
-  to = c(1:701), 
-  weights = "weight") 
-shortest_paths <- shortest_paths(
-  net, from = 495, to = c(1:701), output = "both")
+paths = st_network_paths(net, from = 495, weights = "weight")
+paths
 
-# Extract the edges and nodes from the shortest paths
-shortest_path_edges <- unique(unlist(lapply(short_paths_sf, `[[`, "vpath")))
-shortest_path_nodes <- unique(unlist(lapply(shortest_paths, `[[`, "node")))
+nodes <- paths %>%
+  slice(1) %>%
+  pull(node_paths) %>%
+  unlist()
 
-# Create the subgraph
-subgraph <- subset(mat, nodes = shortest_path_nodes, edges = shortest_path_edges)
+edges <- paths %>%
+  slice(c(1, 701)) %>%
+  pull(edge_paths) %>%
+  unlist()
 
-# Plot the subgraph
-plot(subgraph)
+plot_path = function(edges) {
+  ggplot() + 
+    geom_sf(data = net %>%
+              activate("edges") %>%  
+              st_as_sf(), colour = "grey90") +
+    geom_sf(data = net %>%
+              activate("nodes") %>%  
+              st_as_sf(), colour = "grey90")  + 
+    geom_sf(data = net %>%
+                 activate("edges") %>%
+                 slice(edges) %>% 
+                 st_as_sf()
+                 ) +
+    geom_sf(data = net %>%
+              activate("nodes") %>%  
+              slice(495) %>% 
+              st_as_sf(), size = 3.5, fill = "orange", colour = "black", shape = 21) +
+    geom_sf(data = net %>%
+              activate("nodes") %>%  
+              slice(c(1,701)) %>% 
+              st_as_sf(), size = 3.5, fill = "red", colour = "black", shape = 21) +
+    theme_void()
+}
+
+colors = sf.colors(3, categorical = TRUE)
+
+plot(net, col = "grey")
+paths %>%
+  pull(edge_paths) %>%
+  purrr::walk(plot_path)
+net %>%
+  activate("nodes") %>%
+  st_as_sf() %>%
+  slice(c(495, 121, 458)) %>%
+  plot(col = colors, pch = 8, cex = 2, lwd = 2, add = TRUE)
