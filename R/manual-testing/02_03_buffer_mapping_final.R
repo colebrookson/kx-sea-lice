@@ -204,7 +204,7 @@ short_edges <- len_crit(net = network, edges = edges_all)
 saveRDS(short_edges, here("./outputs/geo-objs/short-edges.rds"))
 short_time <- Sys.time() - short_start
 print(paste0("To calculate the paths, elapsed time: ", round(short_time, 2), 
-             " minutes")
+             " minutes"))
 
 
 
