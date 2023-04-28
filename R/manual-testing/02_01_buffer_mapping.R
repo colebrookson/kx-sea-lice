@@ -23,8 +23,8 @@ farms_utm <- st_transform(clean_farm_locs,
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
 # make into sf object
 geo_data_sf <- st_as_sf(geo_data)
-# utm_geo_data <- st_transform(geo_data_sf, 
-#                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+utm_geo_data <- st_transform(geo_data_sf,
+                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 st_crs(utm_geo_data)
 # filter to just BC and make a bounding box of the whole region
 geo_data_sf_bc <- geo_data_sf[which(geo_data_sf$NAME_1 == "British Columbia"),]
@@ -100,15 +100,125 @@ kid_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_kid_bay)),
 kid_grid_cropped <- kid_grid_sample[sf::st_within(
   kid_grid_sample, utm_kid_bay, sparse = F)]
 
-kid_network <- as_sfnetwork(kid_grid_cropped, directed = T) %>% 
+kid_network <- as_sfnetwork(kid_grid_cropped, directed = FALSE) %>% 
   activate("edges") %>% 
   mutate(weight = edge_length()) 
 
 all_paths <- sfnetworks::st_network_paths(
   x = kid_network,
-  from = kid_bay
-  )  %>%
-  pull(edge_paths)
+  from = kid_bay, weights = "weight"
+  )  
+
+nodes_all <- all_paths %>%
+  pull(node_paths) 
+
+edges_all <- all_paths %>%
+  pull(edge_paths) 
+
+short_edges <- len_crit(net = kid_network, edges = edges_all)
+
+ggplot() + 
+  geom_sf(data = utm_kid_bay, color = 'blue', fill = "red") 
+
+
+ggplot() + 
+  geom_sf(data = kid_grid_sample, alpha = .05) +
+  geom_sf(data = kid_grid_cropped, color = 'dodgerblue') + 
+  geom_sf(data = utm_kid_bay, color = 'blue', fill = NA) + 
+  geom_sf(data = farms_utm[which(farms_utm$site == "Kid Bay"),]) + 
+  geom_sf(data = kid_network %>%
+            activate("edges") %>%
+            slice(short_edges) %>% 
+            st_as_sf(),
+          color = 'turquoise',
+          size = 2)
+
+len_crit <- function(net, edges, nodes = NULL) {
+  #' Look at whether or not each of the individual paths calcualted actually
+  #' pass the required test
+  #' 
+  #' @description  Look at whether or not each of the individual paths 
+  #' calculated actually pass the required test
+  #' @param net sfnetwork. A network of sfnetwork
+  #' @param slice_val integer. The value to slice the edges into 
+  #' @param edges list. The list of the edges in the shortest path
+  
+  # initialize empty vector
+  all_edges <- as.numeric()
+  # initialize empty vector for nodes if applicable 
+  if(!is.null(nodes)) {
+    all_nodes <- as.numeric()
+  }
+  
+  # get the length of the edges so we know a progress measure
+  no_slices <- length(edges)
+  # get 0.1 increments:
+  edge_incs <- c(round(0.1*no_slices), round(0.2*no_slices), 
+                 round(0.3*no_slices), round(0.4*no_slices),
+                 round(0.5*no_slices), round(0.6*no_slices),
+                 round(0.7*no_slices), round(0.8*no_slices),
+                 round(0.9*no_slices), round(0.99*no_slices))
+  edge_msgs <- c("10% ", "20% ", "30% ", "40% ", "50% ", "60% ", "70% ","80% ",
+                 "90% ", "99% ")
+  start_time <- Sys.time()
+  # go through each of the slices (aka each of the paths)
+  for(slice in 1:length(edges)) {
+    
+    # check what the temporary path length is
+    temp_len <- net %>% 
+      activate("edges") %>% 
+      slice(edges[[slice]]) %>% 
+      st_as_sf() %>% 
+      st_combine() %>% 
+      st_length()
+    
+    # if the temporary length is long enough, add the edges of that path to 
+    # the total edges
+    if(temp_len < units::set_units(30000, m)) {
+      # if the length of the current path is long enough, add it to all_edges
+      all_edges <- c(all_edges, edges[[slice]])
+      
+      # if we also want to plot the nodes, we can do so
+      if(!is.null(nodes)) {
+        # if the length is long enough, keep the LAST node in that set
+        all_nodes <- c(all_nodes, nodes[[slice]][[length(nodes[[slice]])]]) 
+      }
+    }
+    if(slice %in% edge_incs) {
+      pos <- match(slice, edge_incs)
+      curr_time <- Sys.time() - start_time
+      print(paste0(edge_msgs[pos], "elapsed time: ", round(curr_time, 2), 
+                   " minutes"))
+    }
+  }
+  
+  # if the nodes are selected return both that and the edges
+  if(!is.null(nodes)) {
+    # keep only the unique ones
+    unique_nodes <- unique(all_nodes)
+    # keep only the unique ones
+    unique_edges <- unique(all_edges)
+    # list up both
+    nodes_edges <- list(
+      nodes = unique_nodes,
+      edges = unique_edges 
+    )
+    # return both
+    return(nodes_edges)
+  }
+  
+  # keep only the unique ones
+  unique_edges <- unique(all_edges)
+  
+  return(unique_edges)
+}
+
+
+
+
+
+
+
 single <- sfnetworks::st_network_paths(
   x = kid_network,
   from = kid_bay,
