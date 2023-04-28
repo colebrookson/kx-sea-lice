@@ -129,7 +129,7 @@ non_land <- sf::st_difference(bb, geo_data_sf_bc)
 # crop to just the study region
 non_land_study <- sf::st_crop(non_land, xmin = -128.9,
                               xmax = -127.8, ymin = 52.1, 
-                              ymax = 53.2)
+                              ymax = 53.1)
 
 # make sure the projection is the same (UTM)
 utm_geo_data <- st_transform(non_land_study, 
@@ -137,7 +137,8 @@ utm_geo_data <- st_transform(non_land_study,
 
 # quick sanity check for what we're looking at 
 ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'blue', fill = "red") 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey90") +
+  theme_base()
 
 # now, we can do this one farm region at a time, or all at once, I think it's 
 # actually computationally faster to do all at once
@@ -145,24 +146,65 @@ ggplot() +
 ## make the grid sample on the whole study region ==============================
 
 # first make it as small as possible
-smallest_study_area <- sf::st_crop(non_land, xmin = -128.6,
-                            xmax = -128.12, ymin = 52.5, 
-                            ymax = 52.9)
-grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_kid_bay)), 
-                                 # the size is really large to make a very fine grid
-                                 size = 50000, type = 'regular') %>% 
+grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_geo_data)), 
+                              # the size is really large to make very fine grid
+                              size = 450000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
+saveRDS(grid_sample, here("./outputs/geo-objs/grid-sample.rds"))
 
+# remove connections that are not within the water polygon
+crop_time_start <- Sys.time()
+grid_cropped <- grid_sample[sf::st_within(
+  grid_sample, utm_geo_data, sparse = F)]
+saveRDS(grid_cropped, here("./outputs/geo-objs/grid-sample-cropped.rds"))
+crop_time <- Sys.time() - crop_time_start
+print(paste0("For the cropping, elapsed time: ", round(crop_time, 2), 
+             " minutes"))
 
+# now actually make the network
+net_time_start <- Sys.time()
+network <- as_sfnetwork(grid_cropped, directed = FALSE) %>% 
+  activate("edges") %>% 
+  mutate(weight = edge_length()) 
+saveRDS(network, here("./outputs/geo-objs/network.rds"))
+net_time <- Sys.time() - net_time_start
+print(paste0("For the network creation, elapsed time: ", round(net_time, 2), 
+             " minutes"))
 
+## get the shortest paths ======================================================
+# NOTE: get the shortest paths -- this is calculating the shortest paths from 
+# each of the "from" points, to all of the other points on the entire grid
+# this will take a LONG time
 
+# get the shortest paths 
+paths_start <- Sys.time()
+all_paths <- sfnetworks::st_network_paths(
+  x = network,
+  from = farms_utm, 
+  weights = "weight"
+)  
+saveRDS(all_paths, here("./outputs/geo-objs/all-paths.rds"))
+path_time <- Sys.time() - paths_start
+print(paste0("To calculate the paths, elapsed time: ", round(path_time, 2), 
+             " minutes"))
 
+# now pull both the nodes and the edges 
+nodes_all <- all_paths %>%
+  pull(node_paths) 
+edges_all <- all_paths %>%
+  pull(edge_paths) 
 
+## filter the edges ============================================================
 
-
-
-
+# here, use our pre-defined function to figure out which of the edges match our 
+# criteria of <30km
+short_start <- Sys.time()
+short_edges <- len_crit(net = network, edges = edges_all)
+saveRDS(short_edges, here("./outputs/geo-objs/short-edges.rds"))
+short_time <- Sys.time() - short_start
+print(paste0("To calculate the paths, elapsed time: ", round(short_time, 2), 
+             " minutes")
 
 
 
