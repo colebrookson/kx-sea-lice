@@ -107,7 +107,7 @@ farms_utm <- st_transform(clean_farm_locs,
 # canada_prov = canada[canada$NAME_1 == "British Columbia"] # subset to just BC
 
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
-
+rm(geo_data)
 # make into sf object
 geo_data_sf <- st_as_sf(geo_data)
 
@@ -128,7 +128,7 @@ non_land <- sf::st_difference(bb, geo_data_sf_bc)
 
 # crop to just the study region
 non_land_study <- sf::st_crop(non_land, xmin = -128.9,
-                              xmax = -127.8, ymin = 52.1, 
+                              xmax = -127.8, ymin = 52.3, 
                               ymax = 53.1)
 
 # make sure the projection is the same (UTM)
@@ -148,7 +148,7 @@ ggplot() +
 # first make it as small as possible
 grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_geo_data)), 
                               # the size is really large to make very fine grid
-                              size = 450000, type = 'regular') %>% 
+                              size = 500000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
 saveRDS(grid_sample, here("./outputs/geo-objs/grid-sample.rds"))
@@ -160,7 +160,7 @@ grid_cropped <- grid_sample[sf::st_within(
 saveRDS(grid_cropped, here("./outputs/geo-objs/grid-sample-cropped.rds"))
 crop_time <- Sys.time() - crop_time_start
 print(paste0("For the cropping, elapsed time: ", round(crop_time, 2), 
-             " minutes"))
+             " hours"))
 
 # now actually make the network
 net_time_start <- Sys.time()
