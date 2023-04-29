@@ -97,10 +97,17 @@ kid_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_kid_bay)),
   nngeo::st_connect(.,.,k = 9) 
 
 # remove connections that are not within the water polygon
+crop_within_t <- Sys.time()
 kid_grid_cropped <- kid_grid_sample[sf::st_within(
   kid_grid_sample, utm_kid_bay, sparse = F)]
+crop_within_t_e <- Sys.time() 
 
-kid_network <- as_sfnetwork(kid_grid_cropped, directed = FALSE) %>% 
+crop_contains_s <- Sys.time()
+kid_grid_cropped_c <- kid_grid_sample[sf::st_contains(
+  utm_kid_bay, kid_grid_sample, sparse = F)]
+crop_contains_e <- Sys.time()
+
+kid_network <- as_sfnetwork(kid_grid_cropped_c, directed = FALSE) %>% 
   activate("edges") %>% 
   mutate(weight = edge_length()) 
 

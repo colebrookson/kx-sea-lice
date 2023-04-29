@@ -6,84 +6,22 @@ library(ggplot2)
 library(sfnetworks)
 
 # define manual helper function ================================================
-len_crit <- function(net, edges, nodes = NULL) {
-  #' Look at whether or not each of the individual paths calcualted actually
-  #' pass the required test
+slice_fun <- function(net, temp_edges) {
+  #' Find path length of one path
   #' 
-  #' @description  Look at whether or not each of the individual paths 
-  #' calculated actually pass the required test
+  #' @description Taking a single path (i.e. set of edges), get the length 
+  #' of that path, and remove the units on it
   #' @param net sfnetwork. A network of sfnetwork
-  #' @param slice_val integer. The value to slice the edges into 
-  #' @param edges list. The list of the edges in the shortest path
+  #' @param temp_edges vector. The edges of the path at hand 
+  #' 
+  #' @return numeric value (units removed) of the length of that path
   
-  # initialize empty vector
-  all_edges <- as.numeric()
-  # initialize empty vector for nodes if applicable 
-  if(!is.null(nodes)) {
-    all_nodes <- as.numeric()
-  }
-  
-  # get the length of the edges so we know a progress measure
-  no_slices <- length(edges)
-  # get 0.1 increments:
-  edge_incs <- c(round(0.1*no_slices), round(0.2*no_slices), 
-                 round(0.3*no_slices), round(0.4*no_slices),
-                 round(0.5*no_slices), round(0.6*no_slices),
-                 round(0.7*no_slices), round(0.8*no_slices),
-                 round(0.9*no_slices), round(0.99*no_slices))
-  edge_msgs <- c("10% ", "20% ", "30% ", "40% ", "50% ", "60% ", "70% ","80% ",
-                 "90% ", "99% ")
-  start_time <- Sys.time()
-  # go through each of the slices (aka each of the paths)
-  for(slice in 1:length(edges)) {
-    
-    # check what the temporary path length is
-    temp_len <- net %>% 
-      activate("edges") %>% 
-      slice(edges[[slice]]) %>% 
-      st_as_sf() %>% 
-      st_combine() %>% 
-      st_length()
-    
-    # if the temporary length is long enough, add the edges of that path to 
-    # the total edges
-    if(temp_len < units::set_units(30000, m)) {
-      # if the length of the current path is long enough, add it to all_edges
-      all_edges <- c(all_edges, edges[[slice]])
-      
-      # if we also want to plot the nodes, we can do so
-      if(!is.null(nodes)) {
-        # if the length is long enough, keep the LAST node in that set
-        all_nodes <- c(all_nodes, nodes[[slice]][[length(nodes[[slice]])]]) 
-      }
-    }
-    if(slice %in% edge_incs) {
-      pos <- match(slice, edge_incs)
-      curr_time <- Sys.time() - start_time
-      print(paste0(edge_msgs[pos], "elapsed time: ", round(curr_time, 2), 
-                   " minutes"))
-    }
-  }
-  
-  # if the nodes are selected return both that and the edges
-  if(!is.null(nodes)) {
-    # keep only the unique ones
-    unique_nodes <- unique(all_nodes)
-    # keep only the unique ones
-    unique_edges <- unique(all_edges)
-    # list up both
-    nodes_edges <- list(
-      nodes = unique_nodes,
-      edges = unique_edges 
-    )
-    # return both
-    return(nodes_edges)
-  }
-  
-  # keep only the unique ones
-  unique_edges <- unique(all_edges)
-  
-  return(unique_edges)
+  return(units::drop_units(net %>% 
+                             activate("edges") %>% 
+                             slice(temp_edges) %>% 
+                             st_as_sf() %>% 
+                             st_combine() %>% 
+                             st_length()))
 }
 
 # load in data =================================================================
