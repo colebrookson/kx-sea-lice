@@ -4,6 +4,8 @@ library(sf)
 library(here)
 library(ggplot2)
 library(sfnetworks)
+library(parallel)
+source(here("./R/00_functions_global.R"))
 
 # define manual helper function ================================================
 slice_fun <- function(net, temp_edges) {
@@ -45,13 +47,15 @@ farms_utm <- st_transform(clean_farm_locs,
 # canada_prov = canada[canada$NAME_1 == "British Columbia"] # subset to just BC
 
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
-rm(geo_data)
+
 # make into sf object
 geo_data_sf <- st_as_sf(geo_data)
+rm(geo_data)
+gc()
 
 # convert to utm
-utm_geo_data <- st_transform(geo_data_sf,
-                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+# utm_geo_data_all <- st_transform(geo_data_sf,
+#                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
 # filter to just BC 
 geo_data_sf_bc <- geo_data_sf[which(geo_data_sf$NAME_1 == "British Columbia"),]
@@ -65,50 +69,63 @@ bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc))
 non_land <- sf::st_difference(bb, geo_data_sf_bc)
 
 # crop to just the study region
-non_land_study <- sf::st_crop(non_land, xmin = -128.9,
-                              xmax = -127.8, ymin = 52.3, 
+non_land_study <- sf::st_crop(non_land, xmin = -128.85,
+                              xmax = -128.12, ymin = 52.412, 
                               ymax = 53.1)
+
+# cut to just the kid bay farm and area
+kid_bay_area <- sf::st_crop(non_land, xmin = -128.6,
+                            xmax = -128.12, ymin = 52.52, 
+                            ymax = 53.05)
 
 # make sure the projection is the same (UTM)
 utm_geo_data <- st_transform(non_land_study, 
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+utm_kid_bay <- st_transform(kid_bay_area, 
+                            crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
 # quick sanity check for what we're looking at 
 ggplot() + 
   geom_sf(data = utm_geo_data, color = 'black', fill = "grey90") +
   theme_base()
+ggplot() + 
+  geom_sf(data = utm_kid_bay, color = 'black', fill = "grey90") +
+  theme_base()
 
 # now, we can do this one farm region at a time, or all at once, I think it's 
 # actually computationally faster to do all at once
 
-## make the grid sample on the whole study region ==============================
+## make the grid sample on the kid-bay study region ============================
 
 # first make it as small as possible
-grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_geo_data)), 
-                              # the size is really large to make very fine grid
-                              size = 500000, type = 'regular') %>% 
-  sf::st_as_sf() %>%
-  nngeo::st_connect(.,.,k = 9) 
-saveRDS(grid_sample, here("./outputs/geo-objs/grid-sample.rds"))
+kid_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_kid_bay)), 
+                               # the size is really large to make a fine grid
+                               size = 200000, type = 'regular') %>% 
+sf::st_as_sf() %>%
+nngeo::st_connect(.,.,k = 9) 
+saveRDS(kid_grid_sample, here("./outputs/geo-objs/kid-bay-grid-sample.rds"))
 
 # remove connections that are not within the water polygon
 crop_time_start <- Sys.time()
-grid_cropped <- grid_sample[sf::st_within(
-  grid_sample, utm_geo_data, sparse = F)]
+
+grid_cropped <- kid_grid_sample[sf::st_contains(
+utm_kid_bay, kid_grid_sample, sparse = F)]
+#rm(kid_grid_sample); gc()
 saveRDS(grid_cropped, here("./outputs/geo-objs/grid-sample-cropped.rds"))
+
 crop_time <- Sys.time() - crop_time_start
 print(paste0("For the cropping, elapsed time: ", round(crop_time, 2), 
-             " hours"))
+           " seconds"))
 
 # now actually make the network
 net_time_start <- Sys.time()
 network <- as_sfnetwork(grid_cropped, directed = FALSE) %>% 
-  activate("edges") %>% 
-  mutate(weight = edge_length()) 
+activate("edges") %>% 
+mutate(weight = edge_length()) 
 saveRDS(network, here("./outputs/geo-objs/network.rds"))
 net_time <- Sys.time() - net_time_start
 print(paste0("For the network creation, elapsed time: ", round(net_time, 2), 
-             " minutes"))
+           " minutes"))
 
 ## get the shortest paths ======================================================
 # NOTE: get the shortest paths -- this is calculating the shortest paths from 
