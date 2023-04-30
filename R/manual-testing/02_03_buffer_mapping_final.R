@@ -320,6 +320,27 @@ saveRDS(alex_short_edges,
 parallel::stopCluster(cl)
 alex_short_time <- Sys.time() - alex_short_start
 
+## get all nodes and paths =====================================================
+nodes_all_kid <- kid_short_edges %>%
+  pull(node_paths) 
+edges_all_kid <- kid_short_edges %>%
+  pull(edge_paths) 
+
+nodes_all_loch <- loch_short_edges %>%
+  pull(node_paths) 
+edges_all_loch <- loch_short_edges %>%
+  pull(edge_paths) 
+
+nodes_all_goat <- goat_short_edges %>%
+  pull(node_paths) 
+edges_all_goat <- goat_short_edges %>%
+  pull(edge_paths) 
+
+nodes_all_sheep <- sheep_short_edges %>%
+  pull(node_paths) 
+edges_all_sheep <- sheep_short_edges %>%
+  pull(edge_paths) 
+
 
 # upper area study region ======================================================
 
