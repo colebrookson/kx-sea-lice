@@ -350,19 +350,20 @@ parallel::stopCluster(cl)
 jackson_short_time <- Sys.time() - jackson_short_start
 
 indices_keep_jackson <- which(jackson_short_edges < 30000)
-keep_edges_jackson <- unique(edges_all_jackson[indices_keep_jackson] %>% unlist())
+keep_edges_jackson <- unique(edges_all_jackson[indices_keep_jackson] 
+                             %>% unlist())
 
 nodes_to_keep_jackson <- nodes_all_jackson[indices_keep_jackson]
 nodes_to_keep_jackson <- unlist(
   lapply(nodes_to_keep_jackson, tail, n = 1L) %>% unlist()
 )
 
-edges_nodes_keep_alex <- list(
-  nodes = nodes_to_keep_alex,
-  edges = keep_edges_alex
+edges_nodes_keep_jackson <- list(
+  nodes = nodes_to_keep_jackson,
+  edges = keep_edges_jackson
 )
-saveRDS(edges_nodes_keep_alex,
-        here("./outputs/geo-objs/edges-nodes-to-keep-alex.rds"))
+saveRDS(edges_nodes_keep_jackson,
+        here("./outputs/geo-objs/edges-nodes-to-keep-jackson.rds"))
 
 ## cougar paths ===============================================================
 cougar_paths <- sfnetworks::st_network_paths(
