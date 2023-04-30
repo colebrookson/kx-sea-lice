@@ -64,6 +64,13 @@ non_land <- sf::st_difference(bb, geo_data_sf_bc)
 
 # all analysis one study region ================================================
 
+# crop the land so we can plot that separately
+land_study <- sf::st_crop(geo_data_sf_bc, xmin = -129.5,
+                              xmax = -127.75, ymin = 52, 
+                              ymax = 54)
+utm_land_data <- st_transform(land_study, 
+                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
 # crop to just the study region
 non_land_study <- sf::st_crop(non_land, xmin = -128.85,
                               xmax = -128.12, ymin = 52.25, 
@@ -108,6 +115,37 @@ ggplot() +
   geom_sf(data = utm_geo_data, color = 'black', fill = "grey90") +
   geom_sf(data = network %>% activate("edges") %>% st_as_sf()) +
   theme_base() 
+
+## need to do a separate one for the west ======================================
+west <- sf::st_crop(non_land, xmin = -128.85,
+                    xmax = -128.3, ymin = 52.42, 
+                    ymax = 52.85)
+
+# make sure the projection is the same (UTM)
+utm_west_area <- st_transform(west, 
+                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+# quick sanity check for what we're looking at 
+# ggplot() + 
+#   geom_sf(data = utm_west_area, color = 'black', fill = "grey90") +
+#   geom_sf(data = west_network %>% 
+#             activate("edges") %>% 
+#             st_as_sf()) +
+#   theme_base() 
+
+west_grid_sample <- sf::st_sample(
+  sf::st_as_sfc(sf::st_bbox(utm_west_area)),
+  # the size is really large to make a fine grid
+  size = 200000, type = 'regular') %>% 
+  sf::st_as_sf() %>%
+  nngeo::st_connect(.,.,k = 9) 
+
+west_grid_cropped <- west_grid_sample[sf::st_contains(
+  utm_west_area, west_grid_sample, sparse = F)]
+
+west_network <- as_sfnetwork(west_grid_cropped, directed = FALSE) %>% 
+  activate("edges") %>% 
+  mutate(weight = edge_length())
 
 # subset into the paths from each of the farms since that's how I'll need to 
 # plot them
@@ -367,7 +405,7 @@ saveRDS(edges_nodes_keep_jackson,
 
 ## cougar paths ===============================================================
 cougar_paths <- sfnetworks::st_network_paths(
-  x = network,
+  x = west_network,
   from = cougar, 
   weights = "weight"
 )  
@@ -377,7 +415,7 @@ edges_all_cougar <- cougar_paths %>%
   pull(edge_paths) 
 
 cougar_short_start <- Sys.time()
-cl <- parallel::makeCluster(11)
+cl <- parallel::makeCluster(9)
 
 parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
   library(magrittr); library(sf)})
@@ -407,7 +445,7 @@ saveRDS(edges_nodes_keep_cougar,
 
 ## alex paths ===============================================================
 alex_paths <- sfnetworks::st_network_paths(
-  x = network,
+  x = west_network,
   from = alex, 
   weights = "weight"
 )  
@@ -417,7 +455,7 @@ edges_all_alex <- alex_paths %>%
   pull(edge_paths) 
 
 alex_short_start <- Sys.time()
-cl <- parallel::makeCluster(11)
+cl <- parallel::makeCluster(9)
 
 parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
   library(magrittr); library(sf)})
@@ -444,6 +482,26 @@ edges_nodes_keep_alex <- list(
 )
 saveRDS(edges_nodes_keep_alex,
         here("./outputs/geo-objs/edges-nodes-to-keep-alex.rds"))
+
+# plot from just the one study region ==========================================
+ggplot() + 
+  #geom_sf(data = utm_geo_data, color = 'black', fill = "grey70") + 
+  theme_base() + 
+  #geom_sf(data = geo_data_sf_bc, color = 'black', fill = "grey70") + 
+  geom_sf(data = west_network %>%
+            activate("edges") %>%
+            slice(keep_edges_alex) %>% 
+            st_as_sf(), colour = "green4", alpha = 0.2) +
+  geom_sf(data = net %>%
+            activate("nodes") %>%  
+            slice(495) %>% 
+            st_as_sf(), size = 3.5, fill = "orange", colour = "black", shape = 21) +
+  geom_sf(data = net %>%
+            activate("nodes") %>%
+            slice(nodes_to_keep) %>%
+            st_as_sf(), size = 2, fill = "red", colour = "black", shape = 21,
+          alpha = 0.4) +
+  theme_base()
 
 ## get all nodes and paths =====================================================
 
@@ -670,7 +728,7 @@ print(paste0("To calculate the paths, elapsed time: ",
 
 # cut to just the kid bay farm and area
 west <- sf::st_crop(non_land, xmin = -128.85,
-                    xmax = -128.36, ymin = 52.45, 
+                    xmax = -128.3, ymin = 52.45, 
                     ymax = 53)
 
 # make sure the projection is the same (UTM)
