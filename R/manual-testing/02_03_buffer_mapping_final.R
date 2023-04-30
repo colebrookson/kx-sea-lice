@@ -145,6 +145,25 @@ saveRDS(kid_short_edges,
 parallel::stopCluster(cl)
 kid_short_time <- Sys.time() - kid_short_start
 
+# now subset the indices of the edges that fulfill our criteria (i.e. < 30km)
+indices_keep_kid <- which(kid_short_edges < 30000)
+keep_edges_kid <- unique(edges_all_kid[indices_keep_kid] %>% unlist())
+
+# we can get the nodes if we want too
+nodes_to_keep_kid <- nodes_all_kid[indices_keep_kid]
+# this is keeping just the last node at the end of a path - we'll use this 
+# to create a different coloured border on the buffer area 
+nodes_to_keep_kid <- unlist(
+  lapply(nodes_to_keep_kid, tail, n = 1L) %>% unlist()
+  )
+
+edges_nodes_keep_kid <- list(
+  nodes = nodes_to_keep_kid,
+  edges = keep_edges_kid
+)
+saveRDS(edges_nodes_keep_kid,
+        here("./outputs/geo-objs/edges-nodes-to-keep-kid.rds"))
+
 ## loch paths ==================================================================
 loch_paths <- sfnetworks::st_network_paths(
   x = network,
@@ -169,6 +188,21 @@ saveRDS(loch_short_edges,
         here("./outputs/geo-objs/loch-whole-region-short-edges.rds"))
 parallel::stopCluster(cl)
 loch_short_time <- Sys.time() - loch_short_start
+
+indices_keep_loch <- which(loch_short_edges < 30000)
+keep_edges_loch <- unique(edges_all_loch[indices_keep_loch] %>% unlist())
+
+nodes_to_keep_loch <- nodes_all_loch[indices_keep_loch]
+nodes_to_keep_loch <- unlist(
+  lapply(nodes_to_keep_loch, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_loch <- list(
+  nodes = nodes_to_keep_loch,
+  edges = keep_edges_loch
+)
+saveRDS(edges_nodes_keep_loch,
+        here("./outputs/geo-objs/edges-nodes-to-keep-loch.rds"))
 
 ## goat paths ==================================================================
 goat_paths <- sfnetworks::st_network_paths(
@@ -195,6 +229,21 @@ saveRDS(goat_short_edges,
 parallel::stopCluster(cl)
 goat_short_time <- Sys.time() - goat_short_start
 
+indices_keep_goat <- which(goat_short_edges < 30000)
+keep_edges_goat <- unique(edges_all_goat[indices_keep_goat] %>% unlist())
+
+nodes_to_keep_goat <- nodes_all_goat[indices_keep_goat]
+nodes_to_keep_goat <- unlist(
+  lapply(nodes_to_keep_goat, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_goat <- list(
+  nodes = nodes_to_keep_goat,
+  edges = keep_edges_goat
+)
+saveRDS(edges_nodes_keep_goat,
+        here("./outputs/geo-objs/edges-nodes-to-keep-goat.rds"))
+
 ## sheep paths =================================================================
 sheep_paths <- sfnetworks::st_network_paths(
   x = network,
@@ -219,6 +268,21 @@ saveRDS(sheep_short_edges,
         here("./outputs/geo-objs/sheep-whole-region-short-edges.rds"))
 parallel::stopCluster(cl)
 sheep_short_time <- Sys.time() - sheep_short_start
+
+indices_keep_sheep <- which(sheep_short_edges < 30000)
+keep_edges_sheep <- unique(edges_all_sheep[indices_keep_sheep] %>% unlist())
+
+nodes_to_keep_sheep <- nodes_all_sheep[indices_keep_sheep]
+nodes_to_keep_sheep <- unlist(
+  lapply(nodes_to_keep_sheep, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_sheep <- list(
+  nodes = nodes_to_keep_sheep,
+  edges = keep_edges_sheep
+)
+saveRDS(edges_nodes_keep_sheep,
+        here("./outputs/geo-objs/edges-nodes-to-keep-sheep.rds"))
 
 ## lime paths =================================================================
 lime_paths <- sfnetworks::st_network_paths(
@@ -245,6 +309,21 @@ saveRDS(lime_short_edges,
 parallel::stopCluster(cl)
 lime_short_time <- Sys.time() - lime_short_start
 
+indices_keep_lime <- which(lime_short_edges < 30000)
+keep_edges_lime <- unique(edges_all_lime[indices_keep_lime] %>% unlist())
+
+nodes_to_keep_lime <- nodes_all_lime[indices_keep_lime]
+nodes_to_keep_lime <- unlist(
+  lapply(nodes_to_keep_lime, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_lime <- list(
+  nodes = nodes_to_keep_lime,
+  edges = keep_edges_lime
+)
+saveRDS(edges_nodes_keep_lime,
+        here("./outputs/geo-objs/edges-nodes-to-keep-lime.rds"))
+
 ## jackson paths ===============================================================
 jackson_paths <- sfnetworks::st_network_paths(
   x = network,
@@ -269,6 +348,21 @@ saveRDS(jackson_short_edges,
         here("./outputs/geo-objs/jackson-whole-region-short-edges.rds"))
 parallel::stopCluster(cl)
 jackson_short_time <- Sys.time() - jackson_short_start
+
+indices_keep_jackson <- which(jackson_short_edges < 30000)
+keep_edges_jackson <- unique(edges_all_jackson[indices_keep_jackson] %>% unlist())
+
+nodes_to_keep_jackson <- nodes_all_jackson[indices_keep_jackson]
+nodes_to_keep_jackson <- unlist(
+  lapply(nodes_to_keep_jackson, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_alex <- list(
+  nodes = nodes_to_keep_alex,
+  edges = keep_edges_alex
+)
+saveRDS(edges_nodes_keep_alex,
+        here("./outputs/geo-objs/edges-nodes-to-keep-alex.rds"))
 
 ## cougar paths ===============================================================
 cougar_paths <- sfnetworks::st_network_paths(
@@ -295,6 +389,21 @@ saveRDS(cougar_short_edges,
 parallel::stopCluster(cl)
 cougar_short_time <- Sys.time() - cougar_short_start
 
+indices_keep_cougar <- which(cougar_short_edges < 30000)
+keep_edges_cougar <- unique(edges_all_cougar[indices_keep_cougar] %>% unlist())
+
+nodes_to_keep_cougar <- nodes_all_cougar[indices_keep_cougar]
+nodes_to_keep_cougar <- unlist(
+  lapply(nodes_to_keep_cougar, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_cougar <- list(
+  nodes = nodes_to_keep_cougar,
+  edges = keep_edges_cougar
+)
+saveRDS(edges_nodes_keep_cougar,
+        here("./outputs/geo-objs/edges-nodes-to-keep-cougar.rds"))
+
 ## alex paths ===============================================================
 alex_paths <- sfnetworks::st_network_paths(
   x = network,
@@ -320,26 +429,22 @@ saveRDS(alex_short_edges,
 parallel::stopCluster(cl)
 alex_short_time <- Sys.time() - alex_short_start
 
+indices_keep_alex <- which(alex_short_edges < 30000)
+keep_edges_alex <- unique(edges_all_alex[indices_keep_alex] %>% unlist())
+
+nodes_to_keep_alex <- nodes_all_alex[indices_keep_alex]
+nodes_to_keep_alex <- unlist(
+  lapply(nodes_to_keep_alex, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_alex <- list(
+  nodes = nodes_to_keep_alex,
+  edges = keep_edges_alex
+)
+saveRDS(edges_nodes_keep_alex,
+        here("./outputs/geo-objs/edges-nodes-to-keep-alex.rds"))
+
 ## get all nodes and paths =====================================================
-nodes_all_kid <- kid_short_edges %>%
-  pull(node_paths) 
-edges_all_kid <- kid_short_edges %>%
-  pull(edge_paths) 
-
-nodes_all_loch <- loch_short_edges %>%
-  pull(node_paths) 
-edges_all_loch <- loch_short_edges %>%
-  pull(edge_paths) 
-
-nodes_all_goat <- goat_short_edges %>%
-  pull(node_paths) 
-edges_all_goat <- goat_short_edges %>%
-  pull(edge_paths) 
-
-nodes_all_sheep <- sheep_short_edges %>%
-  pull(node_paths) 
-edges_all_sheep <- sheep_short_edges %>%
-  pull(edge_paths) 
 
 
 # upper area study region ======================================================
