@@ -95,7 +95,7 @@ ggplot() +
 # now, we can do this one farm region at a time, or all at once, I think it's 
 # actually computationally faster to do all at once
 
-## make the grid sample on the kid-bay study region ============================
+# upper area study region ======================================================
 
 # first make it as small as possible
 upper_area_grid_sample <- sf::st_sample(
@@ -198,7 +198,7 @@ print(paste0("To calculate the lime paths, elapsed time: ",
              " minutes"))
 
 
-## pull the nodes and the edges ================================================
+# pull the nodes and the edges =================================================
 
 # now pull both the nodes and the edges 
 nodes_all_kid <- kid_paths %>%
@@ -232,9 +232,10 @@ cl <- parallel::makeCluster(8)
 
 parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
   library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_all_kid", "network"))
+parallel::clusterExport(cl, varlist = c("edges_all_kid", "upper_network"))
 
-kid_short_edges <- parSapply(cl, edges_all_kid, slice_fun, net = network)
+kid_short_edges <- parSapply(cl, edges_all_kid, slice_fun, 
+                             net = upper_network)
 parallel::stopCluster(cl)
 
 saveRDS(kid_short_edges, here("./outputs/geo-objs/kid-short-edges.rds"))
@@ -249,9 +250,10 @@ cl <- parallel::makeCluster(8)
 
 parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
   library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_all_goat", "network"))
+parallel::clusterExport(cl, varlist = c("edges_all_goat", "upper_network"))
 
-goat_short_edges <- parSapply(cl, edges_all_goat, slice_fun, net = network)
+goat_short_edges <- parSapply(cl, edges_all_goat, slice_fun, 
+                              net = upper_network)
 parallel::stopCluster(cl)
 saveRDS(goat_short_edges, here("./outputs/geo-objs/goat-short-edges.rds"))
 goat_short_time <- Sys.time() - goat_short_start
@@ -265,9 +267,10 @@ cl <- parallel::makeCluster(8)
 
 parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
   library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_all_sheep", "network"))
+parallel::clusterExport(cl, varlist = c("edges_all_sheep", "upper_network"))
 
-sheep_short_edges <- parSapply(cl, edges_all_sheep, slice_fun, net = network)
+sheep_short_edges <- parSapply(cl, edges_all_sheep, slice_fun, 
+                               net = upper_network)
 parallel::stopCluster(cl)
 saveRDS(sheep_short_edges, here("./outputs/geo-objs/sheep-short-edges.rds"))
 sheep_short_time <- Sys.time() - sheep_short_start
@@ -281,9 +284,10 @@ cl <- parallel::makeCluster(8)
 
 parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
   library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_all_lime", "network"))
+parallel::clusterExport(cl, varlist = c("edges_all_lime", "upper_network"))
 
-lime_short_edges <- parSapply(cl, edges_all_lime, slice_fun, net = network)
+lime_short_edges <- parSapply(cl, edges_all_lime, slice_fun, 
+                              net = upper_network)
 parallel::stopCluster(cl)
 saveRDS(lime_short_edges, here("./outputs/geo-objs/lime-short-edges.rds"))
 lime_short_time <- Sys.time() - lime_short_start
@@ -291,7 +295,61 @@ print(paste0("To calculate the paths, elapsed time: ",
              round(lime_short_time, 2), 
              " minutes"))
 
+# west study region ============================================================
 
+# cut to just the kid bay farm and area
+west <- sf::st_crop(non_land, xmin = -128.85,
+                          xmax = -128.36, ymin = 52.45, 
+                          ymax = 53)
+# small
+# west <- sf::st_crop(non_land, xmin = -128.8,
+#                     xmax = -128.7, ymin = 52.5, 
+#                     ymax = 52.55)
+
+# make sure the projection is the same (UTM)
+utm_west_area <- st_transform(west, 
+                               crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+# quick sanity check for what we're looking at 
+ggplot() + 
+  geom_sf(data = utm_west_area, color = 'black', fill = "grey90") +
+  theme_base() 
+  # + geom_sf(data = west_network %>% activate("edges") %>%  st_as_sf())
+
+# first make it as small as possible
+west_grid_sample <- sf::st_sample(
+  sf::st_as_sfc(sf::st_bbox(utm_west_area)),
+  # the size is really large to make a fine grid
+  size = 800000, type = 'regular') %>% 
+  sf::st_as_sf() %>%
+  nngeo::st_connect(.,.,k = 9) 
+saveRDS(upper_area_grid_sample, 
+        here("./outputs/geo-objs/upper-area-grid-sample.rds"))
+
+# remove connections that are not within the water polygon
+crop_time_start <- Sys.time()
+
+west_grid_cropped <- west_grid_sample[sf::st_contains(
+  utm_west_area, west_grid_sample, sparse = F)]
+#rm(kid_grid_sample); gc()
+saveRDS(upper_area_grid_cropped, 
+        here("./outputs/geo-objs/upper-area-grid-sample-cropped.rds"))
+
+crop_time <- Sys.time() - crop_time_start
+print(paste0("For the cropping, elapsed time: ", round(crop_time, 2), 
+             " seconds"))
+
+# now actually make the network
+net_time_start <- Sys.time()
+
+west_network <- as_sfnetwork(west_grid_cropped, directed = FALSE) %>% 
+  activate("edges") %>% 
+  mutate(weight = edge_length()) 
+saveRDS(upper_network, here("./outputs/geo-objs/upper-area-network.rds"))
+
+net_time <- Sys.time() - net_time_start
+print(paste0("For the network creation, elapsed time: ", round(net_time, 2), 
+             " minutes"))
 
 
 
