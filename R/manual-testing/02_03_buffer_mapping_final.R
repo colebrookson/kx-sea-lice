@@ -471,7 +471,7 @@ alex_short_time <- Sys.time() - alex_short_start
 indices_keep_alex <- which(alex_short_edges < 30000)
 keep_edges_alex <- unique(edges_all_alex[indices_keep_alex] %>% unlist())
 
-nodes_to_keep_alex <- nodes_all_alex[indices_keep_alex]
+nodes_to_keep_alex <- nodes_all_alex[indices_keep_alex] 
 nodes_to_keep_alex <- unlist(
   lapply(nodes_to_keep_alex, tail, n = 1L) %>% unlist()
 )
@@ -484,561 +484,130 @@ saveRDS(edges_nodes_keep_alex,
         here("./outputs/geo-objs/edges-nodes-to-keep-alex.rds"))
 
 # plot from just the one study region ==========================================
-ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey70") + 
-  theme_base() + 
-  #geom_sf(data = geo_data_sf_bc, color = 'black', fill = "grey70") + 
+alex_buffer <- ggplot() + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
   geom_sf(data = west_network %>%
-            activate("edges") %>%
-            slice(keep_edges_cougar) %>% 
-            st_as_sf(), colour = "green4", alpha = 0.2) +
-  geom_sf(data = net %>%
-            activate("nodes") %>%  
-            slice(495) %>% 
-            st_as_sf(), size = 3.5, fill = "orange", colour = "black", shape = 21) +
-  geom_sf(data = net %>%
             activate("nodes") %>%
-            slice(nodes_to_keep) %>%
-            st_as_sf(), size = 2, fill = "red", colour = "black", shape = 21,
-          alpha = 0.4) +
-  theme_base()
-
-## get all nodes and paths =====================================================
-
-
-# upper area study region ======================================================
-
-# cut to just the kid bay farm and area
-upper_area <- sf::st_crop(non_land, xmin = -128.6,
-                          xmax = -128.12, ymin = 52.5, 
-                          ymax = 52.9)
-utm_upper_area <- st_transform(upper_area, 
-                               crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
-# first make it as small as possible
-upper_area_grid_sample <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(utm_upper_area)),
-  # the size is really large to make a fine grid
-  size = 50000, type = 'regular') %>% 
-  sf::st_as_sf() %>%
-  nngeo::st_connect(.,.,k = 9) 
-saveRDS(upper_area_grid_sample, 
-        here("./outputs/geo-objs/upper-area-grid-sample.rds"))
-
-# remove connections that are not within the water polygon
-crop_time_start <- Sys.time()
-
-upper_area_grid_cropped <- upper_area_grid_sample[sf::st_contains(
-  utm_upper_area, upper_area_grid_sample, sparse = F)]
-#rm(kid_grid_sample); gc()
-saveRDS(upper_area_grid_cropped, 
-        here("./outputs/geo-objs/upper-area-grid-sample-cropped.rds"))
-
-crop_time <- Sys.time() - crop_time_start
-print(paste0("For the cropping, elapsed time: ", round(crop_time, 2), 
-           " seconds"))
-
-# now actually make the network
-net_time_start <- Sys.time()
-
-upper_network <- as_sfnetwork(upper_area_grid_cropped, directed = FALSE) %>% 
-  activate("edges") %>% 
-  mutate(weight = edge_length()) 
-saveRDS(upper_network, here("./outputs/geo-objs/upper-area-network.rds"))
-
-net_time <- Sys.time() - net_time_start
-print(paste0("For the network creation, elapsed time: ", round(net_time, 2), 
-           " minutes"))
-
-## get the shortest paths ======================================================
-# NOTE: get the shortest paths -- this is calculating the shortest paths from 
-# each of the "from" points, to all of the other points on the entire grid
-# this will take a LONG time
-
-
-# subset into the paths from each of the farms since that's how I'll need to 
-# plot them
-kid <- farms_utm[which(farms_utm$site == "Kid Bay"),]
-loch <- farms_utm[which(farms_utm$site == "Lochalsh"),]
-goat <- farms_utm[which(farms_utm$site == "Goat Cove"),]
-sheep <- farms_utm[which(farms_utm$site == "Sheep Passage"),]
-lime <- farms_utm[which(farms_utm$site == "Lime Point"),]
-jackson <- farms_utm[which(farms_utm$site == "Jackson Pass"),]
-cougar <- farms_utm[which(farms_utm$site == "Cougar Bay"),]
-alex <- farms_utm[which(farms_utm$site == "Alexander Inlet"),]
-
-# do with kid paths
-kid_paths <- sfnetworks::st_network_paths(
-  x = upper_network,
-  from = kid_bay, 
-  weights = "weight"
-)  
-
-### kid bay ==================================================================== 
-kid_paths_start <- Sys.time()
-kid_paths <- sfnetworks::st_network_paths(
-  x = upper_network,
-  from = kid_bay, 
-  weights = "weight"
-)  
-saveRDS(kid_paths, here("./outputs/geo-objs/kid-bay-paths.rds"))
-kid_paths_time <- Sys.time() - kid_paths_start
-print(paste0("To calculate the kid paths, elapsed time: ", 
-             round(kid_paths_time, 2), 
-             " minutes"))
-### goat cove ==================================================================
-goat_paths_start <- Sys.time()
-goat_paths <- sfnetworks::st_network_paths(
-  x = upper_network,
-  from = goat, 
-  weights = "weight"
-)  
-saveRDS(goat_paths, here("./outputs/geo-objs/kid-bay-paths.rds"))
-goat_paths_time <- Sys.time() - goat_paths_start
-print(paste0("To calculate the goat paths, elapsed time: ", 
-             round(goat_paths_time, 2), 
-             " minutes"))
-
-### sheep passage ==============================================================
-sheep_paths_start <- Sys.time()
-sheep_paths <- sfnetworks::st_network_paths(
-  x = upper_network,
-  from = sheep, 
-  weights = "weight"
-)  
-saveRDS(sheep_paths, here("./outputs/geo-objs/kid-bay-paths.rds"))
-sheep_paths_time <- Sys.time() - sheep_paths_start
-print(paste0("To calculate the sheep paths, elapsed time: ", 
-             round(sheep_paths_time, 2), 
-             " minutes"))
-
-### lime point =================================================================
-lime_paths_start <- Sys.time()
-lime_paths <- sfnetworks::st_network_paths(
-  x = upper_network,
-  from = lime, 
-  weights = "weight"
-)  
-saveRDS(lime_paths, here("./outputs/geo-objs/kid-bay-paths.rds"))
-lime_paths_time <- Sys.time() - lime_paths_start
-print(paste0("To calculate the lime paths, elapsed time: ", 
-             round(lime_paths_time, 2), 
-             " minutes"))
-
-
-## pull the nodes and the edges =================================================
-
-# now pull both the nodes and the edges 
-nodes_all_kid <- kid_paths %>%
-  pull(node_paths) 
-edges_all_kid <- kid_paths %>%
-  pull(edge_paths) 
-
-nodes_all_goat <- goat_paths %>%
-  pull(node_paths) 
-edges_all_goat <- goat_paths %>%
-  pull(edge_paths) 
-
-nodes_all_sheep <- sheep_paths %>%
-  pull(node_paths) 
-edges_all_sheep <- sheep_paths %>%
-  pull(edge_paths) 
-
-nodes_all_lime <- lime_paths %>%
-  pull(node_paths) 
-edges_all_lime <- lime_paths %>%
-  pull(edge_paths) 
-
-## filter the edges ============================================================
-
-# here, use our pre-defined function to figure out which of the edges match our 
-# criteria of <30km
-
-### kid bay ====================================================================
-kid_short_start <- Sys.time()
-cl <- parallel::makeCluster(8)
-
-parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
-  library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_all_kid", "upper_network"))
-
-kid_short_edges <- parSapply(cl, edges_all_kid, slice_fun, 
-                             net = upper_network)
-parallel::stopCluster(cl)
-
-saveRDS(kid_short_edges, here("./outputs/geo-objs/kid-short-edges.rds"))
-kid_short_time <- Sys.time() - kid_short_start
-print(paste0("To calculate the paths, elapsed time: ", 
-             round(kid_short_time, 2), 
-             " minutes"))
-
-### goat cove ==================================================================
-goat_short_start <- Sys.time()
-cl <- parallel::makeCluster(8)
-
-parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
-  library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_all_goat", "upper_network"))
-
-goat_short_edges <- parSapply(cl, edges_all_goat, slice_fun, 
-                              net = upper_network)
-parallel::stopCluster(cl)
-saveRDS(goat_short_edges, here("./outputs/geo-objs/goat-short-edges.rds"))
-goat_short_time <- Sys.time() - goat_short_start
-print(paste0("To calculate the paths, elapsed time: ", 
-             round(goat_short_time, 2), 
-             " minutes"))
-
-### sheep passage ==============================================================
-sheep_short_start <- Sys.time()
-cl <- parallel::makeCluster(8)
-
-parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
-  library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_all_sheep", "upper_network"))
-
-sheep_short_edges <- parSapply(cl, edges_all_sheep, slice_fun, 
-                               net = upper_network)
-parallel::stopCluster(cl)
-saveRDS(sheep_short_edges, here("./outputs/geo-objs/sheep-short-edges.rds"))
-sheep_short_time <- Sys.time() - sheep_short_start
-print(paste0("To calculate the paths, elapsed time: ", 
-             round(sheep_short_time, 2), 
-             " minutes"))
-
-### lime point =================================================================
-lime_short_start <- Sys.time()
-cl <- parallel::makeCluster(8)
-
-parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
-  library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_all_lime", "upper_network"))
-
-lime_short_edges <- parSapply(cl, edges_all_lime, slice_fun, 
-                              net = upper_network)
-parallel::stopCluster(cl)
-saveRDS(lime_short_edges, here("./outputs/geo-objs/lime-short-edges.rds"))
-lime_short_time <- Sys.time() - lime_short_start
-print(paste0("To calculate the paths, elapsed time: ", 
-             round(lime_short_time, 2), 
-             " minutes"))
-
-
-# west study region ============================================================
-
-# cut to just the kid bay farm and area
-west <- sf::st_crop(non_land, xmin = -128.85,
-                    xmax = -128.3, ymin = 52.45, 
-                    ymax = 53)
-
-# make sure the projection is the same (UTM)
-utm_west_area <- st_transform(west, 
-                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
-# quick sanity check for what we're looking at 
-ggplot() + 
-  geom_sf(data = utm_west_area, color = 'black', fill = "grey90") +
-  theme_base() 
-
-west_west_grid_sample <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(utm_west_area)),
-  # the size is really large to make a fine grid
-  size = 200000, type = 'regular') %>% 
-  sf::st_as_sf() %>%
-  nngeo::st_connect(.,.,k = 9) 
-## four regions (west) =========================================================
-west_west <- sf::st_crop(non_land, xmin = -128.85,
-                         xmax = -128.55, ymin = 52.55, 
-                         ymax = 52.8)
-
-utm_west_west_area <- st_transform(west_west, 
-                                   crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
-# quick sanity check for what we're looking at 
-ggplot() + 
-  geom_sf(data = utm_west_west_area, color = 'black', fill = "grey90") +
-  theme_base() 
-
-# first make it as small as possible
-west_west_grid_sample <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(utm_west_west_area)),
-  # the size is really large to make a fine grid
-  size = 50000, type = 'regular') %>% 
-  sf::st_as_sf() %>%
-  nngeo::st_connect(.,.,k = 9) 
-saveRDS(west_west_grid_sample,
-        here("./outputs/geo-objs/west-west-grid-sample.rds"))
-
-# remove connections that are not within the water polygon
-west_west_grid_cropped <- west_west_grid_sample[sf::st_contains(
-  utm_west_west_area, west_west_grid_sample, sparse = F)]
-saveRDS(west_west_grid_cropped,
-        here("./outputs/geo-objs/west-west-grid-sample-cropped.rds"))
-
-west_west_network <- as_sfnetwork(west_west_grid_cropped, directed = FALSE) %>% 
-  activate("edges") %>% 
-  mutate(weight = edge_length()) 
-saveRDS(west_west_network,
-        here("./outputs/geo-objs/west-west-network.rds"))
-
-ggplot() + 
-  geom_sf(data = utm_west_west_area, color = 'black', fill = "grey90") +
-  geom_sf(data = west_west_network %>% activate("edges") %>% st_as_sf()) +
-  theme_base() 
-
-## four regions (south) ========================================================
-west_south <- sf::st_crop(non_land, xmin = -128.65,
-                          xmax = -128.35, ymin = 52.4, 
-                          ymax = 52.8)
-
-utm_west_south_area <- st_transform(
-  west_south, 
-  crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
-# quick sanity check for what we're looking at 
-ggplot() + 
-  geom_sf(data = utm_west_south_area, color = 'black', fill = "grey90") +
-  theme_base() 
-
-# first make it as small as possible
-west_south_grid_sample <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(utm_west_south_area)),
-  # the size is really large to make a fine grid
-  size = 200000, type = 'regular') %>% 
-  sf::st_as_sf() %>%
-  nngeo::st_connect(.,.,k = 9) 
-saveRDS(west_south_grid_sample,
-        here("./outputs/geo-objs/west-south-grid-sample.rds"))
-
-# remove connections that are not within the water polygon
-west_south_grid_cropped <- west_south_grid_sample[sf::st_contains(
-  utm_west_south_area, west_south_grid_sample, sparse = F)]
-saveRDS(west_south_grid_cropped,
-        here("./outputs/geo-objs/west-south-grid-sample-cropped.rds"))
-
-west_south_network <- as_sfnetwork(west_south_grid_cropped, 
-                                   directed = FALSE) %>% 
-  activate("edges") %>% 
-  mutate(weight = edge_length()) 
-saveRDS(west_south_network,
-        here("./outputs/geo-objs/west-south-network.rds"))
-
-## four regions (north) ========================================================
-west_north <- sf::st_crop(non_land, xmin = -128.65,
-                          xmax = -128.3, ymin = 52.61, 
-                          ymax = 52.98)
-
-utm_west_north_area <- st_transform(
-  west_north, 
-  crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
-# quick sanity check for what we're looking at 
-ggplot() + 
-  geom_sf(data = utm_west_north_area, color = 'black', fill = "grey90") +
-  theme_base() 
-
-# first make it as small as possible
-west_north_grid_sample <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(utm_west_north_area)),
-  # the size is really large to make a fine grid
-  size = 200000, type = 'regular') %>% 
-  sf::st_as_sf() %>%
-  nngeo::st_connect(.,.,k = 9) 
-saveRDS(west_north_grid_sample,
-        here("./outputs/geo-objs/west-north-grid-sample.rds"))
-
-# remove connections that are not within the water polygon
-west_north_grid_cropped <- west_north_grid_sample[sf::st_contains(
-  utm_west_north_area, west_north_grid_sample, sparse = F)]
-saveRDS(west_north_grid_cropped,
-        here("./outputs/geo-objs/west-north-grid-sample-cropped.rds"))
-
-west_north_network <- as_sfnetwork(west_north_grid_cropped, 
-                                   directed = FALSE) %>% 
-  activate("edges") %>% 
-  mutate(weight = edge_length()) 
-saveRDS(west_north_network,
-        here("./outputs/geo-objs/west-north-network.rds"))
-
-## shortest paths ==============================================================
-
-alex <- farms_utm[which(farms_utm$site == "Alexander Inlet"),]
-cougar <- farms_utm[which(farms_utm$site == "Cougar Bay"),]
-
-west_west_network <- readRDS(here("./outputs/geo-objs/west-west-network.rds"))
-west_south_network <- readRDS(here("./outputs/geo-objs/west-south-network.rds"))
-west_north_network <- readRDS(here("./outputs/geo-objs/west-north-network.rds"))
-
-### alexander inlet ============================================================
-alex_paths_west <- sfnetworks::st_network_paths(
-  x = west_west_network,
-  from = alex, 
-  weights = "weight"
-)  
-alex_paths_south <- sfnetworks::st_network_paths(
-  x = west_south_network,
-  from = alex, 
-  weights = "weight"
-) 
-alex_paths_north <- sfnetworks::st_network_paths(
-  x = west_north_network,
-  from = alex, 
-  weights = "weight"
-) 
-saveRDS(alex_paths_west, here("./outputs/geo-objs/alex-inlet-west-paths.rds"))
-saveRDS(alex_paths_south, here("./outputs/geo-objs/alex-inlet-south-paths.rds"))
-saveRDS(alex_paths_north, here("./outputs/geo-objs/alex-inlet-north-paths.rds"))
-
-### cougar bay =================================================================
-cougar_paths_west <- sfnetworks::st_network_paths(
-  x = west_west_network,
-  from = cougar, 
-  weights = "weight"
-)  
-cougar_paths_south <- sfnetworks::st_network_paths(
-  x = west_south_network,
-  from = cougar, 
-  weights = "weight"
-) 
-cougar_paths_north <- sfnetworks::st_network_paths(
-  x = west_north_network,
-  from = cougar, 
-  weights = "weight"
-) 
-saveRDS(cougar_paths_west, here("./outputs/geo-objs/cougar-bay-west-paths.rds"))
-saveRDS(cougar_paths_south, 
-        here("./outputs/geo-objs/cougar-bay-south-paths.rds"))
-saveRDS(cougar_paths_north, 
-        here("./outputs/geo-objs/cougar-bay-north-paths.rds"))
-
-## pull nodes and edges ========================================================
-nodes_alex_west <- alex_paths_west %>%
-  pull(node_paths) 
-edges_alex_west <- alex_paths_west %>%
-  pull(edge_paths) 
-
-nodes_alex_south <- alex_paths_south %>%
-  pull(node_paths) 
-edges_alex_south <- alex_paths_south %>%
-  pull(edge_paths) 
-
-nodes_alex_north <- alex_paths_north %>%
-  pull(node_paths) 
-edges_alex_north <- alex_paths_north %>%
-  pull(edge_paths) 
-
-nodes_cougar_west <- cougar_paths_west %>%
-  pull(node_paths) 
-edges_cougar_west <- cougar_paths_west %>%
-  pull(edge_paths) 
-
-nodes_cougar_south <- cougar_paths_south %>%
-  pull(node_paths) 
-edges_cougar_south <- cougar_paths_south %>%
-  pull(edge_paths) 
-
-nodes_cougar_north <- cougar_paths_north %>%
-  pull(node_paths) 
-edges_cougar_north <- cougar_paths_north %>%
-  pull(edge_paths) 
-
-## filter the edges ============================================================
-
-# here, use our pre-defined function to figure out which of the edges match our 
-# criteria of <30km
-
-### alexander inlet ============================================================
-
-#### west ======================================================================
-cl <- parallel::makeCluster(8)
-
-parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
-  library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_alex_west", "west_west_network"))
-
-alex_west_short_edges <- parSapply(cl, edges_alex_west, slice_fun, 
-                             net = west_west_network)
-parallel::stopCluster(cl)
-
-saveRDS(alex_west_short_edges, 
-        here("./outputs/geo-objs/alex-west-short-edges.rds"))
-print("alex west")
-
-#### south =====================================================================
-cl <- parallel::makeCluster(8)
-
-parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
-  library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_alex_south", "west_south_network"))
-
-alex_south_short_edges <- parSapply(cl, edges_alex_south, slice_fun, 
-                              net = west_south_network)
-parallel::stopCluster(cl)
-
-saveRDS(alex_south_short_edges, 
-        here("./outputs/geo-objs/alex-south-short-edges.rds"))
-print("alex south")
-
-#### north =====================================================================
-cl <- parallel::makeCluster(8)
-
-parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
-  library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_alex_north", "west_north_network"))
-
-alex_north_short_edges <- parSapply(cl, edges_alex_north, slice_fun, 
-                                    net = west_north_network)
-parallel::stopCluster(cl)
-
-saveRDS(alex_north_short_edges, 
-        here("./outputs/geo-objs/alex-north-short-edges.rds"))
-print("alex north")
-
-### cougar bay =================================================================
-
-#### west ======================================================================
-cl <- parallel::makeCluster(8)
-
-parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
-  library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_cougar_west", "west_west_network"))
-
-cougar_west_short_edges <- parSapply(cl, edges_cougar_west, slice_fun, 
-                                   net = west_west_network)
-parallel::stopCluster(cl)
-
-saveRDS(cougar_west_short_edges, 
-        here("./outputs/geo-objs/cougar-west-short-edges.rds"))
-print("cougar west")
-
-#### south =====================================================================
-cl <- parallel::makeCluster(8)
-
-parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
-  library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_cougar_south", "west_south_network"))
-
-cougar_south_short_edges <- parSapply(cl, edges_cougar_south, slice_fun, 
-                                    net = west_south_network)
-parallel::stopCluster(cl)
-
-saveRDS(cougar_south_short_edges, 
-        here("./outputs/geo-objs/cougar-south-short-edges.rds"))
-print("cougar south")
-
-#### north =====================================================================
-cl <- parallel::makeCluster(8)
-
-parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
-  library(magrittr); library(sf)})
-parallel::clusterExport(cl, varlist = c("edges_cougar_north", "west_north_network"))
-
-cougar_north_short_edges <- parSapply(cl, edges_cougar_north, slice_fun, 
-                                    net = west_north_network)
-parallel::stopCluster(cl)
-
-saveRDS(cougar_north_short_edges, 
-        here("./outputs/geo-objs/cougar-north-short-edges.rds"))
-print("cougar north")
-
-
+            slice(nodes_to_keep_alex) %>% 
+            st_as_sf(), colour = "purple4", fill = "grey80", 
+          shape = 21, alpha = 0.01) +
+  geom_sf(data = alex,
+          shape = 21, fill = "purple1", colour = "black", size = 2.5) +
+  theme_base() + 
+  labs(title = "Alexander Inlet")
+ggsave(
+  here("./figs/maps/temp/alex-buffer.png"),
+  alex_buffer
+)
+
+cougar_buffer <- ggplot() + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = west_network %>%
+            activate("nodes") %>%
+            slice(nodes_to_keep_cougar) %>% 
+            st_as_sf(), colour = "purple4", fill = "grey80", 
+          shape = 21, alpha = 0.01) +
+  geom_sf(data = cougar,
+          shape = 21, fill = "purple1", colour = "black", size = 2.5) +
+  theme_base() + 
+  labs(title = "Cougar Bay")
+ggsave(
+  here("./figs/maps/temp/cougar-buffer.png"),
+  cougar_buffer
+)
+
+jackson_buffer <- ggplot() + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = network %>%
+            activate("nodes") %>%
+            slice(nodes_to_keep_jackson) %>% 
+            st_as_sf(), colour = "purple4", fill = "grey80", 
+          shape = 21, alpha = 0.1) +
+  geom_sf(data = jackson,
+          shape = 21, fill = "purple1", colour = "black", size = 2.5) +
+  theme_base() +
+  labs(title = "Jackson Pass")
+ggsave(
+  here("./figs/maps/temp/jackson-buffer.png"),
+  jackson_buffer
+)
+
+lime_buffer <- ggplot() + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = network %>%
+            activate("nodes") %>%
+            slice(nodes_to_keep_lime) %>% 
+            st_as_sf(), colour = "purple4", fill = "grey80", 
+          shape = 21, alpha = 0.1) +
+  geom_sf(data = lime,
+          shape = 21, fill = "purple1", colour = "black", size = 2.5) +
+  theme_base() +
+  labs(title = "Lime Point")
+ggsave(
+  here("./figs/maps/temp/lime-buffer.png"),
+  lime_buffer
+)
+
+sheep_buffer <- ggplot() + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = network %>%
+            activate("nodes") %>%
+            slice(nodes_to_keep_sheep) %>% 
+            st_as_sf(), colour = "purple4", fill = "grey80", 
+          shape = 21, alpha = 0.1) +
+  geom_sf(data = sheep,
+          shape = 21, fill = "purple1", colour = "black", size = 2.5) +
+  theme_base() +
+  labs(title = "Sheep Passage")
+ggsave(
+  here("./figs/maps/temp/sheep-buffer.png"),
+  sheep_buffer
+)
+
+goat_buffer <- ggplot() + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = network %>%
+            activate("nodes") %>%
+            slice(nodes_to_keep_goat) %>% 
+            st_as_sf(), colour = "purple4", fill = "grey80", 
+          shape = 21, alpha = 0.1) +
+  geom_sf(data = goat,
+          shape = 21, fill = "purple1", colour = "black", size = 2.5) +
+  theme_base() +
+  labs(title = "Goat Cove")
+ggsave(
+  here("./figs/maps/temp/goat-buffer.png"),
+  goat_buffer
+)
+
+loch_buffer <- ggplot() + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = network %>%
+            activate("nodes") %>%
+            slice(nodes_to_keep_loch) %>% 
+            st_as_sf(), colour = "purple4", fill = "grey80", 
+          shape = 21, alpha = 0.1) +
+  geom_sf(data = loch,
+          shape = 21, fill = "purple1", colour = "black", size = 2.5) +
+  theme_base() +
+  labs(title = "Lochalsh")
+ggsave(
+  here("./figs/maps/temp/loch-buffer.png"),
+  loch_buffer
+)
+
+kid_buffer <- ggplot() + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = network %>%
+            activate("nodes") %>%
+            slice(nodes_to_keep_kid) %>% 
+            st_as_sf(), colour = "purple4", fill = "grey80", 
+          shape = 21, alpha = 0.1) +
+  geom_sf(data = kid,
+          shape = 21, fill = "purple1", colour = "black", size = 2.5) +
+  theme_base() +
+  labs(title = "Kid Bay")
+ggsave(
+  here("./figs/maps/temp/kid-buffer.png"),
+  kid_buffer
+)
