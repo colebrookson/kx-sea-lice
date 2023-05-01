@@ -485,12 +485,12 @@ saveRDS(edges_nodes_keep_alex,
 
 # plot from just the one study region ==========================================
 ggplot() + 
-  #geom_sf(data = utm_geo_data, color = 'black', fill = "grey70") + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey70") + 
   theme_base() + 
   #geom_sf(data = geo_data_sf_bc, color = 'black', fill = "grey70") + 
   geom_sf(data = west_network %>%
             activate("edges") %>%
-            slice(keep_edges_alex) %>% 
+            slice(keep_edges_cougar) %>% 
             st_as_sf(), colour = "green4", alpha = 0.2) +
   geom_sf(data = net %>%
             activate("nodes") %>%  
