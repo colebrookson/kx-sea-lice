@@ -23,8 +23,8 @@ farms_utm <- st_transform(clean_farm_locs,
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
 # make into sf object
 geo_data_sf <- st_as_sf(geo_data)
-# utm_geo_data <- st_transform(geo_data_sf, 
-#                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+utm_geo_data <- st_transform(geo_data_sf,
+                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 st_crs(utm_geo_data)
 # filter to just BC and make a bounding box of the whole region
 geo_data_sf_bc <- geo_data_sf[which(geo_data_sf$NAME_1 == "British Columbia"),]
@@ -97,18 +97,135 @@ kid_grid_sample <- sf::st_sample(sf::st_as_sfc(sf::st_bbox(utm_kid_bay)),
   nngeo::st_connect(.,.,k = 9) 
 
 # remove connections that are not within the water polygon
+crop_within_t <- Sys.time()
 kid_grid_cropped <- kid_grid_sample[sf::st_within(
   kid_grid_sample, utm_kid_bay, sparse = F)]
+crop_within_t_e <- Sys.time() 
 
-kid_network <- as_sfnetwork(kid_grid_cropped, directed = T) %>% 
+crop_contains_s <- Sys.time()
+kid_grid_cropped_c <- kid_grid_sample[sf::st_contains(
+  utm_kid_bay, kid_grid_sample, sparse = F)]
+crop_contains_e <- Sys.time()
+
+kid_network <- as_sfnetwork(kid_grid_cropped_c, directed = FALSE) %>% 
   activate("edges") %>% 
   mutate(weight = edge_length()) 
 
 all_paths <- sfnetworks::st_network_paths(
   x = kid_network,
-  from = kid_bay
-  )  %>%
-  pull(edge_paths)
+  from = kid_bay, weights = "weight"
+  )  
+
+nodes_all <- all_paths %>%
+  pull(node_paths) 
+
+edges_all <- all_paths %>%
+  pull(edge_paths) 
+
+short_edges <- len_crit(net = kid_network, edges = edges_all)
+
+ggplot() + 
+  geom_sf(data = utm_kid_bay, color = 'blue', fill = "red") 
+
+
+ggplot() + 
+  geom_sf(data = kid_grid_sample, alpha = .05) +
+  geom_sf(data = kid_grid_cropped, color = 'dodgerblue') + 
+  geom_sf(data = utm_kid_bay, color = 'blue', fill = NA) + 
+  geom_sf(data = farms_utm[which(farms_utm$site == "Kid Bay"),]) + 
+  geom_sf(data = kid_network %>%
+            activate("edges") %>%
+            slice(short_edges) %>% 
+            st_as_sf(),
+          color = 'turquoise',
+          size = 2)
+
+len_crit <- function(net, edges, nodes = NULL) {
+  #' Look at whether or not each of the individual paths calcualted actually
+  #' pass the required test
+  #' 
+  #' @description  Look at whether or not each of the individual paths 
+  #' calculated actually pass the required test
+  #' @param net sfnetwork. A network of sfnetwork
+  #' @param slice_val integer. The value to slice the edges into 
+  #' @param edges list. The list of the edges in the shortest path
+  
+  # initialize empty vector
+  all_edges <- as.numeric()
+  # initialize empty vector for nodes if applicable 
+  if(!is.null(nodes)) {
+    all_nodes <- as.numeric()
+  }
+  
+  # get the length of the edges so we know a progress measure
+  no_slices <- length(edges)
+  # get 0.1 increments:
+  edge_incs <- c(round(0.1*no_slices), round(0.2*no_slices), 
+                 round(0.3*no_slices), round(0.4*no_slices),
+                 round(0.5*no_slices), round(0.6*no_slices),
+                 round(0.7*no_slices), round(0.8*no_slices),
+                 round(0.9*no_slices), round(0.99*no_slices))
+  edge_msgs <- c("10% ", "20% ", "30% ", "40% ", "50% ", "60% ", "70% ","80% ",
+                 "90% ", "99% ")
+  start_time <- Sys.time()
+  # go through each of the slices (aka each of the paths)
+  for(slice in 1:length(edges)) {
+    
+    # check what the temporary path length is
+    temp_len <- net %>% 
+      activate("edges") %>% 
+      slice(edges[[slice]]) %>% 
+      st_as_sf() %>% 
+      st_combine() %>% 
+      st_length()
+    
+    # if the temporary length is long enough, add the edges of that path to 
+    # the total edges
+    if(temp_len < units::set_units(30000, m)) {
+      # if the length of the current path is long enough, add it to all_edges
+      all_edges <- c(all_edges, edges[[slice]])
+      
+      # if we also want to plot the nodes, we can do so
+      if(!is.null(nodes)) {
+        # if the length is long enough, keep the LAST node in that set
+        all_nodes <- c(all_nodes, nodes[[slice]][[length(nodes[[slice]])]]) 
+      }
+    }
+    if(slice %in% edge_incs) {
+      pos <- match(slice, edge_incs)
+      curr_time <- Sys.time() - start_time
+      print(paste0(edge_msgs[pos], "elapsed time: ", round(curr_time, 2), 
+                   " minutes"))
+    }
+  }
+  
+  # if the nodes are selected return both that and the edges
+  if(!is.null(nodes)) {
+    # keep only the unique ones
+    unique_nodes <- unique(all_nodes)
+    # keep only the unique ones
+    unique_edges <- unique(all_edges)
+    # list up both
+    nodes_edges <- list(
+      nodes = unique_nodes,
+      edges = unique_edges 
+    )
+    # return both
+    return(nodes_edges)
+  }
+  
+  # keep only the unique ones
+  unique_edges <- unique(all_edges)
+  
+  return(unique_edges)
+}
+
+
+
+
+
+
+
 single <- sfnetworks::st_network_paths(
   x = kid_network,
   from = kid_bay,
@@ -333,14 +450,15 @@ library(tidygraph)
 library(dplyr)
 library(purrr)
 library(TSP)
+library(ggplot2)
 
 net = as_sfnetwork(roxel, directed = FALSE) %>%
   st_transform(3035) %>%
   activate("edges") %>%
   mutate(weight = edge_length()) 
 
-paths <- st_network_paths(net %>% activate(nodes), from = 495, to = c(1:701), weights = "weight") %>% 
-  pull(edge_paths)
+paths <- st_network_paths(net %>% activate(nodes), 
+                          from = 495, to = c(1:701), weights = "weight")
 short_paths <- igraph::shortest_paths(
   graph = net, 
   from = 495,
@@ -349,7 +467,7 @@ short_paths <- igraph::shortest_paths(
   weights = net %>% activate(edges) %>% pull(weight)
 )
 sub_graph <- net %>% 
-  igraph::subgraph.edges(eids = short_paths$epath %>% unlist()) %>% 
+  igraph::subgraph.edges(eids = short_paths$epath) %>% 
   as_tbl_graph()
 sub_graph %>% 
   activate(edges) %>% 
@@ -375,15 +493,22 @@ ggplot() +
             st_as_sf())  + 
   geom_sf(data = net %>%
             activate("nodes") %>%  
-            slice(495, 485, 162, 628, 161, 701) %>% 
+            slice(495) %>% 
             st_as_sf(), size = 3.5, fill = "orange", colour = "black", shape = 21) +
-  geom_sf(data = net %>% 
-            activate(edges) %>% 
+  # geom_sf(data = net %>% 
+  #           activate(edges) %>% 
+  #           #slice(paths) %>%
+  #           filter(weight > units::set_units(100, m) &
+  #                    weight < units::set_units(300, m)) %>% 
+  #           st_as_sf()) + 
+  geom_sf(data = net %>%
+            activate(edges) %>%
+            slice(short_paths) %>% 
             filter(weight > units::set_units(100, m) &
-                     weight < units::set_units(300, m)) %>% 
-            filter(from == 495) %>% 
-            as_tibble() %>% 
-            st_as_sf(), colour = "firebrick") + 
+                     weight < units::set_units(300, m)) %>%
+            filter(from == 495) %>%
+            as_tibble() %>%
+            st_as_sf(), colour = "firebrick") +
   #geom_sf(data = sub_graph_small %>% activate(edges) %>% as_tibble() %>% st_as_sf(), lwd = 1, col = 'firebrick') +
   theme_void()
 short_paths = st_network_paths(net, 
@@ -413,40 +538,94 @@ ggplot() +
   theme_void()
 
 
-sf_to_tidygraph = function(x, directed = TRUE) {
-  
-  edges <- x %>%
-    mutate(edgeID = c(1:n()))
-  
-  nodes <- edges %>%
-    st_coordinates() %>%
-    as_tibble() %>%
-    rename(edgeID = L1) %>%
-    group_by(edgeID) %>%
-    slice(c(1, n())) %>%
-    ungroup() %>%
-    mutate(start_end = rep(c('start', 'end'), times = n()/2)) %>%
-    mutate(xy = paste(.$X, .$Y)) %>% 
-    mutate(nodeID = group_indices(., factor(xy, levels = unique(xy)))) %>%
-    select(-xy)
-  
-  source_nodes <- nodes %>%
-    filter(start_end == 'start') %>%
-    pull(nodeID)
-  
-  target_nodes <- nodes %>%
-    filter(start_end == 'end') %>%
-    pull(nodeID)
-  
-  edges = edges %>%
-    mutate(from = source_nodes, to = target_nodes)
-  
-  nodes <- nodes %>%
-    distinct(nodeID, .keep_all = TRUE) %>%
-    select(-c(edgeID, start_end)) %>%
-    st_as_sf(coords = c('X', 'Y')) %>%
-    st_set_crs(st_crs(edges))
-  
-  tbl_graph(nodes = nodes, edges = as_tibble(edges), directed = directed)
-  
+
+# for stack overflow
+library(sfnetworks)
+library(sf)
+library(tidygraph)
+library(dplyr)
+library(ggplot2)
+library(igraph)
+roxel <- roxel
+
+
+net = as_sfnetwork(roxel, directed = FALSE) %>%
+  st_transform(3035) %>%
+  activate("edges") %>%
+  mutate(weight = edge_length()) 
+
+start_node <- 495
+short_paths_sf <- st_network_paths(
+  net %>% activate(nodes), 
+  from = 495, 
+  to = c(1:701), 
+  weights = "weight") %>% 
+  pull(edge_paths) 
+
+# Get all edges and nodes involved in the shortest paths
+all_shortest_path_edges <- net %>% 
+  igraph::subgraph.edges(eids = short_paths_sf$epath) %>% 
+  as_tbl_graph()
+all_shortest_path_nodes <- short_paths_sf$paths %>% 
+  purrr::map("nodes") %>% 
+  unlist() %>% 
+  unique()
+
+my_subgraph <- net %>% 
+  subgraph.edges(all_shortest_path_edges) %>% 
+  subgraph.nodes(all_shortest_path_nodes)
+
+
+
+
+
+short_paths_sf <- st_network_paths(net %>% activate(nodes), 
+                          from = 495, to = c(1:701), weights = "weight") %>% 
+  pull(edge_paths) 
+short_paths_ig <- igraph::shortest_paths(
+  graph = net, 
+  from = 495,
+  to = c(1:701),
+  output = "both",
+  weights = net %>% activate(edges) %>% pull(weight)
+)
+single_path <- st_network_paths(net %>% activate(nodes),
+                 from = 495,
+                 to = 701,
+                 weights = "weight") %>% 
+  pull(edge_paths) %>% 
+  unlist()
+
+net %>% 
+  activate(edges) %>%
+  slice(single_path) %>%
+  st_as_sf() %>%
+  st_combine() %>%
+  st_length()
+
+
+# from the docs ================================================================
+net = as_sfnetwork(roxel, directed = FALSE) %>%
+  st_transform(3035) %>%
+  activate("edges") %>%
+  mutate(weight = edge_length())
+
+paths = st_network_paths(net, from = 495, to = c(458, 121), weights = "weight")
+paths
+plot_path = function(node_path) {
+  net %>%
+    activate("nodes") %>%
+    slice(node_path) %>%
+    plot(cex = 1.5, lwd = 1.5, add = TRUE)
 }
+colors = sf.colors(3, categorical = TRUE)
+
+plot(net, col = "grey")
+paths %>%
+  pull(node_paths) %>%
+  walk(plot_path)
+net %>%
+  activate("nodes") %>%
+  st_as_sf() %>%
+  slice(c(495, 121, 458)) %>%
+  plot(col = colors, pch = 8, cex = 2, lwd = 2, add = TRUE)
