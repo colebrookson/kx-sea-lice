@@ -106,7 +106,7 @@ ggplot() +
 grid_sample <- sf::st_sample(
   sf::st_as_sfc(sf::st_bbox(utm_geo_data)),
   # the size is really large to make a fine grid
-  size = 200000, type = 'regular') %>% 
+  size = 205000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
 saveRDS(grid_sample, 
