@@ -174,10 +174,25 @@ slice_fun <- function(net, temp_edges) {
                              st_combine() %>% 
                              st_length()))
 }
+
+list_reassign <- function(l, nodes_edges) {
+  #' Just keep nodes or edges
+  #' 
+  #' @description Small simple function to take in a list of lists, and only 
+  #' keep the list of name "edges" or "nodes
+  #' @param l list. A list of length 2, with each sub-item being a list
+  #' @param nodes_edges character. Which of the two we want to keep 
+  #' 
+  #' @return list of length 1
+  
+  return(l[nodes_edges])
+  
+}
+
 # make_yearly_popn_maps ========================================================
 make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
                                   farm_data, farm_locs, network, west_network,
-                                  fig_output, data_output) {
+                                  all_edges_nodes, fig_output, data_output) {
   #' Maps of each year's population and farm co-occurrence
   #' 
   #' @description To determine which farms are high, medium, or low risk, we
@@ -191,6 +206,8 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
   #' locations of the farms
   #' @param network sfnetwork tibble. The network for the entire region
   #' @param west_network sfnetwork tibble. The network for the western region
+  #' @param all_edges_nodes list. The list of all the lists of edges and nodes
+  #' to be kept to map onto the region
   #' @param fig_output character. Where to save the figure files
   #' @param data_output character. Where to save the data files 
   #'  
@@ -285,8 +302,50 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
       # this is being done to the whole resulting df
       dplyr::mutate(
         ff = ifelse(type == "farm", "bold", "plain")
+      ) %>% 
+      sf::st_as_sf(., coords = c("long", "lat"))
+    
+    # need to temp make it WGS84
+    sf::st_crs(locs_temp) <- 4326
+    
+    # transform to utm 
+    locs_temp_utm <- sf::st_transform(locs_temp, 
+                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m") %>% 
+      dplyr::mutate(
+        X = data.frame(sf::st_coordinates(.))$X,
+        Y = data.frame(sf::st_coordinates(.))$Y
       )
     
+    ## figure out what nodes need to be kept for this year =====================
+    lime <- list_reassign(lime, "nodes")
+    # filer 
+    curr_edges_nodes <- all_edges_nodes[
+      which(names(all_edges_nodes) %in% farm_locs_temp$site)]
+    curr_nodes <- sapply(curr_edges_nodes, list_reassign, 
+                         nodes_edges="nodes") %>% 
+      unlist()
+      
+    
+    ggplot2::ggplot() +
+      geom_sf(data = utm_geo_data_large, color = 'black', fill = "grey80") + 
+      geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+      geom_sf(data = network %>%
+                activate("nodes") %>%
+                slice(curr_nodes) %>% 
+                st_as_sf(), colour = "#f9f1fe", alpha = 0.1) + 
+      geom_sf(data = locs_temp_utm, aes(fill = type, shape = type), size = 2.5) +        
+      scale_shape_manual("Location", values = c(21, 22)) + 
+      scale_fill_manual("Location", values = c("purple", "gold2")) +
+      ggrepel::geom_text_repel(data = locs_temp_utm,
+                               aes(x = X, y = Y, 
+                                   label = site, fontface = ff),
+                               size = 2.5,
+                               max.overlaps = 20) + 
+      # geom_sf_text(data = locs_temp_utm, aes(label = site), size = 3,
+      #              nudge_x = rep(100, nrow(locs_temp_utm))) + 
+      theme_base() +
+      coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932), 
+               expand = FALSE) 
     # make and save the dataframe
     ggplot2::ggsave( 
       

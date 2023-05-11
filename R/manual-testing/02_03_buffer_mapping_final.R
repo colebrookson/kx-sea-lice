@@ -86,6 +86,16 @@ utm_geo_data <- st_transform(non_land_study,
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 saveRDS(utm_geo_data, here("./outputs/geo-objs/utm-geo-data.rds"))
 
+
+## NOTE: also, I'm going to make a much bigger one of this for the year-by-year
+# plotting which needs a bigger area to show the populations of salmon too
+non_land_larger <- sf::st_crop(non_land, xmin = -129.5,
+                              xmax = -127.75, ymin = 52, 
+                              ymax = 54)
+utm_geo_data_large <- st_transform(non_land_larger, 
+                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+saveRDS(utm_geo_data_large, here("./outputs/geo-objs/utm-geo-data-large.rds"))
+
 # quick sanity check for what we're looking at 
 ggplot() + 
   geom_sf(data = utm_geo_data, color = 'black', fill = "grey90") +
@@ -96,7 +106,7 @@ ggplot() +
 grid_sample <- sf::st_sample(
   sf::st_as_sfc(sf::st_bbox(utm_geo_data)),
   # the size is really large to make a fine grid
-  size = 100000, type = 'regular') %>% 
+  size = 200000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
 saveRDS(grid_sample, 
@@ -108,7 +118,7 @@ grid_cropped <- grid_sample[sf::st_contains(
 network <- as_sfnetwork(grid_cropped, directed = FALSE) %>% 
   activate("edges") %>% 
   mutate(weight = edge_length())
-saveRDS(grid_sample, 
+saveRDS(network, 
         here("./outputs/geo-objs/all-area-network.rds"))
 
 ggplot() + 
@@ -491,7 +501,19 @@ edges_nodes_to_keep_goat <- readRDS(here::here("./outputs/geo-objs/edges-nodes-t
 edges_nodes_to_keep_loch <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-loch.rds"))
 edges_nodes_to_keep_jackson <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-jackson.rds"))
 edges_nodes_to_keep_alex <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-alex.rds"))
-edges_nodes_to_keep_cougar <- readRDShere::here("./outputs/geo-objs/edges-nodes-to-keep-cougar.rds"))
+edges_nodes_to_keep_cougar <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-cougar.rds"))
+
+all_nodes_edges_to_keep <- list(
+  "Lime Point" = edges_nodes_to_keep_lime,
+  "Sheep Passage" = edges_nodes_to_keep_sheep,
+  "Kid Bay" = edges_nodes_to_keep_kid,
+  "Goat Cove" = edges_nodes_to_keep_goat,
+  "Lochalsh" = edges_nodes_to_keep_loch,
+  "Jackson Pass" = edges_nodes_to_keep_jackson,
+  "Alexander Inlet" = edges_nodes_to_keep_alex,
+  "Cougar Bay" = edges_nodes_to_keep_cougar
+)
+saveRDS(all_nodes_edges_to_keep, here("./outputs/geo-objs/all-edges-nodes-to-keep.rds"))
 
 # plot from just the one study region ==========================================
 alex_buffer <- ggplot() + 
