@@ -23,7 +23,8 @@ source(here::here("./R/05_functions_power_analysis.R"))
 
 tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2", 
                             "ggthemes", "wesanderson", "lubridate", "janitor",
-                            "tibble", "ggrepel", "sp", "glmmTMB"))
+                            "tibble", "ggrepel", "sp", "glmmTMB", "sf", 
+                            "sfnetworks"))
 options(dplyr.summarise.inform = FALSE)
 
 list(
@@ -80,9 +81,26 @@ list(
   ),
   tar_target(
     all_power_sims,
-    here::here("./outputs/power-analysis/all-power-analysis-runs.csv"),
+    here::here("./outputs/power-analysis/pink-all-power-analysis-runs.csv"),
     format = "file"
   ),
+  ## geo-data files ============================================================
+  ### nodes to keep ============================================================
+  tar_target(edges_nodes_to_keep_lime, 
+             here::here("./outputs/geo-objs/edges-nodes-to-keep-lime.rds")),
+  tar_target(edges_nodes_to_keep_sheep, 
+             here::here("./outputs/geo-objs/edges-nodes-to-keep-sheep.rds")),
+  tar_target(edges_nodes_to_keep_kid, 
+             here::here("./outputs/geo-objs/edges-nodes-to-keep-kid.rds")),
+  tar_target(edges_nodes_to_keep_goat, 
+             here::here("./outputs/geo-objs/edges-nodes-to-keep-goat.rds")),
+  tar_target(edges_nodes_to_keep_loch, 
+             here::here("./outputs/geo-objs/edges-nodes-to-keep-loch.rds")),
+  tar_target(edges_nodes_to_keep_jackson, 
+             here::here("./outputs/geo-objs/edges-nodes-to-keep-jackson.rds")),
+  ### networks =================================================================
+  tar_target()
+  
   ## data cleaning =============================================================
   tar_target(
     clean_wild_lice_data,
@@ -177,7 +195,7 @@ list(
     power_analysis,
     plot_power(
       all_power_sims = get_data_csv(all_power_sims),
-      output_path = here::here("./figs/power-analysis")
+      output_path = here::here("./figs/power-analysis/")
     )
   ),
   ## useful plots/extra content ================================================

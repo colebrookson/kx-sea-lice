@@ -156,6 +156,24 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
   
 }
 
+# define manual helper function ================================================
+slice_fun <- function(net, temp_edges) {
+  #' Find path length of one path
+  #' 
+  #' @description Taking a single path (i.e. set of edges), get the length 
+  #' of that path, and remove the units on it
+  #' @param net sfnetwork. A network of sfnetwork
+  #' @param temp_edges vector. The edges of the path at hand 
+  #' 
+  #' @return numeric value (units removed) of the length of that path
+  
+  return(units::drop_units(net %>% 
+                             activate("edges") %>% 
+                             slice(temp_edges) %>% 
+                             st_as_sf() %>% 
+                             st_combine() %>% 
+                             st_length()))
+}
 # make_yearly_popn_maps ========================================================
 make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
                                   farm_data, farm_locs, fig_output, 
@@ -208,7 +226,17 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
     site_num = as.numeric()
   )
   
-  for(yr in 2005:2020) {
+  ## set up the farms that we'll need to plot but with sf functions ============
+  
+  farms_sf <- sf::st_as_sf(farm_locs, coords = c("long", "lat"))
+  
+  # set the coordinates for WGS84
+  sf::st_crs(farms_sf) <- 4326 
+  # transform to utm 
+  farms_utm <- sf::st_transform(farms_sf,  
+                            crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+  
+  for(yr in 2005:2021) {
     
     # get the farms in that time period
     farms_temp <- (farm_data %>% 
