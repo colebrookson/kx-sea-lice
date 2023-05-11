@@ -175,9 +175,9 @@ slice_fun <- function(net, temp_edges) {
                              st_length()))
 }
 # make_yearly_popn_maps ========================================================
-make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
-                                  farm_data, farm_locs, fig_output, 
-                                  data_output) {
+make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
+                                  farm_data, farm_locs, network, west_network,
+                                  fig_output, data_output) {
   #' Maps of each year's population and farm co-occurrence
   #' 
   #' @description To determine which farms are high, medium, or low risk, we
@@ -185,10 +185,12 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
   #' 
   #' @param sr_pop_data dataframe. The cleaned pink SR data
   #' @param sr_pop_sites file. Information on all the populations locations
-  #' @param geo_data file. The geo-spatial data rds file
+  #' @param utm_geo_data file. The geo-spatial data rds file
   #' @param farm_data dataframe. Data of the info for the different farms
   #' @param farm_locs dataframe. The cleaned data of the different 
   #' locations of the farms
+  #' @param network sfnetwork tibble. The network for the entire region
+  #' @param west_network sfnetwork tibble. The network for the western region
   #' @param fig_output character. Where to save the figure files
   #' @param data_output character. Where to save the data files 
   #'  
@@ -196,10 +198,6 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
   #' farm_data, clean_farm_locs, output_path)
   #' @return NA
   #'
-  
-  # geospatial stuff
-  province = "British Columbia"
-  canada_prov = geo_data[geo_data$NAME_1 %in% province] # subset to just BC
   
   # filter the sites to just the ones in our data
   sr_pop_data_area67 <- sr_pop_data %>% 
@@ -236,7 +234,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
   farms_utm <- sf::st_transform(farms_sf,  
                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
   
-  for(yr in 2005:2021) {
+  for(yr in 2005:2020) {
     
     # get the farms in that time period
     farms_temp <- (farm_data %>% 
@@ -306,7 +304,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, geo_data,
         geom_point(data = locs_temp,
                    aes(x = long, y = lat, fill = type, shape = type),
                    size = 2) + 
-        ggthemes::theme_base() +
+        theme_base() +
         labs(x = "Longitude (°)", y = "Latitude (°)",
              title = paste0(yr, ", brood year ", (yr-1))) +
         scale_shape_manual("Location", values = c(21, 22)) + 

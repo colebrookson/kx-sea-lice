@@ -98,9 +98,18 @@ list(
              here::here("./outputs/geo-objs/edges-nodes-to-keep-loch.rds")),
   tar_target(edges_nodes_to_keep_jackson, 
              here::here("./outputs/geo-objs/edges-nodes-to-keep-jackson.rds")),
+  tar_target(edges_nodes_to_keep_alex, 
+             here::here("./outputs/geo-objs/edges-nodes-to-keep-alex.rds")),
+  tar_target(edges_nodes_to_keep_cougar, 
+             here::here("./outputs/geo-objs/edges-nodes-to-keep-cougar.rds")),
   ### networks =================================================================
-  tar_target()
-  
+  tar_target(all_region_network,
+             here::here("./outputs/geo-objs/all-area-network.rds")),
+  tar_target(west_region_network,
+             here::here("./outputs/geo-objs/west-area-network.rds")),
+  ### background area ==========================================================
+  tar_target(utm_geo_data, 
+             here::here("./outputs/geo-objs/utm-geo-data.rds")),
   ## data cleaning =============================================================
   tar_target(
     clean_wild_lice_data,

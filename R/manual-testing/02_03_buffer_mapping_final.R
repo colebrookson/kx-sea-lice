@@ -84,7 +84,7 @@ non_land_study <- sf::st_crop(non_land, xmin = -128.85,
 # make sure the projection is the same (UTM)
 utm_geo_data <- st_transform(non_land_study, 
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
+saveRDS(utm_geo_data, here("./outputs/geo-objs/utm-geo-data.rds"))
 
 # quick sanity check for what we're looking at 
 ggplot() + 
@@ -484,6 +484,15 @@ edges_nodes_keep_alex <- list(
 saveRDS(edges_nodes_keep_alex,
         here("./outputs/geo-objs/edges-nodes-to-keep-alex.rds"))
 
+edges_nodes_to_keep_lime <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-lime.rds"))
+edges_nodes_to_keep_sheep <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-sheep.rds"))
+edges_nodes_to_keep_kid <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-kid.rds"))
+edges_nodes_to_keep_goat <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-goat.rds"))
+edges_nodes_to_keep_loch <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-loch.rds"))
+edges_nodes_to_keep_jackson <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-jackson.rds"))
+edges_nodes_to_keep_alex <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-alex.rds"))
+edges_nodes_to_keep_cougar <- readRDShere::here("./outputs/geo-objs/edges-nodes-to-keep-cougar.rds"))
+
 # plot from just the one study region ==========================================
 alex_buffer <- ggplot() + 
   geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
@@ -612,3 +621,29 @@ ggsave(
   here("./figs/maps/temp/kid-buffer.png"),
   kid_buffer
 )
+
+# set up testing for incorporation into targets=================================
+library(targets)
+sr_pop_data = tar_read(clean_pink_spawner_recruit_data)
+sr_pop_sites = get_data_csv(tar_read(sr_pop_sites))
+geo_data = readRDS(tar_read(geo_spatial))
+farm_data = tar_read(clean_farm_lice_data)
+farm_locs = tar_read(clean_farm_locs)
+fig_output = here::here("./figs/maps/yearly-pop-maps/")
+data_output = here::here("./data/spawner-recruit/clean/")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
