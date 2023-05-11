@@ -146,7 +146,8 @@ west_grid_cropped <- west_grid_sample[sf::st_contains(
 west_network <- as_sfnetwork(west_grid_cropped, directed = FALSE) %>% 
   activate("edges") %>% 
   mutate(weight = edge_length())
-
+saveRDS(west_network, 
+        here("./outputs/geo-objs/west-area-network.rds"))
 # subset into the paths from each of the farms since that's how I'll need to 
 # plot them
 kid <- farms_utm[which(farms_utm$site == "Kid Bay"),]
