@@ -9,7 +9,7 @@
 #'
 #'All functions are documented using the roxygen2 framework and the docstring
 #'library
-#'
+#' 
 
 library(here)
 library(readr)
