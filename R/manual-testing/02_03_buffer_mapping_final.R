@@ -5,6 +5,7 @@ library(here)
 library(ggplot2)
 library(sfnetworks)
 library(parallel)
+library(sp)
 source(here("./R/00_functions_global.R"))
 
 # define manual helper function ================================================
@@ -181,7 +182,7 @@ edges_all_kid <- kid_paths %>%
   pull(edge_paths) 
 
 kid_short_start <- Sys.time()
-cl <- parallel::makeCluster(8)
+cl <- parallel::makeCluster(18)
 
 parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
   library(magrittr); library(sf)})
@@ -225,7 +226,7 @@ edges_all_loch <- loch_paths %>%
   pull(edge_paths) 
 
 loch_short_start <- Sys.time()
-cl <- parallel::makeCluster(11)
+cl <- parallel::makeCluster(18)
 
 parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
   library(magrittr); library(sf)})
@@ -265,7 +266,7 @@ edges_all_goat <- goat_paths %>%
   pull(edge_paths) 
 
 goat_short_start <- Sys.time()
-cl <- parallel::makeCluster(11)
+cl <- parallel::makeCluster(18)
 
 parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
   library(magrittr); library(sf)})
@@ -305,7 +306,7 @@ edges_all_sheep <- sheep_paths %>%
   pull(edge_paths) 
 
 sheep_short_start <- Sys.time()
-cl <- parallel::makeCluster(11)
+cl <- parallel::makeCluster(18)
 
 parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
   library(magrittr); library(sf)})
@@ -345,7 +346,7 @@ edges_all_lime <- lime_paths %>%
   pull(edge_paths) 
 
 lime_short_start <- Sys.time()
-cl <- parallel::makeCluster(11)
+cl <- parallel::makeCluster(18)
 
 parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
   library(magrittr); library(sf)})
@@ -385,7 +386,7 @@ edges_all_jackson <- jackson_paths %>%
   pull(edge_paths) 
 
 jackson_short_start <- Sys.time()
-cl <- parallel::makeCluster(11)
+cl <- parallel::makeCluster(18)
 
 parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
   library(magrittr); library(sf)})
