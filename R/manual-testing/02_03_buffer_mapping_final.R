@@ -65,17 +65,15 @@ non_land <- sf::st_difference(bb, geo_data_sf_bc)
 
 # all analysis one study region ================================================
 
-# crop the land so we can plot that separately
-land_study <- sf::st_crop(geo_data_sf_bc, xmin = -129.5,
-                              xmax = -127.75, ymin = 52, 
-                              ymax = 54)
-utm_land_data <- st_transform(land_study, 
-                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
 # crop to just the study region
 non_land_study <- sf::st_crop(non_land, xmin = -128.85,
                               xmax = -128.12, ymin = 52.25, 
                               ymax = 52.95)
+
+# get the land here
+bb_non_land <- sf::st_make_grid(sf::st_bbox(non_land_study))
+bb_non_land_utm <- st_transform(bb_non_land, 
+                                crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
 ## NOTE: for some reason, in this data, there's an issue just north of the ymax
 # which means that the cutoff here has to be this value, any further and it
@@ -86,6 +84,16 @@ non_land_study <- sf::st_crop(non_land, xmin = -128.85,
 utm_geo_data <- st_transform(non_land_study, 
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 saveRDS(utm_geo_data, here("./outputs/geo-objs/utm-geo-data.rds"))
+
+# crop the land so we can plot that separately
+land_study <- sf::st_difference(bb_non_land_utm, utm_geo_data)
+utm_land_data <- st_transform(land_study, 
+                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+saveRDS(utm_land_data, here("./outputs/geo-objs/utm-land-data.rds"))
+
+ggplot() + 
+  geom_sf(non_land) + 
+  geom_sf(bb_non_land)
 
 
 ## NOTE: also, I'm going to make a much bigger one of this for the year-by-year
@@ -640,9 +648,42 @@ kid_buffer <- ggplot() +
           shape = 21, fill = "purple1", colour = "black", size = 2.5) +
   theme_base() +
   labs(title = "Kid Bay")
+
 ggsave(
   here("./figs/maps/temp/kid-buffer.png"),
   kid_buffer
+)
+
+## attempting to plot with boundary not the points =============================
+jack_polygon <- network %>% 
+  activate("nodes") %>% 
+  slice(nodes_to_keep_jackson) %>% 
+  st_as_sf() %>% 
+  st_cast(to = "MULTIPOINT") %>% 
+  summarize(geometry = st_combine(x)) %>% 
+  st_cast("POLYGON")
+
+ggplot() + 
+  geom_sf(data = utm_land_data , color = 'black', fill = "grey20") + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = utm_land_data , color = 'black', fill = "grey20") + 
+  coord_sf(xmin = -129.5,
+           xmax = -127.75, ymin = 52,
+           ymax = 54) +
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = jack_polygon, fill = "lightpink", colour = "lightpink") + 
+  # geom_sf(data = network %>%
+  #           activate("nodes") %>%
+  #           slice(nodes_to_keep_jackson) %>% 
+  #           st_as_sf(), colour = "purple4", fill = "grey80", 
+  #         shape = 21, alpha = 0.1) +
+  geom_sf(data = jackson,
+          shape = 21, fill = "purple1", colour = "black", size = 2.5) +
+  theme_base() +
+  labs(title = "Jackson Pass")
+ggsave(
+  here("./figs/maps/temp/jackson-buffer.png"),
+  jackson_buffer
 )
 
 # set up testing for incorporation into targets=================================
