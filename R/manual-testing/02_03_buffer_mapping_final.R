@@ -86,7 +86,8 @@ utm_geo_data <- st_transform(non_land_study,
 saveRDS(utm_geo_data, here("./outputs/geo-objs/utm-geo-data.rds"))
 
 # crop the land so we can plot that separately
-land_study <- sf::st_difference(bb_non_land_utm, utm_geo_data)
+land_study <- sf::st_difference(bb_non_land_utm, utm_geo_data) %>% 
+  st_cast("MULTIPOLYGON")
 utm_land_data <- st_transform(land_study, 
                               crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 saveRDS(utm_land_data, here("./outputs/geo-objs/utm-land-data.rds"))
@@ -526,12 +527,12 @@ saveRDS(all_nodes_edges_to_keep, here("./outputs/geo-objs/all-edges-nodes-to-kee
 
 # plot from just the one study region ==========================================
 alex_buffer <- ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey99") + 
   geom_sf(data = west_network %>%
             activate("nodes") %>%
             slice(nodes_to_keep_alex) %>% 
-            st_as_sf(), colour = "purple4", fill = "grey80", 
-          shape = 21, alpha = 0.01) +
+            st_as_sf(), fill = "lightpink", colour = "lightpink") +
+  geom_sf(data = utm_land_data, fill = "grey50") +
   geom_sf(data = alex,
           shape = 21, fill = "purple1", colour = "black", size = 2.5) +
   theme_base() + 
@@ -542,12 +543,12 @@ ggsave(
 )
 
 cougar_buffer <- ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey99") + 
   geom_sf(data = west_network %>%
             activate("nodes") %>%
             slice(nodes_to_keep_cougar) %>% 
-            st_as_sf(), colour = "purple4", fill = "grey80", 
-          shape = 21, alpha = 0.01) +
+            st_as_sf(), fill = "lightpink", colour = "lightpink") +
+  geom_sf(data = utm_land_data, fill = "grey50") +
   geom_sf(data = cougar,
           shape = 21, fill = "purple1", colour = "black", size = 2.5) +
   theme_base() + 
@@ -558,12 +559,12 @@ ggsave(
 )
 
 jackson_buffer <- ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey99") + 
   geom_sf(data = network %>%
             activate("nodes") %>%
             slice(nodes_to_keep_jackson) %>% 
-            st_as_sf(), colour = "purple4", fill = "grey80", 
-          shape = 21, alpha = 0.1) +
+            st_as_sf(),fill = "lightpink", colour = "lightpink") +
+  geom_sf(data = utm_land_data, fill = "grey50") +
   geom_sf(data = jackson,
           shape = 21, fill = "purple1", colour = "black", size = 2.5) +
   theme_base() +
@@ -574,12 +575,12 @@ ggsave(
 )
 
 lime_buffer <- ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey99") + 
   geom_sf(data = network %>%
             activate("nodes") %>%
             slice(nodes_to_keep_lime) %>% 
-            st_as_sf(), colour = "purple4", fill = "grey80", 
-          shape = 21, alpha = 0.1) +
+            st_as_sf(), fill = "lightpink", colour = "lightpink") +
+  geom_sf(data = utm_land_data, fill = "grey50") +
   geom_sf(data = lime,
           shape = 21, fill = "purple1", colour = "black", size = 2.5) +
   theme_base() +
@@ -590,12 +591,12 @@ ggsave(
 )
 
 sheep_buffer <- ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey99") + 
   geom_sf(data = network %>%
             activate("nodes") %>%
             slice(nodes_to_keep_sheep) %>% 
-            st_as_sf(), colour = "purple4", fill = "grey80", 
-          shape = 21, alpha = 0.1) +
+            st_as_sf(), fill = "lightpink", colour = "lightpink") +
+  geom_sf(data = utm_land_data, fill = "grey50") +
   geom_sf(data = sheep,
           shape = 21, fill = "purple1", colour = "black", size = 2.5) +
   theme_base() +
@@ -606,12 +607,12 @@ ggsave(
 )
 
 goat_buffer <- ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey99") + 
   geom_sf(data = network %>%
             activate("nodes") %>%
             slice(nodes_to_keep_goat) %>% 
-            st_as_sf(), colour = "purple4", fill = "grey80", 
-          shape = 21, alpha = 0.1) +
+            st_as_sf(), fill = "lightpink", colour = "lightpink") +
+  geom_sf(data = utm_land_data, fill = "grey50") +
   geom_sf(data = goat,
           shape = 21, fill = "purple1", colour = "black", size = 2.5) +
   theme_base() +
@@ -622,12 +623,12 @@ ggsave(
 )
 
 loch_buffer <- ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey99") + 
   geom_sf(data = network %>%
             activate("nodes") %>%
             slice(nodes_to_keep_loch) %>% 
-            st_as_sf(), colour = "purple4", fill = "grey80", 
-          shape = 21, alpha = 0.1) +
+            st_as_sf(), fill = "lightpink", colour = "lightpink") +
+  geom_sf(data = utm_land_data, fill = "grey50") +
   geom_sf(data = loch,
           shape = 21, fill = "purple1", colour = "black", size = 2.5) +
   theme_base() +
@@ -638,12 +639,12 @@ ggsave(
 )
 
 kid_buffer <- ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey99", alpha = 1) + 
   geom_sf(data = network %>%
             activate("nodes") %>%
             slice(nodes_to_keep_kid) %>% 
-            st_as_sf(), colour = "purple4", fill = "grey80", 
-          shape = 21, alpha = 0.1) +
+            st_as_sf(), fill = "lightpink", colour = "lightpink") +
+  geom_sf(data = utm_land_data, fill = "grey50") +
   geom_sf(data = kid,
           shape = 21, fill = "purple1", colour = "black", size = 2.5) +
   theme_base() +
@@ -661,17 +662,16 @@ jack_polygon <- network %>%
   st_as_sf() %>% 
   st_cast(to = "MULTIPOINT") %>% 
   summarize(geometry = st_combine(x)) %>% 
-  st_cast("POLYGON")
+  st_cast("POLYGON") 
 
-ggplot() + 
-  geom_sf(data = utm_land_data , color = 'black', fill = "grey20") + 
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
-  geom_sf(data = utm_land_data , color = 'black', fill = "grey20") + 
-  coord_sf(xmin = -129.5,
-           xmax = -127.75, ymin = 52,
-           ymax = 54) +
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+test <- st_filter(jack_polygon, utm_geo_data)
+
+ggplot() +   
+  theme_base() +
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey99", alpha = 1) + 
   geom_sf(data = jack_polygon, fill = "lightpink", colour = "lightpink") + 
+  geom_sf(data = utm_land_data, fill = "grey50") + 
+  theme(panel.grid.major = element_line(colour = "transparent"))+ 
   # geom_sf(data = network %>%
   #           activate("nodes") %>%
   #           slice(nodes_to_keep_jackson) %>% 
