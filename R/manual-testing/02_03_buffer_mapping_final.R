@@ -48,20 +48,42 @@ farms_utm <- st_transform(clean_farm_locs,
 # canada_prov = canada[canada$NAME_1 == "British Columbia"] # subset to just BC
 
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
+geo_data_bc <- geo_data_sf[which(geo_data$NAME_1 == "British Columbia"),]
 
 # make into sf object
-geo_data_sf <- st_as_sf(geo_data)
+geo_data_sf_bc <- st_as_sf(geo_data_bc)
 
 # filter to just BC 
-geo_data_sf_bc <- geo_data_sf[which(geo_data_sf$NAME_1 == "British Columbia"),]
+bc_wgs <- sf::st_crop(geo_data_sf, xmin = -129.5,
+                      xmax = -127.75, ymin = 52, 
+                      ymax = 54)
+
+bc_utm <- st_transform(geo_data_sf_bc, 
+                       crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+geo_data_sf_bc_cropped <- sf::st_crop(bc_utm, xmin = 450000,
+                                      xmax = 600000, ymin = 5750000, 
+                                      ymax = 6000000)
+
+ggplot() + 
+  geom_sf(data = geo_data_sf_bc_cropped) +
+  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+
+# 54 = 581934.93
+# -127.5 = 5984244.79
+# 52 = 465674.83
+# -129.5 = 5761156.24
 
 # and make a bounding box of the whole region
-bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc))
+bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc_cropped), n = 1)
 
 # now since we have a polygon of BC, we cant a polygon of the things that 
 # are the waterways, so use the st_differnce of the bounding box and that 
 # geom object and we're good 
-non_land <- sf::st_difference(bb, geo_data_sf_bc)
+non_land <- sf::st_difference(bb, geo_data_sf_bc_cropped)
+
+non_land_for_plot <- non_land %>% 
+  st_cast("MULTIPOLYGON")
 
 # all analysis one study region ================================================
 
@@ -99,12 +121,74 @@ ggplot() +
 
 ## NOTE: also, I'm going to make a much bigger one of this for the year-by-year
 # plotting which needs a bigger area to show the populations of salmon too
-non_land_larger <- sf::st_crop(non_land, xmin = -129.5,
-                              xmax = -127.75, ymin = 52, 
-                              ymax = 54)
-utm_geo_data_large <- st_transform(non_land_larger, 
+non_land_larger <- sf::st_crop(non_land, xmin = 450000,
+                               xmax = 600000, ymin = 5780000, 
+                               ymax = 6000000)
+utm_non_geo_land_larger <- st_transform(non_land_larger, 
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+# to deal with the weird lat/long thing for now, we'll just make four land 
+# areas and plot all four
+
+
+non_land_larger_se <- sf::st_crop(
+  non_land, 
+  xmin = -129, xmax = -127.75, ymin = 52,  ymax = 53)
+utm_non_land_larger_se <- st_transform(non_land_larger_se, 
+                                    crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+bb_non_land_larger_se <- st_transform(
+  sf::st_make_grid(sf::st_bbox(
+    non_land_larger_se
+  )),
+  crs="+proj=utm +zone=9 +datum=NAD83 +unit=m"
+)
+bb_non_land_larger_sw <- sf::st_transform(
+  sf::st_make_grid(sf::st_bbox(
+    sf::st_crop(non_land_larger, 
+                xmin = -129.5, xmax = -129, ymin = 52,  ymax = 53)
+  )),
+  st_transform
+)
+bb_non_land_larger_ne <- sf::st_transform(
+  sf::st_make_grid(sf::st_bbox(
+  sf::st_crop(non_land_larger, 
+              xmin = -129, xmax = -127.75, ymin = 53,  ymax = 54)
+  )),
+  crs="+proj=utm +zone=9 +datum=NAD83 +unit=m"
+)
+bb_non_land_larger_nw <- sf::st_transform(
+  sf::st_make_grid(sf::st_bbox(
+    sf::st_crop(non_land_larger, 
+                xmin = -129.5, xmax = -129, ymin = 53,  ymax = 54)
+  )),
+  crs="+proj=utm +zone=9 +datum=NAD83 +unit=m"
+)
+
 saveRDS(utm_geo_data_large, here("./outputs/geo-objs/utm-geo-data-large.rds"))
+
+land_larger_se <- sf::st_difference(
+  bb_non_land_larger_se, utm_non_land_larger_se) %>% 
+  st_cast("MULTIPOLYGON")
+land_larger_sw <- sf::st_difference(
+  bb_non_land_larger_sw, utm_geo_data_large) %>% 
+  st_cast("MULTIPOLYGON")
+land_larger_ne <- sf::st_difference(
+  bb_non_land_larger_ne, utm_geo_data_large) %>% 
+  st_cast("MULTIPOLYGON")
+land_larger_ne <- sf::st_difference(
+  bb_non_land_larger_ne, utm_geo_data_large) %>% 
+  st_cast("MULTIPOLYGON")
+
+
+
+
+
+
+
+utm_land_data_larger <- st_transform(land_larger, 
+                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+saveRDS(utm_land_data_larger, 
+        here("./outputs/geo-objs/utm-land-larger-data.rds"))
 
 # quick sanity check for what we're looking at 
 ggplot() + 

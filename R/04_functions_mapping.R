@@ -190,9 +190,10 @@ list_reassign <- function(l, nodes_edges) {
 }
 
 # make_yearly_popn_maps ========================================================
-make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
-                                  farm_data, farm_locs, network, west_network,
-                                  all_edges_nodes, fig_output, data_output) {
+make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data, 
+                                  utm_land_data, farm_data, farm_locs, network, 
+                                  west_network, all_edges_nodes, fig_output, 
+                                  data_output) {
   #' Maps of each year's population and farm co-occurrence
   #' 
   #' @description To determine which farms are high, medium, or low risk, we
@@ -242,7 +243,6 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
   )
   
   ## set up the farms that we'll need to plot but with sf functions ============
-  
   farms_sf <- sf::st_as_sf(farm_locs, coords = c("long", "lat"))
   
   # set the coordinates for WGS84
@@ -317,22 +317,19 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
       )
     
     ## figure out what nodes need to be kept for this year =====================
-    lime <- list_reassign(lime, "nodes")
-    # filer 
     curr_edges_nodes <- all_edges_nodes[
       which(names(all_edges_nodes) %in% farm_locs_temp$site)]
     curr_nodes <- sapply(curr_edges_nodes, list_reassign, 
                          nodes_edges="nodes") %>% 
       unlist()
       
-    
     ggplot2::ggplot() +
-      geom_sf(data = utm_geo_data_large, color = 'black', fill = "grey80") + 
-      geom_sf(data = utm_geo_data, color = 'black', fill = "grey80") + 
+      geom_sf(data = non_land, fill = "white") + 
       geom_sf(data = network %>%
                 activate("nodes") %>%
                 slice(curr_nodes) %>% 
-                st_as_sf(), colour = "#f9f1fe", alpha = 0.1) + 
+                st_as_sf(), fill = "lightpink", colour = "lightpink") +
+      geom_sf(data = geo_data_sf_bc_cropped, fill = "grey70") +
       geom_sf(data = locs_temp_utm, aes(fill = type, shape = type), size = 2.5) +        
       scale_shape_manual("Location", values = c(21, 22)) + 
       scale_fill_manual("Location", values = c("purple", "gold2")) +
@@ -345,7 +342,14 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
       #              nudge_x = rep(100, nrow(locs_temp_utm))) + 
       theme_base() +
       coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932), 
-               expand = FALSE) 
+               expand = FALSE) + 
+      theme(
+        plot.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90)
+      ) + 
+      labs(
+        x = "Longitude", y = "Latitude"
+      )
     # make and save the dataframe
     ggplot2::ggsave( 
       
