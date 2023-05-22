@@ -82,8 +82,10 @@ bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc_cropped), n = 1)
 # geom object and we're good 
 non_land <- sf::st_difference(bb, geo_data_sf_bc_cropped)
 
-non_land_for_plot <- non_land %>% 
-  st_cast("MULTIPOLYGON")
+non_land_for_plot <- sf::st_crop(
+  non_land,
+  ymin = 5780000, ymax = 5890000, xmin = 510000, xmax = 570000
+)
 
 # all analysis one study region ================================================
 

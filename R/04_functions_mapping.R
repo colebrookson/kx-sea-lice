@@ -324,7 +324,9 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
       unlist()
       
     ggplot2::ggplot() +
-      geom_sf(data = non_land, fill = "white") + 
+      geom_sf(data = non_land_for_plot, fill = "white") + 
+      coord_sf( 
+               datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
       geom_sf(data = network %>%
                 activate("nodes") %>%
                 slice(curr_nodes) %>% 
