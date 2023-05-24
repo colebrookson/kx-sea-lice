@@ -173,6 +173,9 @@ cougar <- farms_utm[which(farms_utm$site == "Cougar Bay"),]
 alex <- farms_utm[which(farms_utm$site == "Alexander Inlet"),]
 
 ## kid paths ===================================================================
+
+network <- readRDS(here("./outputs/geo-objs/all-area-network.rds"))
+
 kid_paths <- sfnetworks::st_network_paths(
   x = network,
   from = kid, 
@@ -387,6 +390,8 @@ nodes_all_jackson <- jackson_paths %>%
 edges_all_jackson <- jackson_paths %>%
   pull(edge_paths) 
 
+
+start <- Sys.time()
 jackson_short_start <- Sys.time()
 cl <- parallel::makeCluster(18)
 
@@ -416,7 +421,8 @@ edges_nodes_keep_jackson <- list(
 )
 saveRDS(edges_nodes_keep_jackson,
         here("./outputs/geo-objs/edges-nodes-to-keep-jackson.rds"))
-
+end <- Sys.time()
+print(end - start)
 ## cougar paths ===============================================================
 cougar_paths <- sfnetworks::st_network_paths(
   x = network,
