@@ -192,7 +192,7 @@ list_reassign <- function(l, nodes_edges) {
 # make_yearly_popn_maps ========================================================
 make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data, 
                                   utm_land_data, farm_data, farm_locs, network, 
-                                  west_network, all_edges_nodes, fig_output, 
+                                  all_edges_nodes, fig_output, 
                                   data_output) {
   #' Maps of each year's population and farm co-occurrence
   #' 
@@ -301,7 +301,8 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
     ) %>%
       # this is being done to the whole resulting df
       dplyr::mutate(
-        ff = ifelse(type == "farm", "bold", "plain")
+        ff = ifelse(type == "farm", "bold", "plain"),
+        fsize = ifelse(type == "farm", 1.8, 1.5)
       ) %>% 
       sf::st_as_sf(., coords = c("long", "lat"))
     
@@ -314,6 +315,11 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
       dplyr::mutate(
         X = data.frame(sf::st_coordinates(.))$X,
         Y = data.frame(sf::st_coordinates(.))$Y
+      ) %>% 
+      dplyr::mutate(
+        type = as.factor(type),
+        ff = as.factor(ff),
+        fsize = as.factor(fsize)
       )
     
     ## figure out what nodes need to be kept for this year =====================
@@ -324,27 +330,33 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
       unlist()
       
     ggplot2::ggplot() +
-      geom_sf(data = non_land_for_plot, fill = "white") + 
-      coord_sf( 
-               datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+      # geom_sf(data = utm_geo_data, fill = "white") +
       geom_sf(data = network %>%
                 activate("nodes") %>%
                 slice(curr_nodes) %>% 
                 st_as_sf(), fill = "lightpink", colour = "lightpink") +
-      geom_sf(data = geo_data_sf_bc_cropped, fill = "grey70") +
-      geom_sf(data = locs_temp_utm, aes(fill = type, shape = type), size = 2.5) +        
+      geom_sf(data = utm_land_data, fill = "grey70") +
+      geom_sf(data = locs_temp_utm,
+              aes(fill = type, shape = type),
+              colour = "black")  + 
+      coord_sf(xlim = c(465674.8, 600000), ylim = c(5761156, 5983932), 
+               expand = FALSE) + 
       scale_shape_manual("Location", values = c(21, 22)) + 
       scale_fill_manual("Location", values = c("purple", "gold2")) +
       ggrepel::geom_text_repel(data = locs_temp_utm,
                                aes(x = X, y = Y, 
-                                   label = site, fontface = ff),
-                               size = 2.5,
+                                   label = site, fontface = ff, size = fsize),
                                max.overlaps = 20) + 
-      # geom_sf_text(data = locs_temp_utm, aes(label = site), size = 3,
-      #              nudge_x = rep(100, nrow(locs_temp_utm))) + 
+      scale_size_manual("", values = c(1.9, 2.5)) + 
+      guides(
+        size = "none",
+        fill = guide_legend(
+          override.aes = list(
+            size = 3
+          )
+        )
+      ) + 
       theme_base() +
-      coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932), 
-               expand = FALSE) + 
       theme(
         plot.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90)

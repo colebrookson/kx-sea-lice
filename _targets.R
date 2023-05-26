@@ -97,7 +97,7 @@ list(
   tar_target(utm_geo_data, 
              here::here("./outputs/geo-objs/utm-geo-data.rds")),
   tar_target(utm_land_data,
-             here::here("./outputs/geo-objs/utm-land-data.rds")),
+             here::here("./outputs/geo-objs/utm-land-data-for-plot.rds")),
   ## data cleaning =============================================================
   tar_target(
     clean_wild_lice_data,
@@ -223,7 +223,7 @@ list(
       farm_data = clean_farm_lice_data,
       farm_locs = clean_farm_locs,
       network = all_region_network,
-      west_network = west_region_network,
+      all_edges_nodes = all_nodes_edges_to_keep,
       fig_output = here::here("./figs/maps/yearly-pop-maps/"),
       data_output = here::here("./data/spawner-recruit/clean/")
     )

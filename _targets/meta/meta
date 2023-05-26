@@ -25,7 +25,7 @@ kx_sampling|stem|0b2767ae80dff6ba|89ac9ae29ece3593|c3b5fc02cdc369c1|-1690534363|
 lice_regression|function|1a2b5cd910599cc4|||||||||||||||
 list_reassign|function|6b468980ce8503c5|||||||||||||||
 make_sampling_map|function|d20031d4da571bac|||||||||||||||
-make_yearly_popn_maps|function|b6bb806cdb78f537|||||||||||||||
+make_yearly_popn_maps|function|9f67e92c8715c26b|||||||||||||||
 new_farm_lice|stem|429ddc53ca8d4c53|64cdd37e6d0d0f8e|c3b5fc02cdc369c1|1896230505|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx|t19339.7057683121s|13cadd82fda31a7e|1394218|file|local|vector|||3.089||
 old_farm_lice|stem|230a0a0eeaa66b1e|8ddef53d1c163c9a|c3b5fc02cdc369c1|-860842241|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19371.1554192771s|e2b8c6da6272f3c0|6212096|file|local|vector|||0||
 plot_power|function|37bd280df3fb61db|||||||||||||||
@@ -46,7 +46,7 @@ study_map|stem|caff555517658349|e289be8a48f3d687|1621f278122433a1|934061817||t19
 theme_base|function|9ac3d8553609006e|||||||||||||||
 theme_foundation|function|148d518bfb6d0e7b|||||||||||||||
 utm_geo_data|stem|87e2b0dee6376add|225827b440888ea4|c3b5fc02cdc369c1|-406271934||t19499.6910313381s|303de8fdb625d7f0|113|rds|local|vector|||0.001||
-utm_land_data|stem|b7b52b2344afe28e|9330a5ad77df3462|c3b5fc02cdc369c1|17272683||t19499.7006627432s|f21b4888ae8bdafc|118|rds|local|vector|||2.122||
+utm_land_data|stem|434ba156463a626c|a6a29b9675a0bb1e|c3b5fc02cdc369c1|17272683||t19503.7761383108s|4956b68a23f9e1fc|122|rds|local|vector|||2.033||
 west_region_network|stem|2d23ffdf4d13e748|b4094f6f883ba798|c3b5fc02cdc369c1|1091338309||t19499.6910312918s|f21b4888ae8bdafc|118|rds|local|vector|||0.001||
 wild_farm_lice_regression|stem|388a9f3ff11fb7df|8bf602031d81ebd5|17c47c69b297c214|-1129575649||t19390.0223076903s|303de8fdb625d7f0|113|rds|local|vector|||7.805||
 wild_lice_per_fish_plot|stem|49fc3cf67f9dce34|4aa359f68718bed0|ad6c6249c66f0a8b|1285149232||t19390.0222172745s|758d7d51407f572d|117|rds|local|vector|||2.473|1m22mUsing size aesthetic for lines was deprecated in ggplot2 3.4.0.36mℹ39m Please use linewidth instead.. 1m22mThe size argument of element_rect is deprecated as of ggplot2 3.4.0.36mℹ39m Please use the linewidth argument instead.|
