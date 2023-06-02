@@ -110,7 +110,7 @@ ggplot() +
 grid_sample <- sf::st_sample(
   sf::st_as_sfc(sf::st_bbox(utm_geo_data)),
   # the size is really large to make a fine grid
-  size = 285000, type = 'regular') %>% 
+  size = 105000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
 saveRDS(grid_sample, 
@@ -134,13 +134,17 @@ network <- readRDS(here("./outputs/geo-objs/all-area-network.rds"))
 utm_geo_data <- readRDS(here("./outputs/geo-objs/utm-geo-data.rds"))
 utm_geo_data_small <- sf::st_crop(
   utm_geo_data,
-  ymin = 5815000, ymax = 5825000, xmin = 540000, xmax = 550000
+  ymin = 5819000, ymax = 5820000, xmin = 546000, xmax = 549000
 )
+
+ggplot() + 
+  geom_sf(data = utm_geo_data_small) + 
+  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
 small_grid_sample <- sf::st_sample(
   sf::st_as_sfc(sf::st_bbox(utm_geo_data_small)),
   # the size is really large to make a fine grid
-  size = 15000, type = 'regular') %>% 
+  size = 1000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
 small_grid_cropped <- small_grid_sample[sf::st_contains(
@@ -149,6 +153,13 @@ small_network <- as_sfnetwork(small_grid_cropped, directed = FALSE) %>%
   activate("edges") %>% 
   mutate(weight = edge_length())
 
+# sanity check plot of the new network
+ggplot()+ 
+  geom_sf(data = utm_geo_data_small) + 
+  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")+
+  geom_sf(data = small_network %>% activate("edges") %>% st_as_sf())
+
+old_net <- network
 
 network <- sfnetworks::st_network_join(network, small_network)
 saveRDS(network, 
@@ -271,8 +282,8 @@ parallel::clusterExport(cl, varlist = c("edges_all_loch", "network"))
 
 loch_short_edges <- parSapply(cl, edges_all_loch, slice_fun, 
                              net = network)
-saveRDS(loch_short_edges, 
-        here("./outputs/geo-objs/loch-whole-region-short-edges.rds"))
+# saveRDS(loch_short_edges, 
+#         here("./outputs/geo-objs/loch-whole-region-short-edges.rds"))
 parallel::stopCluster(cl)
 loch_short_time <- Sys.time() - loch_short_start
 
@@ -731,7 +742,30 @@ data_output = here::here("./data/spawner-recruit/clean/")
 
 
 
+library(sf, quietly = TRUE)
+library(sfnetworks)
 
+node1 = st_point(c(0, 0))
+node2 = st_point(c(1, 0))
+node3 = st_point(c(1,1))
+node4 = st_point(c(0,1))
+edge1 = st_sfc(st_linestring(c(node1, node2)))
+edge2 = st_sfc(st_linestring(c(node2, node3)))
+edge3 = st_sfc(st_linestring(c(node3, node4)))
+
+net1 = as_sfnetwork(c(edge1, edge2))
+net2 = as_sfnetwork(c(edge2, edge3))
+
+joined = st_network_join(net1, net2)
+joined
+
+## Plot results.
+oldpar = par(no.readonly = TRUE)
+par(mar = c(1,1,1,1), mfrow = c(1,2))
+plot(net1, pch = 15, cex = 2, lwd = 4)
+plot(net2, col = "red", pch = 18, cex = 2, lty = 3, lwd = 4, add = TRUE)
+plot(joined, cex = 2, lwd = 4)
+par(oldpar)
 
 
 
