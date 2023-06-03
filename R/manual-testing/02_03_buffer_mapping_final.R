@@ -125,41 +125,10 @@ network <- as_sfnetwork(grid_cropped, directed = FALSE) %>%
 saveRDS(network, 
         here("./outputs/geo-objs/all-area-network.rds"))
 
-
-## This part for a small area that the network has a hard time sampling ========
-
-network <- readRDS(here("./outputs/geo-objs/all-area-network.rds"))
-
-# now make a small really fine network over the target area
-utm_geo_data <- readRDS(here("./outputs/geo-objs/utm-geo-data.rds"))
-utm_geo_data_small <- sf::st_crop(
-  utm_geo_data,
-  ymin = 5815000, ymax = 5825000, xmin = 540000, xmax = 550000
-)
-
-small_grid_sample <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(utm_geo_data_small)),
-  # the size is really large to make a fine grid
-  size = 15000, type = 'regular') %>% 
-  sf::st_as_sf() %>%
-  nngeo::st_connect(.,.,k = 9) 
-small_grid_cropped <- small_grid_sample[sf::st_contains(
-  utm_geo_data_small, small_grid_sample, sparse = F)]
-small_network <- as_sfnetwork(small_grid_cropped, directed = FALSE) %>% 
-  activate("edges") %>% 
-  mutate(weight = edge_length())
-
-
-network <- sfnetworks::st_network_join(network, small_network)
-saveRDS(network, 
-        here("./outputs/geo-objs/all-area-network.rds"))
-# THIS MAP CHECKS IF THE NETORK SAMPLED ACROSS THIS REALLY SMALL
 ggplot() + 
   geom_sf(data = utm_geo_data, color = 'black', fill = "grey90") +
   geom_sf(data = network %>% activate("edges") %>% st_as_sf()) +
-  theme_base() + 
-  coord_sf(xlim=c(540000, 550000), ylim=c(5815000, 5825000),
-           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+  theme_base() 
 
 ## need to do a separate one for the west ======================================
 # west <- sf::st_crop(non_land, xmin = -128.85,
