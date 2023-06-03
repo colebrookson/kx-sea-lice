@@ -39,7 +39,7 @@ farm_locs = tar_read(clean_farm_locs)
 network = readRDS(tar_read(all_region_network))
 all_edges_nodes = readRDS(tar_read(all_nodes_edges_to_keep))
 
-network <- readRDS(here("./outputs/geo-objs/test/network.rds"))
+network <- readRDS(here("./outputs/geo-objs/all-area-network.rds"))
 west_network <- readRDS(here("./outputs/geo-objs/test/west-area-network.rds"))
 
 
@@ -51,6 +51,7 @@ edges_nodes_to_keep_loch <- readRDS(here::here("./outputs/geo-objs/test/edges-no
 edges_nodes_to_keep_jackson <- readRDS(here::here("./outputs/geo-objs/test/edges-nodes-to-keep-jackson.rds"))
 edges_nodes_to_keep_alex <- readRDS(here::here("./outputs/geo-objs/test/edges-nodes-to-keep-alex.rds"))
 edges_nodes_to_keep_cougar <- readRDS(here::here("./outputs/geo-objs/test/edges-nodes-to-keep-cougar.rds"))
+utm_geo_data <- readRDS(here("./outputs/geo-objs/test/utm-geo-data.rds"))
 
 all_nodes_edges_to_keep <- list(
   "Lime Point" = edges_nodes_to_keep_lime,

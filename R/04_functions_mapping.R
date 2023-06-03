@@ -236,9 +236,9 @@ make_map_each_farm <- function(utm_geo_data, utm_land_data, farm_locs, network,
     
     ggplot2::ggplot() +
       geom_sf(data = utm_geo_data, fill = "white") + 
-    geom_sf(data = net %>%
+      geom_sf(data = network %>%
               activate("nodes") %>%
-              slice(curr_nodes) %>% 
+              slice(edges_nodes_to_keep_loch$nodes) %>% 
               st_as_sf(), fill = "lightpink", colour = "lightpink") +
       #geom_sf(data = utm_land_data, fill = "grey70") +
       geom_sf(data = farms_utm[which(farms_utm$site == farm), ],
