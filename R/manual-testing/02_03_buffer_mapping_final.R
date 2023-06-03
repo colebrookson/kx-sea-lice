@@ -43,14 +43,11 @@ farms_utm <- st_transform(clean_farm_locs,
 
 ## geo data ====================================================================
 
-# the data is downlaoded from the raster package and can be pulled with:
-# canada <- raster::getData("GADM",country="CAN",level=1)
-# canada_prov = canada[canada$NAME_1 == "British Columbia"] # subset to just BC
-
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
-geo_data_bc <- geo_data[which(geo_data$NAME_1 == "British Columbia"),]
 
 # make into sf object
+# make into sf object
+geo_data_bc <- geo_data[which(geo_data$NAME_1 == "British Columbia"),]
 geo_data_sf_bc <- st_as_sf(geo_data_bc)
 
 bc_utm <- st_transform(geo_data_sf_bc, 
@@ -62,26 +59,19 @@ geo_data_sf_bc_cropped <- sf::st_crop(bc_utm, xmin = 450000,
 ggplot() + 
   geom_sf(data = geo_data_sf_bc_cropped) +
   coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
-
-# 54 = 581934.93
-# -127.5 = 5984244.79
-# 52 = 465674.83
-# -129.5 = 5761156.24
+saveRDS(geo_data_sf_bc_cropped, here("./outputs/geo-objs/utm-land-data-large-for-plot.rds"))
 
 # and make a bounding box of the whole region
 bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc_cropped), n = 1)
+
+ggplot() + 
+  geom_sf(data = geo_data_sf_bc_cropped)
 
 # now since we have a polygon of BC, we cant a polygon of the things that 
 # are the waterways, so use the st_differnce of the bounding box and that 
 # geom object and we're good 
 non_land <- sf::st_difference(bb, geo_data_sf_bc_cropped)
 saveRDS(non_land, here("./outputs/geo-objs/utm-water-area.rds"))
-
-# non_land_for_plot <- sf::st_crop(
-#   non_land,
-#   ymin = 5780000, ymax = 5890000, xmin = 510000, xmax = 570000
-# )
 
 # all analysis one study region ================================================
 
@@ -94,10 +84,48 @@ ggplot() +
   geom_sf(data = non_land_study) + 
   coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
+# get the land here
+bb_non_land <- sf::st_make_grid(sf::st_bbox(non_land_study))
+bb_non_land_utm <- st_transform(bb_non_land, 
+                                crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+## NOTE: for some reason, in this data, there's an issue just north of the ymax
+# which means that the cutoff here has to be this value, any further and it
+# for some reason breaks. In this case study that's not a problem, but note
+# that it might not be COMPLETELY accurate in the northern direction
+
 # make sure the projection is the same (UTM)
 utm_geo_data <- st_transform(non_land_study, 
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+ggplot() +
+  geom_sf(data = utm_geo_data)
+
 saveRDS(utm_geo_data, here("./outputs/geo-objs/utm-geo-data.rds"))
+
+# crop the land so we can plot that separately
+land_study <- sf::st_crop(
+  bc_utm, ymin = 5788000, ymax = 5890000, xmin = 510000, xmax = 570000)
+
+ggplot() +
+  geom_sf(data = land_study)
+
+utm_land_data <- st_transform(land_study, 
+                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+saveRDS(utm_land_data, here("./outputs/geo-objs/utm-land-data.rds"))
+
+ggplot() + 
+  geom_sf(non_land) + 
+  geom_sf(bb_non_land)
+
+
+## NOTE: also, I'm going to make a much bigger one of this for the year-by-year
+# plotting which needs a bigger area to show the populations of salmon too
+non_land_larger <- sf::st_crop(non_land, xmin = -129.5,
+                               xmax = -127.75, ymin = 52, 
+                               ymax = 54)
+utm_geo_data_large <- st_transform(non_land_larger, 
+                                   crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+saveRDS(utm_geo_data_large, here("./outputs/geo-objs/utm-geo-data-large.rds"))
 
 # quick sanity check for what we're looking at 
 ggplot() + 

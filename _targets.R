@@ -98,6 +98,8 @@ list(
              here::here("./outputs/geo-objs/utm-geo-data.rds")),
   tar_target(utm_land_data,
              here::here("./outputs/geo-objs/utm-land-data.rds")),
+  tar_target(utm_land_data_large,
+             here::here("./outputs/geo-objs/utm-land-data-large-for-plot.rds")),
   ## data cleaning =============================================================
   tar_target(
     clean_wild_lice_data,
@@ -212,20 +214,20 @@ list(
       output_path = here::here("./figs/maps/"),
       farm_path = here::here("./data/farm-lice/clean/")
     )
-  ),
-  tar_target(
-    yearly_popn_exposure_maps,
-    make_yearly_popn_maps(
-      sr_pop_data = clean_pink_spawner_recruit_data,
-      sr_pop_sites = get_data_csv(sr_pop_sites),
-      utm_geo_data = readRDS(utm_geo_data),
-      utm_land_data = readRDS(utm_land_data),
-      farm_data = clean_farm_lice_data,
-      farm_locs = clean_farm_locs,
-      network = all_region_network,
-      west_network = west_region_network,
-      fig_output = here::here("./figs/maps/yearly-pop-maps/"),
-      data_output = here::here("./data/spawner-recruit/clean/")
-    )
   )
+  # tar_target(
+  #   yearly_popn_exposure_maps,
+  #   make_yearly_popn_maps(
+  #     sr_pop_data = clean_pink_spawner_recruit_data,
+  #     sr_pop_sites = get_data_csv(sr_pop_sites),
+  #     utm_geo_data = readRDS(utm_geo_data),
+  #     utm_land_data = readRDS(utm_land_data),
+  #     farm_data = clean_farm_lice_data,
+  #     farm_locs = clean_farm_locs,
+  #     network = all_region_network,
+  #     west_network = west_region_network,
+  #     fig_output = here::here("./figs/maps/yearly-pop-maps/"),
+  #     data_output = here::here("./data/spawner-recruit/clean/")
+  #   )
+  # )
 )

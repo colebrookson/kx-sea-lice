@@ -189,10 +189,69 @@ list_reassign <- function(l, nodes_edges) {
   
 }
 
+# make_map_each_farm ===========================================================
+make_map_each_farm <- function(utm_geo_data, utm_land_data, farm_locs, network, 
+                               west_network, all_edges_nodes, fig_output) {
+  #' Maps of each farm's buffer
+  #' 
+  #' @description Get a sense of what each farm's buffer is and if it makes 
+  #' sense
+  #' 
+  #' @param utm_geo_data file. The geo-spatial data rds file
+  #' @param farm_locs dataframe. The cleaned data of the different 
+  #' locations of the farms
+  #' @param network sfnetwork tibble. The network for the entire region
+  #' @param west_network sfnetwork tibble. The network for the western region
+  #' @param all_edges_nodes list. The list of all the lists of edges and nodes
+  #' to be kept to map onto the region
+  #' @param fig_output character. Where to save the figure files
+  #'  
+  #' @usage make_map_each_farm(utm_geo_data, utm_land_data, network, 
+  #' west_network, all_edges_nodes, fig_output)
+  #' @return NA
+  #'
+
+  farms_sf <- sf::st_as_sf(farm_locs, coords = c("long", "lat"))
+  
+  # set the coordinates for WGS84
+  sf::st_crs(farms_sf) <- 4326 
+  # transform to utm 
+  farms_utm <- sf::st_transform(farms_sf,  
+                                crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+  
+  for(farm in unique(farms_utm$site)) {
+    
+    # get the nodes 
+    curr_edges_nodes <- all_edges_nodes[
+      which(names(all_edges_nodes) %in% farm)]
+    curr_nodes <- sapply(curr_edges_nodes, list_reassign, 
+                         nodes_edges="nodes") %>% 
+      unlist()
+    
+    ggplot2::ggplot() +
+      geom_sf(data = utm_land_data, fill = "white") + 
+      coord_sf( 
+        datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") + 
+    geom_sf(data = network %>%
+              activate("nodes") %>%
+              slice(curr_nodes) %>% 
+              st_as_sf(), fill = "lightpink", colour = "lightpink") +
+      geom_sf(data = utm_land_data, fill = "grey70") +
+      geom_sf(data = farms_utm[which(farms_utm$site == farm), ],
+              shape = 21, fill = "purple1", colour = "black", size = 2.5) +
+      theme_base() +
+      labs(
+        x = "Longitude", y = "Latitude", main = farm
+      )
+    
+  }
+
+}
+
 # make_yearly_popn_maps ========================================================
 make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data, 
-                                  utm_land_data, farm_data, farm_locs, network, 
-                                  west_network, all_edges_nodes, fig_output, 
+                                  utm_land_data_large, farm_data, farm_locs, 
+                                  network, all_edges_nodes, fig_output, 
                                   data_output) {
   #' Maps of each year's population and farm co-occurrence
   #' 
@@ -206,7 +265,6 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
   #' @param farm_locs dataframe. The cleaned data of the different 
   #' locations of the farms
   #' @param network sfnetwork tibble. The network for the entire region
-  #' @param west_network sfnetwork tibble. The network for the western region
   #' @param all_edges_nodes list. The list of all the lists of edges and nodes
   #' to be kept to map onto the region
   #' @param fig_output character. Where to save the figure files
@@ -331,7 +389,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
                 activate("nodes") %>%
                 slice(curr_nodes) %>% 
                 st_as_sf(), fill = "lightpink", colour = "lightpink") +
-      geom_sf(data = geo_data_sf_bc_cropped, fill = "grey70") +
+      geom_sf(data = utm_land_data_large, fill = "grey70") +
       geom_sf(data = locs_temp_utm, aes(fill = type, shape = type), size = 2.5) +        
       scale_shape_manual("Location", values = c(21, 22)) + 
       scale_fill_manual("Location", values = c("purple", "gold2")) +
