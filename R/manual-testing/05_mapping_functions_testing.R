@@ -41,4 +41,26 @@ all_edges_nodes = readRDS(tar_read(all_nodes_edges_to_keep))
 
 network <- readRDS(here("./outputs/geo-objs/test/network.rds"))
 west_network <- readRDS(here("./outputs/geo-objs/test/west-area-network.rds"))
-all_edges_nodes <- readRDS(here("./outputs/geo-objs/test/all-edges-nodes-to-keep.rds"))
+
+
+edges_nodes_to_keep_lime <- readRDS(here::here("./outputs/geo-objs/test/edges-nodes-to-keep-lime.rds"))
+edges_nodes_to_keep_sheep <- readRDS(here::here("./outputs/geo-objs/test/edges-nodes-to-keep-sheep.rds"))
+edges_nodes_to_keep_kid <- readRDS(here::here("./outputs/geo-objs/test/edges-nodes-to-keep-kid.rds"))
+edges_nodes_to_keep_goat <- readRDS(here::here("./outputs/geo-objs/test/edges-nodes-to-keep-goat.rds"))
+edges_nodes_to_keep_loch <- readRDS(here::here("./outputs/geo-objs/test/edges-nodes-to-keep-loch.rds"))
+edges_nodes_to_keep_jackson <- readRDS(here::here("./outputs/geo-objs/test/edges-nodes-to-keep-jackson.rds"))
+edges_nodes_to_keep_alex <- readRDS(here::here("./outputs/geo-objs/test/edges-nodes-to-keep-alex.rds"))
+edges_nodes_to_keep_cougar <- readRDS(here::here("./outputs/geo-objs/test/edges-nodes-to-keep-cougar.rds"))
+
+all_nodes_edges_to_keep <- list(
+  "Lime Point" = edges_nodes_to_keep_lime,
+  "Sheep Passage" = edges_nodes_to_keep_sheep,
+  "Kid Bay" = edges_nodes_to_keep_kid,
+  "Goat Cove" = edges_nodes_to_keep_goat,
+  "Lochalsh" = edges_nodes_to_keep_loch,
+  "Jackson Pass" = edges_nodes_to_keep_jackson,
+  "Alexander Inlet" = edges_nodes_to_keep_alex,
+  "Cougar Bay" = edges_nodes_to_keep_cougar
+)
+saveRDS(all_nodes_edges_to_keep, here("./outputs/geo-objs/all-edges-nodes-to-keep.rds"))
+all_edges_nodes = all_nodes_edges_to_keep
