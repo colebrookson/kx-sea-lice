@@ -43,6 +43,7 @@ farms_utm <- st_transform(clean_farm_locs,
 
 ## geo data ====================================================================
 
+
 # the data is downlaoded from the raster package and can be pulled with:
 # canada <- raster::getData("GADM",country="CAN",level=1)
 # canada_prov = canada[canada$NAME_1 == "British Columbia"] # subset to just BC
@@ -62,6 +63,7 @@ geo_data_sf_bc_cropped <- sf::st_crop(bc_utm, xmin = 450000,
 ggplot() + 
   geom_sf(data = geo_data_sf_bc_cropped) +
   coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+saveRDS(geo_data_sf_bc_cropped, here("./outputs/geo-objs/utm-land-data-for-plot.rds"))
 
 
 # 54 = 581934.93
