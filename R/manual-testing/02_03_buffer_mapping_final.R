@@ -62,7 +62,6 @@ geo_data_sf_bc_cropped <- sf::st_crop(bc_utm, xmin = 450000,
 ggplot() + 
   geom_sf(data = geo_data_sf_bc_cropped) +
   coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
-saveRDS(geo_data_sf_bc_cropped, here("./outputs/geo-objs/utm-land-data-for-plot.rds"))
 
 
 # 54 = 581934.93
@@ -110,7 +109,7 @@ ggplot() +
 grid_sample <- sf::st_sample(
   sf::st_as_sfc(sf::st_bbox(utm_geo_data)),
   # the size is really large to make a fine grid
-  size = 285000, type = 'regular') %>% 
+  size = 225000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
 saveRDS(grid_sample, 
@@ -693,7 +692,6 @@ sr_pop_sites = get_data_csv(tar_read(sr_pop_sites))
 geo_data = readRDS(tar_read(geo_spatial))
 farm_data = tar_read(clean_farm_lice_data)
 farm_locs = tar_read(clean_farm_locs)
-network = readRDS(tar_read(all_region_network))
 fig_output = here::here("./figs/maps/yearly-pop-maps/")
 data_output = here::here("./data/spawner-recruit/clean/")
 
