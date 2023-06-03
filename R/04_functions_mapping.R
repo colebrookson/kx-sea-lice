@@ -228,11 +228,17 @@ make_map_each_farm <- function(utm_geo_data, utm_land_data, farm_locs, network,
                          nodes_edges="nodes") %>% 
       unlist()
     
+    if(farm %in% c("Alexander Inlet", "Cougar Bay")) {
+      net = west_network
+    } else {
+      net = network
+    }
+    
     ggplot2::ggplot() +
       geom_sf(data = utm_land_data, fill = "white") + 
       coord_sf( 
         datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") + 
-    geom_sf(data = network %>%
+    geom_sf(data = net %>%
               activate("nodes") %>%
               slice(curr_nodes) %>% 
               st_as_sf(), fill = "lightpink", colour = "lightpink") +

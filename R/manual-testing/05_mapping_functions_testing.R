@@ -38,3 +38,7 @@ farm_data = tar_read(clean_farm_lice_data)
 farm_locs = tar_read(clean_farm_locs)
 network = readRDS(tar_read(all_region_network))
 all_edges_nodes = readRDS(tar_read(all_nodes_edges_to_keep))
+
+network <- readRDS(here("./outputs/geo-objs/test/network.rds"))
+west_network <- readRDS(here("./outputs/geo-objs/test/west-area-network.rds"))
+all_edges_nodes <- readRDS(here("./outputs/geo-objs/test/all-edges-nodes-to-keep.rds"))
