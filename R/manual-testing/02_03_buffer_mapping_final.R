@@ -41,11 +41,7 @@ sf::st_crs(clean_farm_locs) <- 4326
 farms_utm <- st_transform(clean_farm_locs, 
                           crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
-## geo data ====================================================================
-
-# the data is downlaoded from the raster package and can be pulled with:
-# canada <- raster::getData("GADM",country="CAN",level=1)
-# canada_prov = canada[canada$NAME_1 == "British Columbia"] # subset to just BC
+### old geo data ===============================================================
 
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
 
@@ -63,12 +59,16 @@ bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc))
 # geom object and we're good 
 non_land <- sf::st_difference(bb, geo_data_sf_bc)
 
-# all analysis one study region ================================================
+### old all analysis one study region ================================================
 
 # crop to just the study region
 non_land_study <- sf::st_crop(non_land, xmin = -128.85,
                               xmax = -128.12, ymin = 52.25, 
                               ymax = 52.95)
+
+ggplot() +
+  geom_sf(data = non_land_study) + 
+  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
 # get the land here
 bb_non_land <- sf::st_make_grid(sf::st_bbox(non_land_study))
@@ -85,6 +85,77 @@ utm_geo_data <- st_transform(non_land_study,
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 saveRDS(utm_geo_data, here("./outputs/geo-objs/utm-geo-data.rds"))
 
+
+## geo data ====================================================================
+
+# the data is downlaoded from the raster package and can be pulled with:
+# canada <- raster::getData("GADM",country="CAN",level=1)
+# canada_prov = canada[canada$NAME_1 == "British Columbia"] # subset to just BC
+
+geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
+# make into sf object
+# make into sf object
+geo_data_bc <- geo_data[which(geo_data$NAME_1 == "British Columbia"),]
+geo_data_sf_bc <- st_as_sf(geo_data_bc)
+
+bc_utm <- st_transform(geo_data_sf_bc, 
+                       crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+geo_data_sf_bc_cropped <- sf::st_crop(bc_utm, xmin = 450000,
+                                      xmax = 600000, ymin = 5750000, 
+                                      ymax = 6000000)
+
+saveRDS(geo_data_sf_bc_cropped, 
+        here("./outputs/geo-objs/fresh/large-land-for-plotting.rds"))
+
+ggplot() + 
+  geom_sf(data = geo_data_sf_bc_cropped) +
+  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+# and make a bounding box of the whole region
+# and make a bounding box of the whole region
+bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc_cropped), n = 1)
+
+ggplot() + 
+  geom_sf(data = geo_data_sf_bc_cropped)
+
+# now since we have a polygon of BC, we cant a polygon of the things that 
+# are the waterways, so use the st_differnce of the bounding box and that 
+# geom object and we're good 
+non_land <- sf::st_difference(bb, geo_data_sf_bc_cropped)
+
+
+# all analysis one study region ================================================
+
+# crop to just the study region
+non_land_study <- sf::st_crop(
+  non_land,
+  ymin = 5788000, ymax = 5890000, xmin = 510000, xmax = 570000
+)
+
+# crop to just the study region
+non_land_study_old <- sf::st_crop(non_land, xmin = -128.85,
+                              xmax = -128.12, ymin = 52.25, 
+                              ymax = 52.95)
+
+ggplot() +
+  geom_sf(data = non_land_study_old) + 
+  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+# get the land here
+bb_non_land <- sf::st_make_grid(sf::st_bbox(non_land_study))
+bb_non_land_utm <- st_transform(bb_non_land, 
+                                crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+## NOTE: for some reason, in this data, there's an issue just north of the ymax
+# which means that the cutoff here has to be this value, any further and it
+# for some reason breaks. In this case study that's not a problem, but note
+# that it might not be COMPLETELY accurate in the northern direction
+
+# make sure the projection is the same (UTM)
+utm_geo_data <- st_transform(non_land_study, 
+                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+saveRDS(utm_geo_data, here("./outputs/geo-objs/fresh/utm-geo-data.rds"))
+
 ggplot() + 
   geom_sf(data = utm_geo_data)
 
@@ -95,7 +166,7 @@ utm_land_data <- st_transform(land_study,
                               crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 ggplot() + 
   geom_sf(data = utm_land_data)
-saveRDS(utm_land_data, here("./outputs/geo-objs/utm-land-data.rds"))
+saveRDS(utm_land_data, here("./outputs/geo-objs/fresh/utm-land-data.rds"))
 
 ggplot() + 
   geom_sf(non_land) + 
@@ -109,7 +180,7 @@ non_land_larger <- sf::st_crop(non_land, xmin = -129.5,
                               ymax = 54)
 utm_geo_data_large <- st_transform(non_land_larger, 
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
-saveRDS(utm_geo_data_large, here("./outputs/geo-objs/utm-geo-data-large.rds"))
+saveRDS(utm_geo_data_large, here("./outputs/geo-objs/fresh/utm-geo-data-large.rds"))
 
 # quick sanity check for what we're looking at 
 ggplot() + 
@@ -125,7 +196,7 @@ grid_sample <- sf::st_sample(
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
 saveRDS(grid_sample, 
-        here("./outputs/geo-objs/all-area-grid-sample.rds"))
+        here("./outputs/geo-objs/fresh/all-area-grid-sample.rds"))
 
 grid_cropped <- grid_sample[sf::st_contains(
   utm_geo_data, grid_sample, sparse = F)]
@@ -134,7 +205,7 @@ network <- as_sfnetwork(grid_cropped, directed = FALSE) %>%
   activate("edges") %>% 
   mutate(weight = edge_length())
 saveRDS(network, 
-        here("./outputs/geo-objs/all-area-network.rds"))
+        here("./outputs/geo-objs/fresh/all-area-network.rds"))
 
 ggplot() + 
   geom_sf(data = utm_geo_data, color = 'black', fill = "grey90") +
@@ -172,15 +243,15 @@ west_grid_cropped <- west_grid_sample[sf::st_contains(
 west_network <- as_sfnetwork(west_grid_cropped, directed = FALSE) %>% 
   activate("edges") %>% 
   mutate(weight = edge_length())
-west_network <- readRDS(here("./outputs/geo-objs/west-area-network.rds"))
-network <- readRDS(here("./outputs/geo-objs/all-area-network.rds"))
+west_network <- readRDS(here("./outputs/geo-objs/fresh/west-area-network.rds"))
+network <- readRDS(here("./outputs/geo-objs/fresh/all-area-network.rds"))
 
 ggplot() + 
   geom_sf(data = utm_west_area) +
   geom_sf(data = west_network %>% st_as_sf())
 
 saveRDS(west_network, 
-        here("./outputs/geo-objs/west-area-network.rds"))
+        here("./outputs/geo-objs/fresh/west-area-network.rds"))
 # subset into the paths from each of the farms since that's how I'll need to 
 # plot them
 kid <- farms_utm[which(farms_utm$site == "Kid Bay"),]
@@ -192,8 +263,8 @@ jackson <- farms_utm[which(farms_utm$site == "Jackson Pass"),]
 cougar <- farms_utm[which(farms_utm$site == "Cougar Bay"),]
 alex <- farms_utm[which(farms_utm$site == "Alexander Inlet"),]
 
-network <- readRDS(here("./outputs/geo-objs/all-area-network.rds"))
-west_network <- readRDS(here("./outputs/geo-objs/west-area-network.rds"))
+network <- readRDS(here("./outputs/geo-objs/fresh/all-area-network.rds"))
+west_network <- readRDS(here("./outputs/geo-objs/fresh/west-area-network.rds"))
 
 ## kid paths ===================================================================
 kid_paths <- sfnetworks::st_network_paths(
@@ -216,7 +287,7 @@ parallel::clusterExport(cl, varlist = c("edges_all_kid", "network"))
 kid_short_edges <- parSapply(cl, edges_all_kid, slice_fun, 
                              net = network)
 saveRDS(kid_short_edges, 
-        here("./outputs/geo-objs/kid-whole-region-short-edges.rds"))
+        here("./outputs/geo-objs/fresh/kid-whole-region-short-edges.rds"))
 parallel::stopCluster(cl)
 kid_short_time <- Sys.time() - kid_short_start
 
@@ -237,7 +308,7 @@ edges_nodes_keep_kid <- list(
   edges = keep_edges_kid
 )
 saveRDS(edges_nodes_keep_kid,
-        here("./outputs/geo-objs/edges-nodes-to-keep-kid.rds"))
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-kid.rds"))
 
 ## loch paths ==================================================================
 loch_paths <- sfnetworks::st_network_paths(
@@ -260,7 +331,7 @@ parallel::clusterExport(cl, varlist = c("edges_all_loch", "network"))
 loch_short_edges <- parSapply(cl, edges_all_loch, slice_fun, 
                              net = network)
 saveRDS(loch_short_edges, 
-        here("./outputs/geo-objs/loch-whole-region-short-edges.rds"))
+        here("./outputs/geo-objs/fresh/loch-whole-region-short-edges.rds"))
 parallel::stopCluster(cl)
 loch_short_time <- Sys.time() - loch_short_start
 
@@ -277,7 +348,7 @@ edges_nodes_keep_loch <- list(
   edges = keep_edges_loch
 )
 saveRDS(edges_nodes_keep_loch,
-        here("./outputs/geo-objs/edges-nodes-to-keep-loch.rds"))
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-loch.rds"))
 
 ## goat paths ==================================================================
 goat_paths <- sfnetworks::st_network_paths(
@@ -300,7 +371,7 @@ parallel::clusterExport(cl, varlist = c("edges_all_goat", "network"))
 goat_short_edges <- parSapply(cl, edges_all_goat, slice_fun, 
                               net = network)
 saveRDS(goat_short_edges, 
-        here("./outputs/geo-objs/goat-whole-region-short-edges.rds"))
+        here("./outputs/geo-objs/fresh/goat-whole-region-short-edges.rds"))
 parallel::stopCluster(cl)
 goat_short_time <- Sys.time() - goat_short_start
 
@@ -317,7 +388,7 @@ edges_nodes_keep_goat <- list(
   edges = keep_edges_goat
 )
 saveRDS(edges_nodes_keep_goat,
-        here("./outputs/geo-objs/edges-nodes-to-keep-goat.rds"))
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-goat.rds"))
 
 ## sheep paths =================================================================
 sheep_paths <- sfnetworks::st_network_paths(
@@ -340,7 +411,7 @@ parallel::clusterExport(cl, varlist = c("edges_all_sheep", "network"))
 sheep_short_edges <- parSapply(cl, edges_all_sheep, slice_fun, 
                               net = network)
 saveRDS(sheep_short_edges, 
-        here("./outputs/geo-objs/sheep-whole-region-short-edges.rds"))
+        here("./outputs/geo-objs/fresh/sheep-whole-region-short-edges.rds"))
 parallel::stopCluster(cl)
 sheep_short_time <- Sys.time() - sheep_short_start
 
@@ -357,7 +428,7 @@ edges_nodes_keep_sheep <- list(
   edges = keep_edges_sheep
 )
 saveRDS(edges_nodes_keep_sheep,
-        here("./outputs/geo-objs/edges-nodes-to-keep-sheep.rds"))
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-sheep.rds"))
 
 ## lime paths =================================================================
 lime_paths <- sfnetworks::st_network_paths(
@@ -380,7 +451,7 @@ parallel::clusterExport(cl, varlist = c("edges_all_lime", "network"))
 lime_short_edges <- parSapply(cl, edges_all_lime, slice_fun, 
                                net = network)
 saveRDS(lime_short_edges, 
-        here("./outputs/geo-objs/lime-whole-region-short-edges.rds"))
+        here("./outputs/geo-objs/fresh/lime-whole-region-short-edges.rds"))
 parallel::stopCluster(cl)
 lime_short_time <- Sys.time() - lime_short_start
 
@@ -397,7 +468,7 @@ edges_nodes_keep_lime <- list(
   edges = keep_edges_lime
 )
 saveRDS(edges_nodes_keep_lime,
-        here("./outputs/geo-objs/edges-nodes-to-keep-lime.rds"))
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-lime.rds"))
 
 ## jackson paths ===============================================================
 jackson_paths <- sfnetworks::st_network_paths(
@@ -420,7 +491,7 @@ parallel::clusterExport(cl, varlist = c("edges_all_jackson", "network"))
 jackson_short_edges <- parSapply(cl, edges_all_jackson, slice_fun, 
                               net = network)
 saveRDS(jackson_short_edges, 
-        here("./outputs/geo-objs/jackson-whole-region-short-edges.rds"))
+        here("./outputs/geo-objs/fresh/jackson-whole-region-short-edges.rds"))
 parallel::stopCluster(cl)
 jackson_short_time <- Sys.time() - jackson_short_start
 
@@ -438,7 +509,7 @@ edges_nodes_keep_jackson <- list(
   edges = keep_edges_jackson
 )
 saveRDS(edges_nodes_keep_jackson,
-        here("./outputs/geo-objs/edges-nodes-to-keep-jackson.rds"))
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-jackson.rds"))
 
 ## cougar paths ===============================================================
 cougar_paths <- sfnetworks::st_network_paths(
@@ -461,7 +532,7 @@ parallel::clusterExport(cl, varlist = c("edges_all_cougar", "network"))
 cougar_short_edges <- parSapply(cl, edges_all_cougar, slice_fun, 
                                  net = network)
 saveRDS(cougar_short_edges, 
-        here("./outputs/geo-objs/cougar-whole-region-short-edges.rds"))
+        here("./outputs/geo-objs/fresh/cougar-whole-region-short-edges.rds"))
 parallel::stopCluster(cl)
 cougar_short_time <- Sys.time() - cougar_short_start
 
@@ -478,7 +549,7 @@ edges_nodes_keep_cougar <- list(
   edges = keep_edges_cougar
 )
 saveRDS(edges_nodes_keep_cougar,
-        here("./outputs/geo-objs/edges-nodes-to-keep-cougar.rds"))
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-cougar.rds"))
 
 ## alex paths ===============================================================
 alex_paths <- sfnetworks::st_network_paths(
@@ -501,7 +572,7 @@ parallel::clusterExport(cl, varlist = c("edges_all_alex", "network"))
 alex_short_edges <- parSapply(cl, edges_all_alex, slice_fun, 
                                 net = network)
 saveRDS(alex_short_edges, 
-        here("./outputs/geo-objs/alex-whole-region-short-edges.rds"))
+        here("./outputs/geo-objs/fresh/alex-whole-region-short-edges.rds"))
 parallel::stopCluster(cl)
 alex_short_time <- Sys.time() - alex_short_start
 
@@ -518,16 +589,16 @@ edges_nodes_keep_alex <- list(
   edges = keep_edges_alex
 )
 saveRDS(edges_nodes_keep_alex,
-        here("./outputs/geo-objs/edges-nodes-to-keep-alex.rds"))
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-alex.rds"))
 
-edges_nodes_to_keep_lime <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-lime.rds"))
-edges_nodes_to_keep_sheep <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-sheep.rds"))
-edges_nodes_to_keep_kid <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-kid.rds"))
-edges_nodes_to_keep_goat <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-goat.rds"))
-edges_nodes_to_keep_loch <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-loch.rds"))
-edges_nodes_to_keep_jackson <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-jackson.rds"))
-edges_nodes_to_keep_alex <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-alex.rds"))
-edges_nodes_to_keep_cougar <- readRDS(here::here("./outputs/geo-objs/edges-nodes-to-keep-cougar.rds"))
+edges_nodes_to_keep_lime <- readRDS(here::here("./outputs/geo-objs/fresh/edges-nodes-to-keep-lime.rds"))
+edges_nodes_to_keep_sheep <- readRDS(here::here("./outputs/geo-objs/fresh/edges-nodes-to-keep-sheep.rds"))
+edges_nodes_to_keep_kid <- readRDS(here::here("./outputs/geo-objs/fresh/edges-nodes-to-keep-kid.rds"))
+edges_nodes_to_keep_goat <- readRDS(here::here("./outputs/geo-objs/fresh/edges-nodes-to-keep-goat.rds"))
+edges_nodes_to_keep_loch <- readRDS(here::here("./outputs/geo-objs/fresh/edges-nodes-to-keep-loch.rds"))
+edges_nodes_to_keep_jackson <- readRDS(here::here("./outputs/geo-objs/fresh/edges-nodes-to-keep-jackson.rds"))
+edges_nodes_to_keep_alex <- readRDS(here::here("./outputs/geo-objs/fresh/edges-nodes-to-keep-alex.rds"))
+edges_nodes_to_keep_cougar <- readRDS(here::here("./outputs/geo-objs/fresh/edges-nodes-to-keep-cougar.rds"))
 
 all_nodes_edges_to_keep <- list(
   "Lime Point" = edges_nodes_to_keep_lime,
@@ -550,7 +621,7 @@ nodes_to_keep_jackson <- all_nodes_edges_to_keep$`Jackson Pass`$nodes
 nodes_to_keep_cougar <- all_nodes_edges_to_keep$`Cougar Bay`$nodes
 
 
-saveRDS(all_nodes_edges_to_keep, here("./outputs/geo-objs/all-edges-nodes-to-keep.rds"))
+saveRDS(all_nodes_edges_to_keep, here("./outputs/geo-objs/fresh/all-edges-nodes-to-keep.rds"))
 
 # plot from just the one study region ==========================================
 alex_buffer <- ggplot() + 
