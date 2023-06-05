@@ -85,11 +85,16 @@ utm_geo_data <- st_transform(non_land_study,
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 saveRDS(utm_geo_data, here("./outputs/geo-objs/utm-geo-data.rds"))
 
+ggplot() + 
+  geom_sf(data = utm_geo_data)
+
 # crop the land so we can plot that separately
 land_study <- sf::st_difference(bb_non_land_utm, utm_geo_data) %>% 
   st_cast("MULTIPOLYGON")
 utm_land_data <- st_transform(land_study, 
                               crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+ggplot() + 
+  geom_sf(data = utm_land_data)
 saveRDS(utm_land_data, here("./outputs/geo-objs/utm-land-data.rds"))
 
 ggplot() + 
@@ -144,7 +149,8 @@ west <- sf::st_crop(non_land, xmin = -128.85,
 # make sure the projection is the same (UTM)
 utm_west_area <- st_transform(west, 
                               crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
+ggplot() +
+  geom_sf(data = utm_west_area)
 # quick sanity check for what we're looking at 
 # ggplot() + 
 #   geom_sf(data = utm_west_area, color = 'black', fill = "grey90") +
@@ -166,6 +172,13 @@ west_grid_cropped <- west_grid_sample[sf::st_contains(
 west_network <- as_sfnetwork(west_grid_cropped, directed = FALSE) %>% 
   activate("edges") %>% 
   mutate(weight = edge_length())
+west_network <- readRDS(here("./outputs/geo-objs/west-area-network.rds"))
+network <- readRDS(here("./outputs/geo-objs/all-area-network.rds"))
+
+ggplot() + 
+  geom_sf(data = utm_west_area) +
+  geom_sf(data = west_network %>% st_as_sf())
+
 saveRDS(west_network, 
         here("./outputs/geo-objs/west-area-network.rds"))
 # subset into the paths from each of the farms since that's how I'll need to 
@@ -178,6 +191,9 @@ lime <- farms_utm[which(farms_utm$site == "Lime Point"),]
 jackson <- farms_utm[which(farms_utm$site == "Jackson Pass"),]
 cougar <- farms_utm[which(farms_utm$site == "Cougar Bay"),]
 alex <- farms_utm[which(farms_utm$site == "Alexander Inlet"),]
+
+network <- readRDS(here("./outputs/geo-objs/all-area-network.rds"))
+west_network <- readRDS(here("./outputs/geo-objs/west-area-network.rds"))
 
 ## kid paths ===================================================================
 kid_paths <- sfnetworks::st_network_paths(
@@ -523,16 +539,27 @@ all_nodes_edges_to_keep <- list(
   "Alexander Inlet" = edges_nodes_to_keep_alex,
   "Cougar Bay" = edges_nodes_to_keep_cougar
 )
+
+nodes_to_keep_alex <- all_nodes_edges_to_keep$`Alexander Inlet`$nodes
+nodes_to_keep_lime <- all_nodes_edges_to_keep$`Lime Point`$nodes
+nodes_to_keep_sheep <- all_nodes_edges_to_keep$`Sheep Passage`$nodes
+nodes_to_keep_kid <- all_nodes_edges_to_keep$`Kid Bay`$nodes
+nodes_to_keep_goat <- all_nodes_edges_to_keep$`Goat Cove`$nodes
+nodes_to_keep_loch <- all_nodes_edges_to_keep$Lochalsh$nodes
+nodes_to_keep_jackson <- all_nodes_edges_to_keep$`Jackson Pass`$nodes
+nodes_to_keep_cougar <- all_nodes_edges_to_keep$`Cougar Bay`$nodes
+
+
 saveRDS(all_nodes_edges_to_keep, here("./outputs/geo-objs/all-edges-nodes-to-keep.rds"))
 
 # plot from just the one study region ==========================================
 alex_buffer <- ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey99") + 
+  geom_sf(data = utm_west_area, color = 'black', fill = "grey99") + 
   geom_sf(data = west_network %>%
             activate("nodes") %>%
             slice(nodes_to_keep_alex) %>% 
             st_as_sf(), fill = "lightpink", colour = "lightpink") +
-  geom_sf(data = utm_land_data, fill = "grey50") +
+  #geom_sf(data = utm_land_data, fill = "grey50") +
   geom_sf(data = alex,
           shape = 21, fill = "purple1", colour = "black", size = 2.5) +
   theme_base() + 
@@ -543,7 +570,7 @@ ggsave(
 )
 
 cougar_buffer <- ggplot() + 
-  geom_sf(data = utm_geo_data, color = 'black', fill = "grey99") + 
+  geom_sf(data = utm_west_area, color = 'black', fill = "grey99") + 
   geom_sf(data = west_network %>%
             activate("nodes") %>%
             slice(nodes_to_keep_cougar) %>% 
