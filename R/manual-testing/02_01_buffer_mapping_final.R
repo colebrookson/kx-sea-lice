@@ -90,7 +90,7 @@ ggplot() +
   geom_sf(data = utm_geo_data) +
   coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
-# do the network analysis ======================================================
+# make grids ===================================================================
 
 ## first, the main network =====================================================
 
@@ -107,7 +107,7 @@ grid_cropped <- grid_sample[sf::st_contains(
   utm_geo_data, grid_sample, sparse = F)]
 
 ggplot() + 
-  geom_sf(data = grid_cropped) + # looks like 20,000 is enough? 
+  geom_sf(data = grid_cropped) + # looks like 100,000 is enough? 
   coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
 ## sample quite highly the small areas =========================================
@@ -133,27 +133,27 @@ ggplot() +
 geo_data_w_ns <- st_crop(utm_geo_data, 
                         xmin = 516000,
                         xmax = 516800,
-                        ymin = 5830000,
-                        ymax = 5831000)
+                        ymin = 5829000,
+                        ymax = 5834500)
 
 ggplot() + 
   geom_sf(data = geo_data_w) + 
   geom_sf(data = grid_cropped) + 
-  coord_sf(xlim = c(516000, 516800), ylim = c(5830000, 5831000),
+  coord_sf(xlim = c(516000, 516800), ylim = c(5829000, 5834000),
            datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") 
 
 # make two grids, one north one south, connect the major network to them, then
 # connect to each other
 geo_data_w_ns_n <- st_crop(utm_geo_data, 
-                         xmin = 516200,
-                         xmax = 516500,
-                         ymin = 5830400,
-                         ymax = 5830600)
+                         xmin = 516500,
+                         xmax = 516700,
+                         ymin = 5833500,
+                         ymax = 5834100)
 geo_data_w_ns_s <- st_crop(utm_geo_data, 
                            xmin = 516200,
                            xmax = 516400,
-                           ymin = 5830200,
-                           ymax = 5830400)
+                           ymin = 5829500,
+                           ymax = 5830000)
 
 # north version
 grid_w_ns_n <- sf::st_sample(
@@ -172,6 +172,7 @@ grid_w_ns_s <- sf::st_sample(
   size = 10, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9)
+
 grid_w_ns_s_cropped <- grid_w_ns_s[sf::st_contains(
   geo_data_w_ns_s, grid_w_ns_s, sparse = F)]
 
@@ -184,17 +185,17 @@ connect_ns_n_to_s <- nngeo::st_connect(st_combine(grid_w_ns_n_cropped),
                                     st_combine(grid_w_ns_s_cropped))
 # re-assign the grid cropped with all three grids, and the connectors
 grid_cropped <- c(grid_cropped, grid_w_ns_n_cropped, grid_w_ns_s_cropped,
-                  connect_to_ns_n, connect_to_ns_s, connect_ns_n_s)
+                  connect_to_ns_n, connect_to_ns_s, connect_ns_n_to_s)
 
 ggplot() + 
   geom_sf(data = geo_data_w) + 
   geom_sf(data = grid_cropped) + 
-  #geom_sf(data = grid_w_ns_n_cropped, colour = "red") +
-  #geom_sf(data = grid_w_ns_s_cropped, colour = "blue") +
-  #geom_sf(data = connect_to_ns_n, colour = "yellow") +
-  #geom_sf(data = connect_to_ns_s, colour = "yellow") +
-  #geom_sf(data = connect_ns_n_to_s, colour = "yellow") +
-  coord_sf(xlim = c(516000, 516800), ylim = c(5830000, 5831000),
+ #geom_sf(data = connect_to_ns_n, colour = "red") + 
+ #geom_sf(data = connect_to_ns_s, colour = "red") + 
+ #geom_sf(data = connect_ns_n_to_s, colour = "red") + 
+ #geom_sf(data = grid_w_ns_n_cropped) + 
+ #geom_sf(data = grid_w_ns_s_cropped) + 
+  coord_sf(xlim = c(516000, 516800), ylim = c(5829000, 5834000),
            datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
 #### east-west =================================================================
@@ -206,107 +207,64 @@ geo_data_w_eastwest <- st_crop(utm_geo_data,
                             ymax = 5830000)
 ggplot() + 
   geom_sf(data = geo_data_w_eastwest) + 
-  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+  geom_sf(data = grid_cropped) + 
+  coord_sf(xlim = c(524500, 527500), ylim = c(5828000, 5830000),
+    datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
-grid_w_eastwest <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(geo_data_w_eastwest)),
+# make one grid in the west, one in the east
+geo_data_w_ew_w <- st_crop(utm_geo_data, 
+                           xmin = 525000,
+                           xmax = 525500,
+                           ymin = 5828500,
+                           ymax = 5829000)
+geo_data_w_ew_e <- st_crop(utm_geo_data, 
+                           xmin = 526500,
+                           xmax = 527000,
+                           ymin = 5828200,
+                           ymax = 5828500)
+
+# west version
+grid_w_ew_w <- sf::st_sample(
+  sf::st_as_sfc(sf::st_bbox(geo_data_w_ew_w)),
   # the size is really large to make a fine grid
-  size = 500, type = 'regular') %>% 
+  size = 15, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9)
+grid_w_ew_w_cropped <- grid_w_ew_w[sf::st_contains(
+  geo_data_w_ew_w, grid_w_ew_w, sparse = F)]
 
-grid_w_eastwest_cropped <- grid_w_eastwest[sf::st_contains(
-  geo_data_w_eastwest, grid_w_eastwest, sparse = F)]
-
-ggplot() + 
-  geom_sf(data = grid_w_eastwest_cropped)
-
-ggplot() + 
-  geom_sf(data = grid_w_cropped) + 
-  geom_sf(data = geo_data_w_eastwest) +
-  geom_sf(data = grid_w_eastwest_cropped, colour = "red") + 
-  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
-#### west north-south area =====================================================
-
-geo_data_w_northsouth <- st_crop(utm_geo_data, 
-                            xmin = 515600,
-                            xmax = 518000,
-                            ymin = 5830000,
-                            ymax = 5834500)
-ggplot() + 
-  geom_sf(data = geo_data_w_northsouth) + 
-  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
-grid_w_northsouth <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(geo_data_w_northsouth)),
+# east version
+grid_w_ew_e <- sf::st_sample(
+  sf::st_as_sfc(sf::st_bbox(geo_data_w_ew_e)),
   # the size is really large to make a fine grid
-  size = 500, type = 'regular') %>% 
+  size = 20, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9)
+grid_w_ew_e_cropped <- grid_w_ew_e[sf::st_contains(
+  geo_data_w_ew_e, grid_w_ew_e, sparse = F)]
 
-grid_w_northsouth_cropped <- grid_w_northsouth[sf::st_contains(
-  geo_data_w_northsouth, grid_w_northsouth, sparse = F)]
+# connect the larger grids to the smaller grids and the smaller to each other
+connect_to_ew_w <- nngeo::st_connect(st_combine(grid_cropped), 
+                                     st_combine(grid_w_ew_w_cropped))
+connect_to_ew_e <- nngeo::st_connect(st_combine(grid_cropped), 
+                                     st_combine(grid_w_ew_e_cropped))
+connect_to_ew_e_w <- nngeo::st_connect(st_combine(grid_w_ew_w_cropped), 
+                                       st_combine(grid_w_ew_e_cropped))
 
-ggplot() + 
-  geom_sf(data = grid_w_cropped) + 
-  geom_sf(data = geo_data_w_northsouth) +
-  geom_sf(data = grid_w_northsouth_cropped, colour = "red") + 
-  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
-### north area =================================================================
-
-geo_data_n <- st_crop(utm_geo_data, 
-                      xmin = 540000,
-                      xmax = 560000,
-                      ymin = 5840000,
-                      ymax = 5860000)
-ggplot() + 
-  geom_sf(data = geo_data_n) + 
-  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
-grid_n <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(geo_data_n)),
-  # the size is really large to make a fine grid
-  size = 1500, type = 'regular') %>% 
-  sf::st_as_sf() %>%
-  nngeo::st_connect(.,.,k = 9)
-
-grid_n_cropped <- grid_n[sf::st_contains(
-  geo_data_n, grid_n, sparse = F)]
+# make all the grids one
+grid_cropped <- c(grid_cropped, grid_w_ew_e_cropped, grid_w_ew_w_cropped,
+                  connect_to_ew_e, connect_to_ew_w, connect_to_ew_e_w)
 
 ggplot() + 
-  #geom_sf(data = grid_cropped) +
-  geom_sf(data = geo_data_n) +
-  geom_sf(data = grid_n_cropped, colour = "red") + 
-  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
-#### west north-east area ======================================================
-
-geo_data_n_northeast <- st_crop(utm_geo_data, 
-                               xmin = 557000,
-                               xmax = 558000,
-                               ymin = 5854000,
-                               ymax = 5856000)
-ggplot() + 
-  geom_sf(data = geo_data_n_northeast) + 
-  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
-
-grid_n_northeast <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(geo_data_n_northeast)),
-  # the size is really large to make a fine grid
-  size = 100, type = 'regular') %>% 
-  sf::st_as_sf() %>%
-  nngeo::st_connect(.,.,k = 9)
-
-grid_n_northeast_cropped <- grid_n_northeast[sf::st_contains(
-  geo_data_n_northeast, grid_n_northeast, sparse = F)]
-
-ggplot() + 
-  geom_sf(data = grid_n_cropped) + 
-  geom_sf(data = geo_data_n_northeast) +
-  geom_sf(data = grid_n_northeast_cropped, colour = "red") + 
-  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+  geom_sf(data = geo_data_w_eastwest) + 
+  geom_sf(data = grid_cropped) + 
+  #geom_sf(data = connect_to_ew_w, colour = "red") +
+  #geom_sf(data = connect_to_ew_e, colour = "red") +
+  #geom_sf(data = connect_to_ew_e_w, colour = "red") +
+  geom_sf(data = grid_w_ew_e_cropped, colour = "red") +
+  geom_sf(data = grid_w_ew_w_cropped, colour = "red") +
+  coord_sf(xlim = c(524500, 527500), ylim = c(5828000, 5830000),
+           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
 ### central area ===============================================================
 
@@ -317,61 +275,146 @@ geo_data_c <- st_crop(utm_geo_data,
                       ymax = 5823000)
 ggplot() + 
   geom_sf(data = geo_data_c) + 
-  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+  geom_sf(data = grid_cropped) + 
+  coord_sf(xlim = c(537500, 549000), ylim = c(5816000, 5823000),
+           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
-grid_c <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(geo_data_c)),
-  # the size is really large to make a fine grid
-  size = 2500, type = 'regular') %>% 
+#### central-south =============================================================
+
+geo_data_c_s <- st_crop(utm_geo_data, 
+                      xmin = 539500,
+                      xmax = 541000,
+                      ymin = 5817500,
+                      ymax = 5818200)
+ggplot() + 
+  geom_sf(data = geo_data_c_s) + 
+  geom_sf(data = grid_cropped) + 
+  coord_sf(xlim = c(539500, 541000), ylim = c(5817500, 5818200),
+           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+geo_data_c_s_w <- st_crop(utm_geo_data, 
+                           xmin = 539800,
+                           xmax = 540000,
+                           ymin = 5817900,
+                           ymax = 5818000)
+geo_data_c_s_e <- st_crop(utm_geo_data, 
+                           xmin = 540200,
+                           xmax = 540400,
+                           ymin = 5817700,
+                           ymax = 5817800)
+
+# west area
+grid_c_s_w <- sf::st_sample(
+  sf::st_as_sfc(sf::st_bbox(geo_data_c_s_w)),
+  size = 15, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9)
+grid_c_s_w_cropped <- grid_c_s_w[sf::st_contains(
+  geo_data_c_s_w, grid_c_s_w, sparse = F)]
 
-grid_c_cropped <- grid_c[sf::st_contains(
-  geo_data_c, grid_c, sparse = F)]
+# east area 
+grid_c_s_e <- sf::st_sample(
+  sf::st_as_sfc(sf::st_bbox(geo_data_c_s_e)),
+  size = 15, type = 'regular') %>% 
+  sf::st_as_sf() %>%
+  nngeo::st_connect(.,.,k = 9)
+grid_c_s_e_cropped <- grid_c_s_e[sf::st_contains(
+  geo_data_c_s_e, grid_c_s_e, sparse = F)]
 
-ggplot() + 
-  #geom_sf(data = grid_cropped) +
-  geom_sf(data = geo_data_c) +
-  geom_sf(data = grid_c_cropped, colour = "red") + 
-  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+# connect grids
+connect_to_cs_w <- nngeo::st_connect(st_combine(grid_cropped), 
+                                     st_combine(grid_c_s_w_cropped))
+connect_to_cs_e <- nngeo::st_connect(st_combine(grid_cropped), 
+                                     st_combine(grid_c_s_e_cropped))
+connect_to_cs_w_e <- nngeo::st_connect(st_combine(grid_c_s_w_cropped), 
+                                     st_combine(grid_c_s_e_cropped))
+grid_cropped <- c(grid_cropped, grid_c_s_w_cropped, grid_c_s_e_cropped,
+                  connect_to_cs_w, connect_to_cs_e, connect_to_cs_w_e)
 
-
-#### central small area ========================================================
-geo_data_c <- st_crop(utm_geo_data, 
-                      xmin = 546000,
-                      xmax = 548000,
-                      ymin = 5819000,
-                      ymax = 5820000)
 ggplot() + 
   geom_sf(data = geo_data_c) + 
-  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+  geom_sf(data = grid_cropped) +
+  geom_sf(data = connect_to_cs_w, colour = "red") +
+  geom_sf(data = connect_to_cs_e, colour = "red") +
+  geom_sf(data = connect_to_cs_w_e, colour = "red") +
+  geom_sf(data = grid_c_s_w_cropped, colour = "red") +
+  geom_sf(data = grid_c_s_e_cropped, colour = "red") +
+  coord_sf(xlim = c(539500, 541000), ylim = c(5817500, 5818200),
+           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
-grid_c <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(geo_data_c)),
-  # the size is really large to make a fine grid
-  size = 500, type = 'regular') %>% 
+#### central-north =============================================================
+
+geo_data_c_n <- st_crop(utm_geo_data, 
+                        xmin = 546000,
+                        xmax = 548000,
+                        ymin = 5819000,
+                        ymax = 5820000)
+ggplot() + 
+  geom_sf(data = geo_data_c_n) + 
+  geom_sf(data = grid_cropped) + 
+  coord_sf(xlim = c(546000, 548000), ylim = c(5819000, 5820000),
+           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+geo_data_c_n_w <- st_crop(utm_geo_data, 
+                          xmin = 547000,
+                          xmax = 547200,
+                          ymin = 5819400,
+                          ymax = 5819600)
+geo_data_c_n_e <- st_crop(utm_geo_data, 
+                          xmin = 547500,
+                          xmax = 547600,
+                          ymin = 5819400,
+                          ymax = 5819600)
+
+# west area
+grid_c_n_w <- sf::st_sample(
+  sf::st_as_sfc(sf::st_bbox(geo_data_c_n_w)),
+  size = 15, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9)
+grid_c_n_w_cropped <- grid_c_n_w[sf::st_contains(
+  geo_data_c_n_w, grid_c_n_w, sparse = F)]
 
-grid_c_cropped <- grid_c[sf::st_contains(
-  geo_data_c, grid_c, sparse = F)]
+# east area 
+grid_c_n_e <- sf::st_sample(
+  sf::st_as_sfc(sf::st_bbox(geo_data_c_n_e)),
+  size = 15, type = 'regular') %>% 
+  sf::st_as_sf() %>%
+  nngeo::st_connect(.,.,k = 9)
+grid_c_n_e_cropped <- grid_c_n_e[sf::st_contains(
+  geo_data_c_n_e, grid_c_n_e, sparse = F)]
+
+# connect grids
+connect_to_cn_w <- nngeo::st_connect(st_combine(grid_cropped), 
+                                     st_combine(grid_c_n_w_cropped))
+connect_to_cn_e <- nngeo::st_connect(st_combine(grid_cropped), 
+                                     st_combine(grid_c_n_e_cropped))
+connect_to_cn_w_e <- nngeo::st_connect(st_combine(grid_c_n_w_cropped), 
+                                       st_combine(grid_c_n_e_cropped))
+grid_cropped <- c(grid_cropped, grid_c_n_w_cropped, grid_c_n_e_cropped,
+                  connect_to_cn_w, connect_to_cn_e, connect_to_cn_w_e)
 
 ggplot() + 
+  geom_sf(data = geo_data_c) + 
   geom_sf(data = grid_cropped) +
-  geom_sf(data = geo_data_c) +
-  geom_sf(data = grid_c_cropped, colour = "red") + 
-  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+  geom_sf(data = connect_to_cn_w, colour = "red") +
+  geom_sf(data = connect_to_cn_e, colour = "red") +
+  geom_sf(data = connect_to_cn_w_e, colour = "red") +
+  geom_sf(data = grid_c_n_w_cropped, colour = "red") +
+  geom_sf(data = grid_c_n_e_cropped, colour = "red") +
+  coord_sf(xlim = c(546000, 548000), ylim = c(5819000, 5820000),
+           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
-## join all the networks together from west to east ============================
+## now look at the whole thing again ===========================================
 
-### west area joins ============================================================
-
+# double checking the northern region
 ggplot() + 
-  geom_sf(data = grid_cropped) + 
-  geom_sf(data = grid_w_cropped, colour = "red") + 
-  geom_sf(data = grid_w_eastwest_cropped, colour = "purple") + 
-  geom_sf(data = grid_w_northsouth_cropped, colour = "blue") 
+  geom_sf(data = utm_geo_data) + 
+  geom_sf(data = grid_cropped) +
+  coord_sf(xlim = c(555000, 560000), ylim = c(5845000, 5860000),
+           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+# it's all good, so save the focal objects (the geo_data and the grid cropped)
 
-# so looking at this we can tell we need to join the main grid to the west 
-# grid from the 
-
+### save key objects ===========================================================
+qs::qsave(utm_geo_data, here("./outputs/geo-objs/fresh/utm-geo-data.qs"))
+qs::qsave(grid_cropped, here("./outputs/geo-objs/fresh/grid-cropped.qs"))
