@@ -798,7 +798,7 @@ ggplot() +
   geom_sf(data = utm_geo_data, color = 'black', fill = "grey99") + 
   geom_sf(data = network %>%
             activate("nodes") %>%
-            slice(nodes_to_keep_cougar) %>% 
+            slice(nodes_to_keep_alex) %>% 
             st_as_sf(), fill = "lightpink", colour = "lightpink") +
   #geom_sf(data = utm_land_data, fill = "grey50") +
   geom_sf(data = alex,
