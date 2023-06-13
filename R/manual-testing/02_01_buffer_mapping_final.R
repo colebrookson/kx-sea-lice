@@ -307,6 +307,40 @@ ggplot() +
   coord_sf(xlim = c(546000, 548000), ylim = c(5819000, 5820000),
            datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
+### north area =================================================================
+
+geo_data_n <- st_crop(utm_geo_data, 
+                      xmin = 557000,
+                      xmax = 558000,
+                      ymin = 5854000,
+                      ymax = 5856000)
+ggplot() + 
+  geom_sf(data = geo_data_n) + 
+  geom_sf(data = all_grids_cropped) + 
+  coord_sf(xlim = c(555000, 560000), ylim = c(5845000, 5860000),
+           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+
+
+grid_north <- sf::st_sample(
+  sf::st_as_sfc(sf::st_bbox(geo_data_n)),
+  size = 100, type = 'regular') %>% 
+  sf::st_as_sf() #%>%
+#   nngeo::st_connect(.,.,k = 9)
+# grid_north_cropped <- grid_north[sf::st_contains(
+#   geo_data_n, grid_north, sparse = F)]
+
+ggplot() + 
+  geom_sf(data = geo_data_n) + 
+  # geom_sf(data = grid_cropped) +
+  # geom_sf(data = connect_to_cn_w, colour = "red") +
+  # geom_sf(data = connect_to_cn_e, colour = "red") +
+  # geom_sf(data = connect_to_cn_w_e, colour = "red") +
+  # geom_sf(data = grid_c_n_w_cropped, colour = "red") +
+  geom_sf(data = grid_north_cropped, colour = "red") +
+  coord_sf(xlim = c(555000, 560000), ylim = c(5845000, 5860000),
+           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
 ## now look at the whole thing again ===========================================
 
 # double checking the northern region
@@ -320,7 +354,7 @@ ggplot() +
 ## join the grids ==============================================================
 
 all_grids <- rbind(grid_sample, grid_w_ns_ns, grid_w_ew_s, 
-                   grid_w_ew_farm, grid_c_s_w, grid_c_n_w)
+                   grid_w_ew_farm, grid_c_s_w, grid_c_n_w, grid_north)
 all_grids_conn <- all_grids %>%
   nngeo::st_connect(.,.,k = 9)
 all_grids_cropped <- all_grids_conn[sf::st_contains(
@@ -352,19 +386,32 @@ central_area_points <- st_as_sf(
 ggplot() + 
   geom_sf(data = geo_data_c) + 
   geom_sf(data = all_grids_cropped) +
-  
-  geom_sf(data = west_area_points, colour = "red") +
+  geom_sf(data = central_area_points, colour = "red") +
   coord_sf(xlim = c(537500, 549000), ylim = c(5816000, 5823000),
+           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+north_area_points <- st_as_sf(
+  data.frame(
+    east = c(5852000, 5854000),
+    north = c(558000, 555000)
+  ), coords = c("north","east"), 
+  remove = FALSE, 
+  crs = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+ggplot() + 
+  geom_sf(data = utm_geo_data) + 
+  geom_sf(data = all_grids_cropped) +
+  geom_sf(data = north_area_points) +
+  coord_sf(xlim = c(555000, 560000), ylim = c(5845000, 5860000),
            datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
 
 ### save key objects ===========================================================
 qs::qsave(utm_geo_data, here("./outputs/geo-objs/fresh/utm-geo-data.qs"))
-qs::qsave(grid_cropped, here("./outputs/geo-objs/fresh/grid-cropped.qs"))
+qs::qsave(all_grids_cropped, here("./outputs/geo-objs/fresh/grid-cropped.qs"))
 
 # make network =================================================================
 
-network <- as_sfnetwork(grid_cropped, directed = FALSE) %>% 
+network <- as_sfnetwork(all_grids_cropped, directed = FALSE) %>% 
   activate("edges") %>% 
   mutate(weight = edge_length())
 saveRDS(network, 
