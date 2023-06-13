@@ -414,9 +414,50 @@ qs::qsave(all_grids_cropped, here("./outputs/geo-objs/fresh/grid-cropped.qs"))
 network <- as_sfnetwork(all_grids_cropped, directed = FALSE) %>% 
   activate("edges") %>% 
   mutate(weight = edge_length())
-saveRDS(network, 
-        here("./outputs/geo-objs/fresh/network.rds"))
+qs::qsave(network, 
+        here("./outputs/geo-objs/fresh/network.qs"))
 
+# check the network is connected in the important ways =========================
+
+# west area shortest path
+west_path = st_network_paths(network, 
+                        from = west_area_points[1,],
+                        to = west_area_points[2,],
+                        weights = "weight") %>%
+  pull(edge_paths) %>%
+  unlist()
+central_path = st_network_paths(network, 
+                             from = central_area_points[1,],
+                             to = central_area_points[2,],
+                             weights = "weight") %>%
+  pull(edge_paths) %>%
+  unlist()
+northern_path = st_network_paths(network, 
+                                from = north_area_points[1,],
+                                to = north_area_points[2,],
+                                weights = "weight") %>%
+  pull(edge_paths) %>%
+  unlist()
+
+# plot the shortest paths to confirm
+test_plot <- ggplot() + 
+  geom_sf(data = utm_geo_data) + 
+  geom_sf(data = north_area_points, shape = 21, fill = "pink", 
+          colour = "black", size = 3) +  
+  geom_sf(data = central_area_points, shape = 21, fill = "pink", 
+          colour = "black", size = 3) +  
+  geom_sf(data = west_area_points, shape = 21, fill = "pink", 
+          colour = "black", size = 3) +  
+  geom_sf(data = network %>% 
+            activate("edges") %>% 
+            slice(west_path, northern_path, central_path) %>% 
+            st_as_sf(), colour = "green", size = 5) +
+  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") +
+  theme_base()
+ggsave(
+  here("./figs/maps/test-path-areas.png"),
+  test_plot
+)
 # buffer for each farm =========================================================
 
 ## bring in the farms ==========================================================
