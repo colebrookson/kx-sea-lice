@@ -98,9 +98,8 @@ ggplot() +
 grid_sample <- sf::st_sample(
   sf::st_as_sfc(sf::st_bbox(utm_geo_data)),
   # the size is really large to make a fine grid
-  size = 100000, type = 'regular') %>% 
-  sf::st_as_sf() %>%
-  nngeo::st_connect(.,.,k = 9) 
+  size = 75000, type = 'regular') %>% 
+  sf::st_as_sf() 
 
 # subset grid
 grid_cropped <- grid_sample[sf::st_contains(
@@ -109,6 +108,7 @@ grid_cropped <- grid_sample[sf::st_contains(
 ggplot() + 
   geom_sf(data = grid_cropped) + # looks like 100,000 is enough? 
   coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
 
 ## sample quite highly the small areas =========================================
 
@@ -125,9 +125,6 @@ ggplot() +
   coord_sf(xlim = c(515000, 535000), ylim = c(5825000, 5840000),
            datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") 
 
-# so looking at this plot, we need two joiners, one for the east-west corridor
-# and one for the north south corridor
-
 #### north-south ===============================================================
 
 geo_data_w_ns <- st_crop(utm_geo_data, 
@@ -142,19 +139,6 @@ ggplot() +
   coord_sf(xlim = c(516000, 516800), ylim = c(5829000, 5834000),
            datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") 
 
-# make two grids, one north one south, connect the major network to them, then
-# connect to each other
-geo_data_w_ns_n <- st_crop(utm_geo_data, 
-                         xmin = 516500,
-                         xmax = 516700,
-                         ymin = 5833500,
-                         ymax = 5834100)
-geo_data_w_ns_s <- st_crop(utm_geo_data, 
-                           xmin = 516200,
-                           xmax = 516400,
-                           ymin = 5829500,
-                           ymax = 5830000)
-
 # north version
 grid_w_ns_n <- sf::st_sample(
   sf::st_as_sfc(sf::st_bbox(geo_data_w_ns_n)),
@@ -164,28 +148,6 @@ grid_w_ns_n <- sf::st_sample(
   nngeo::st_connect(.,.,k = 9)
 grid_w_ns_n_cropped <- grid_w_ns_n[sf::st_contains(
   geo_data_w_ns_n, grid_w_ns_n, sparse = F)]
-
-# south version
-grid_w_ns_s <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(geo_data_w_ns_s)),
-  # the size is really large to make a fine grid
-  size = 10, type = 'regular') %>% 
-  sf::st_as_sf() %>%
-  nngeo::st_connect(.,.,k = 9)
-
-grid_w_ns_s_cropped <- grid_w_ns_s[sf::st_contains(
-  geo_data_w_ns_s, grid_w_ns_s, sparse = F)]
-
-# connect the larger grids to the smaller grids and the smaller to each other
-connect_to_ns_n <- nngeo::st_connect(st_combine(grid_cropped), 
-                                     st_combine(grid_w_ns_n_cropped))
-connect_to_ns_s <- nngeo::st_connect(st_combine(grid_cropped), 
-                                     st_combine(grid_w_ns_s_cropped))
-connect_ns_n_to_s <- nngeo::st_connect(st_combine(grid_w_ns_n_cropped), 
-                                    st_combine(grid_w_ns_s_cropped))
-# re-assign the grid cropped with all three grids, and the connectors
-grid_cropped <- c(grid_cropped, grid_w_ns_n_cropped, grid_w_ns_s_cropped,
-                  connect_to_ns_n, connect_to_ns_s, connect_ns_n_to_s)
 
 ggplot() + 
   geom_sf(data = geo_data_w) + 
@@ -207,8 +169,8 @@ geo_data_w_eastwest <- st_crop(utm_geo_data,
                             ymax = 5830000)
 ggplot() + 
   geom_sf(data = geo_data_w_eastwest) + 
-  geom_sf(data = grid_cropped) + 
-  coord_sf(xlim = c(524500, 527500), ylim = c(5828000, 5830000),
+  #geom_sf(data = grid_cropped) + 
+  coord_sf(xlim = c(523500, 528500), ylim = c(5828000, 5830000),
     datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
 # make one grid in the west, one in the east
@@ -748,4 +710,131 @@ edges_nodes_keep_alex <- list(
 saveRDS(edges_nodes_keep_alex,
         here("./outputs/geo-objs/fresh/edges-nodes-to-keep-alex.rds"))
 
+all_nodes_edges_to_keep <- list(
+  "Lime Point" = edges_nodes_keep_lime,
+  "Sheep Passage" = edges_nodes_keep_sheep,
+  "Kid Bay" = edges_nodes_keep_kid,
+  "Goat Cove" = edges_nodes_keep_goat,
+  "Lochalsh" = edges_nodes_keep_loch,
+  "Jackson Pass" = edges_nodes_keep_jackson,
+  "Alexander Inlet" = edges_nodes_keep_alex,
+  "Cougar Bay" = edges_nodes_keep_cougar
+)
 
+saveRDS(all_nodes_edges_to_keep, 
+        here("./outputs/geo-objs/fresh/all-edges-nodes-to-keep.rds"))
+
+# make test plots ==============================================================
+ggplot() + 
+  geom_sf(data = utm_geo_data, color = 'black', fill = "grey99") + 
+  geom_sf(data = network %>%
+            activate("nodes") %>%
+            slice(nodes_to_keep_cougar) %>% 
+            st_as_sf(), fill = "lightpink", colour = "lightpink") +
+  #geom_sf(data = utm_land_data, fill = "grey50") +
+  geom_sf(data = alex,
+          shape = 21, fill = "purple1", colour = "black", size = 2.5) +
+  theme_base() + 
+  labs(title = "Alexander Inlet")
+
+# test to see if it's connected across that network 
+ggplot() + 
+  #geom_sf(data = geo_data_w_eastwest) + 
+  geom_sf(data = network %>%
+            activate("nodes") %>% 
+            activate("edges") %>% 
+            st_as_sf(), fill = "lightpink", colour = "lightpink") +
+  geom_sf(data = network %>% 
+            activate("edges") %>% 
+            slice(path) %>% 
+            st_as_sf(), colour = "red") +
+  geom_sf(data = points, size = 2) +
+  coord_sf(xlim = c(523500, 528500), ylim = c(5828000, 5830000),
+           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+
+points = data.frame(
+  east=c(5828750, 5828750),
+  north=c(524000, 528000)
+)
+
+points = st_as_sf(points, coords = c("north","east"), remove = FALSE, 
+                  crs = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+path = st_network_paths(network, 
+                 from = points[1,],
+                 to = points[2,],
+                 weights = "weight") %>%
+  pull(edge_paths) %>%
+  unlist()
+
+library(sf)
+library(nngeo)
+
+nc = st_read(system.file("shape/nc.shp", package="sf"))
+nc_utm = st_transform(nc, crs="+proj=utm +zone=18 +datum=NAD83 +unit=m") # using UTM
+
+# crop the area to two smaller areas for sampling the grids
+area_1 <- st_crop(nc_utm, xmin = 0, xmax = 20000, 
+                  ymin = 3950000, ymax = 4000000)
+area_2 <- st_crop(nc_utm, xmin = 20100, xmax = 25000, 
+                  ymin = 3960000, ymax = 3980000)
+area_3 <- st_crop(nc_utm, xmax = 0, xmin = -10000,
+                  ymin = 3960000, ymax = 3970000)
+
+# sample the grids and connect each
+grid_1 <- sf::st_sample(
+  area_1, size = 25, type = 'regular') %>% 
+  sf::st_as_sf() 
+
+grid_2 <- sf::st_sample(
+  area_2, size = 25, type = 'regular') %>% 
+  sf::st_as_sf() 
+
+grid_3 <- sf::st_sample(
+  area_3, size = 25, type = 'regular') %>% 
+  sf::st_as_sf() 
+
+grid_connect <- nngeo::st_connect(st_combine(grid_1), st_combine(grid_2))
+
+grid_connect2 <- nngeo::st_connect(st_combine(grid_1), st_combine(grid_3))
+
+all_grids <- c(grid_1, grid_2, grid_3, grid_connect, grid_connect2)
+
+all_points <- rbind(grid_1, grid_2, grid_3)
+all_grids <- all_points %>%
+  nngeo::st_connect(.,.,k = 9, maxdist = 10000)
+
+ggplot() + 
+  geom_sf(data = nc_utm) +
+  geom_sf(data = area_1, fill = 'blue', alpha = 0.3) + 
+  geom_sf(data = area_2, fill = "red", alpha = 0.3) + 
+  geom_sf(data = area_3, fill = "yellow", alpha = 0.3) + 
+  geom_sf(data = grid_1, colour = "blue") + 
+  geom_sf(data = grid_2, colour = "red") +
+  geom_sf(data = grid_3, colour = "yellow") +
+  geom_sf(data = all_grids, colour = "purple", size = 2, alpha = 0.2) +
+  geom_sf(data = points, colour = "black", size = 4) +
+  geom_sf(data = net %>% activate("edges") %>% slice(path) %>% st_as_sf(),
+          colour = "green", size = 3) +
+  coord_sf(datum = "+proj=utm +zone=18 +datum=NAD83 +unit=m",
+           xlim = c(-10000, 30000), ylim = c(3940000, 4001000))
+
+points <- data.frame(
+  east = c(3960447,3960606),
+  north = c(-8684.72, 24512.78)
+)
+
+points = st_as_sf(points, coords = c("north","east"), remove = FALSE, 
+                  crs = "+proj=utm +zone=18 +datum=NAD83 +unit=m")
+
+
+net <- as_sfnetwork(all_grids, directed = FALSE) %>% 
+  activate("edges") %>% 
+  mutate(weight = edge_length())
+path <- st_network_paths(
+ x = net, 
+ from = points[1,],
+ to = points[2,],
+ weights = "weight") %>%
+  pull(edge_paths) %>%
+  unlist()
