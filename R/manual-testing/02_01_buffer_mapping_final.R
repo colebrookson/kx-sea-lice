@@ -418,3 +418,334 @@ ggplot() +
 ### save key objects ===========================================================
 qs::qsave(utm_geo_data, here("./outputs/geo-objs/fresh/utm-geo-data.qs"))
 qs::qsave(grid_cropped, here("./outputs/geo-objs/fresh/grid-cropped.qs"))
+
+# make network =================================================================
+
+network <- as_sfnetwork(grid_cropped, directed = FALSE) %>% 
+  activate("edges") %>% 
+  mutate(weight = edge_length())
+saveRDS(network, 
+        here("./outputs/geo-objs/fresh/network.rds"))
+
+# buffer for each farm =========================================================
+
+## bring in the farms ==========================================================
+kid <- farms_utm[which(farms_utm$site == "Kid Bay"),]
+loch <- farms_utm[which(farms_utm$site == "Lochalsh"),]
+goat <- farms_utm[which(farms_utm$site == "Goat Cove"),]
+sheep <- farms_utm[which(farms_utm$site == "Sheep Passage"),]
+lime <- farms_utm[which(farms_utm$site == "Lime Point"),]
+jackson <- farms_utm[which(farms_utm$site == "Jackson Pass"),]
+cougar <- farms_utm[which(farms_utm$site == "Cougar Bay"),]
+alex <- farms_utm[which(farms_utm$site == "Alexander Inlet"),]
+
+## kid paths ===================================================================
+kid_paths <- sfnetworks::st_network_paths(
+  x = network,
+  from = kid, 
+  weights = "weight"
+)  
+nodes_all_kid <- kid_paths %>%
+  pull(node_paths) 
+edges_all_kid <- kid_paths %>%
+  pull(edge_paths) 
+
+kid_short_start <- Sys.time()
+cl <- parallel::makeCluster(18)
+
+parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
+  library(magrittr); library(sf)})
+parallel::clusterExport(cl, varlist = c("edges_all_kid", "network"))
+
+kid_short_edges <- parSapply(cl, edges_all_kid, slice_fun, 
+                             net = network)
+parallel::stopCluster(cl)
+kid_short_time <- Sys.time() - kid_short_start
+
+# now subset the indices of the edges that fulfill our criteria (i.e. < 30km)
+indices_keep_kid <- which(kid_short_edges < 30000)
+keep_edges_kid <- unique(edges_all_kid[indices_keep_kid] %>% unlist())
+
+# we can get the nodes if we want too
+nodes_to_keep_kid <- nodes_all_kid[indices_keep_kid]
+# this is keeping just the last node at the end of a path - we'll use this 
+# to create a different coloured border on the buffer area 
+nodes_to_keep_kid <- unlist(
+  lapply(nodes_to_keep_kid, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_kid <- list(
+  nodes = nodes_to_keep_kid,
+  edges = keep_edges_kid
+)
+saveRDS(edges_nodes_keep_kid,
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-kid.rds"))
+
+## loch paths ==================================================================
+loch_paths <- sfnetworks::st_network_paths(
+  x = network,
+  from = loch, 
+  weights = "weight"
+)  
+nodes_all_loch <- loch_paths %>%
+  pull(node_paths) 
+edges_all_loch <- loch_paths %>%
+  pull(edge_paths) 
+
+loch_short_start <- Sys.time()
+cl <- parallel::makeCluster(18)
+
+parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
+  library(magrittr); library(sf)})
+parallel::clusterExport(cl, varlist = c("edges_all_loch", "network"))
+
+loch_short_edges <- parSapply(cl, edges_all_loch, slice_fun, 
+                              net = network)
+parallel::stopCluster(cl)
+loch_short_time <- Sys.time() - loch_short_start
+
+indices_keep_loch <- which(loch_short_edges < 30000)
+keep_edges_loch <- unique(edges_all_loch[indices_keep_loch] %>% unlist())
+
+nodes_to_keep_loch <- nodes_all_loch[indices_keep_loch]
+nodes_to_keep_loch <- unlist(
+  lapply(nodes_to_keep_loch, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_loch <- list(
+  nodes = nodes_to_keep_loch,
+  edges = keep_edges_loch
+)
+saveRDS(edges_nodes_keep_loch,
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-loch.rds"))
+
+## goat paths ==================================================================
+goat_paths <- sfnetworks::st_network_paths(
+  x = network,
+  from = goat, 
+  weights = "weight"
+)  
+nodes_all_goat <- goat_paths %>%
+  pull(node_paths) 
+edges_all_goat <- goat_paths %>%
+  pull(edge_paths) 
+
+goat_short_start <- Sys.time()
+cl <- parallel::makeCluster(18)
+
+parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
+  library(magrittr); library(sf)})
+parallel::clusterExport(cl, varlist = c("edges_all_goat", "network"))
+
+goat_short_edges <- parSapply(cl, edges_all_goat, slice_fun, 
+                              net = network)
+parallel::stopCluster(cl)
+goat_short_time <- Sys.time() - goat_short_start
+
+indices_keep_goat <- which(goat_short_edges < 30000)
+keep_edges_goat <- unique(edges_all_goat[indices_keep_goat] %>% unlist())
+
+nodes_to_keep_goat <- nodes_all_goat[indices_keep_goat]
+nodes_to_keep_goat <- unlist(
+  lapply(nodes_to_keep_goat, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_goat <- list(
+  nodes = nodes_to_keep_goat,
+  edges = keep_edges_goat
+)
+saveRDS(edges_nodes_keep_goat,
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-goat.rds"))
+
+## sheep paths =================================================================
+sheep_paths <- sfnetworks::st_network_paths(
+  x = network,
+  from = sheep, 
+  weights = "weight"
+)  
+nodes_all_sheep <- sheep_paths %>%
+  pull(node_paths) 
+edges_all_sheep <- sheep_paths %>%
+  pull(edge_paths) 
+
+sheep_short_start <- Sys.time()
+cl <- parallel::makeCluster(18)
+
+parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
+  library(magrittr); library(sf)})
+parallel::clusterExport(cl, varlist = c("edges_all_sheep", "network"))
+
+sheep_short_edges <- parSapply(cl, edges_all_sheep, slice_fun, 
+                               net = network)
+parallel::stopCluster(cl)
+sheep_short_time <- Sys.time() - sheep_short_start
+
+indices_keep_sheep <- which(sheep_short_edges < 30000)
+keep_edges_sheep <- unique(edges_all_sheep[indices_keep_sheep] %>% unlist())
+
+nodes_to_keep_sheep <- nodes_all_sheep[indices_keep_sheep]
+nodes_to_keep_sheep <- unlist(
+  lapply(nodes_to_keep_sheep, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_sheep <- list(
+  nodes = nodes_to_keep_sheep,
+  edges = keep_edges_sheep
+)
+saveRDS(edges_nodes_keep_sheep,
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-sheep.rds"))
+
+## lime paths =================================================================
+lime_paths <- sfnetworks::st_network_paths(
+  x = network,
+  from = lime, 
+  weights = "weight"
+)  
+nodes_all_lime <- lime_paths %>%
+  pull(node_paths) 
+edges_all_lime <- lime_paths %>%
+  pull(edge_paths) 
+
+lime_short_start <- Sys.time()
+cl <- parallel::makeCluster(18)
+
+parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
+  library(magrittr); library(sf)})
+parallel::clusterExport(cl, varlist = c("edges_all_lime", "network"))
+
+lime_short_edges <- parSapply(cl, edges_all_lime, slice_fun, 
+                              net = network)
+parallel::stopCluster(cl)
+lime_short_time <- Sys.time() - lime_short_start
+
+indices_keep_lime <- which(lime_short_edges < 30000)
+keep_edges_lime <- unique(edges_all_lime[indices_keep_lime] %>% unlist())
+
+nodes_to_keep_lime <- nodes_all_lime[indices_keep_lime]
+nodes_to_keep_lime <- unlist(
+  lapply(nodes_to_keep_lime, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_lime <- list(
+  nodes = nodes_to_keep_lime,
+  edges = keep_edges_lime
+)
+saveRDS(edges_nodes_keep_lime,
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-lime.rds"))
+
+## jackson paths ===============================================================
+jackson_paths <- sfnetworks::st_network_paths(
+  x = network,
+  from = jackson, 
+  weights = "weight"
+)  
+nodes_all_jackson <- jackson_paths %>%
+  pull(node_paths) 
+edges_all_jackson <- jackson_paths %>%
+  pull(edge_paths) 
+
+jackson_short_start <- Sys.time()
+cl <- parallel::makeCluster(18)
+
+parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
+  library(magrittr); library(sf)})
+parallel::clusterExport(cl, varlist = c("edges_all_jackson", "network"))
+
+jackson_short_edges <- parSapply(cl, edges_all_jackson, slice_fun, 
+                                 net = network)
+parallel::stopCluster(cl)
+jackson_short_time <- Sys.time() - jackson_short_start
+
+indices_keep_jackson <- which(jackson_short_edges < 30000)
+keep_edges_jackson <- unique(edges_all_jackson[indices_keep_jackson] 
+                             %>% unlist())
+
+nodes_to_keep_jackson <- nodes_all_jackson[indices_keep_jackson]
+nodes_to_keep_jackson <- unlist(
+  lapply(nodes_to_keep_jackson, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_jackson <- list(
+  nodes = nodes_to_keep_jackson,
+  edges = keep_edges_jackson
+)
+saveRDS(edges_nodes_keep_jackson,
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-jackson.rds"))
+
+## cougar paths ===============================================================
+cougar_paths <- sfnetworks::st_network_paths(
+  x = network,
+  from = cougar, 
+  weights = "weight"
+)  
+nodes_all_cougar <- cougar_paths %>%
+  pull(node_paths) 
+edges_all_cougar <- cougar_paths %>%
+  pull(edge_paths) 
+
+cougar_short_start <- Sys.time()
+cl <- parallel::makeCluster(9)
+
+parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
+  library(magrittr); library(sf)})
+parallel::clusterExport(cl, varlist = c("edges_all_cougar", "network"))
+
+cougar_short_edges <- parSapply(cl, edges_all_cougar, slice_fun, 
+                                net = network)
+parallel::stopCluster(cl)
+cougar_short_time <- Sys.time() - cougar_short_start
+
+indices_keep_cougar <- which(cougar_short_edges < 30000)
+keep_edges_cougar <- unique(edges_all_cougar[indices_keep_cougar] %>% unlist())
+
+nodes_to_keep_cougar <- nodes_all_cougar[indices_keep_cougar]
+nodes_to_keep_cougar <- unlist(
+  lapply(nodes_to_keep_cougar, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_cougar <- list(
+  nodes = nodes_to_keep_cougar,
+  edges = keep_edges_cougar
+)
+saveRDS(edges_nodes_keep_cougar,
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-cougar.rds"))
+
+## alex paths ===============================================================
+alex_paths <- sfnetworks::st_network_paths(
+  x = network,
+  from = alex, 
+  weights = "weight"
+)  
+nodes_all_alex <- alex_paths %>%
+  pull(node_paths) 
+edges_all_alex <- alex_paths %>%
+  pull(edge_paths) 
+
+alex_short_start <- Sys.time()
+cl <- parallel::makeCluster(9)
+
+parallel::clusterEvalQ(cl, {library(dplyr); library(sfnetworks); 
+  library(magrittr); library(sf)})
+parallel::clusterExport(cl, varlist = c("edges_all_alex", "network"))
+
+alex_short_edges <- parSapply(cl, edges_all_alex, slice_fun, 
+                              net = network)
+parallel::stopCluster(cl)
+alex_short_time <- Sys.time() - alex_short_start
+
+indices_keep_alex <- which(alex_short_edges < 30000)
+keep_edges_alex <- unique(edges_all_alex[indices_keep_alex] %>% unlist())
+
+nodes_to_keep_alex <- nodes_all_alex[indices_keep_alex] 
+nodes_to_keep_alex <- unlist(
+  lapply(nodes_to_keep_alex, tail, n = 1L) %>% unlist()
+)
+
+edges_nodes_keep_alex <- list(
+  nodes = nodes_to_keep_alex,
+  edges = keep_edges_alex
+)
+saveRDS(edges_nodes_keep_alex,
+        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-alex.rds"))
+
+
