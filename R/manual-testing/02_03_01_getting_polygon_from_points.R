@@ -184,6 +184,15 @@ dat %>%
   st_cast("POLYGON") %>%
   plot()
 
+dat_sum <- dat %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326) %>%
+  group_by(SitePondGpsRep) %>%
+  summarise(geometry = st_combine(geometry))
+
+dat_sum %>% 
+  st_cast("POLYGON") %>% 
+  plot()
+
 dat %>% 
   st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326) %>%
   group_by(SitePondGpsRep) %>%

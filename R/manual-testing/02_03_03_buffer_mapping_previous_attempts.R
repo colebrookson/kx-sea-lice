@@ -41,30 +41,48 @@ sf::st_crs(clean_farm_locs) <- 4326
 farms_utm <- st_transform(clean_farm_locs, 
                           crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
-### old geo data ===============================================================
+## geo data ====================================================================
 
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
 
 # make into sf object
-geo_data_sf <- st_as_sf(geo_data)
+# make into sf object
+geo_data_bc <- geo_data[which(geo_data$NAME_1 == "British Columbia"),]
+geo_data_sf_bc <- st_as_sf(geo_data_bc)
 
-# filter to just BC 
-geo_data_sf_bc <- geo_data_sf[which(geo_data_sf$NAME_1 == "British Columbia"),]
+bc_utm <- st_transform(geo_data_sf_bc, 
+                       crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+geo_data_sf_bc_cropped <- sf::st_crop(bc_utm, xmin = 450000,
+                                      xmax = 600000, ymin = 5750000, 
+                                      ymax = 6000000)
+
+ggplot() + 
+  geom_sf(data = geo_data_sf_bc_cropped) +
+  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+saveRDS(geo_data_sf_bc_cropped, here("./outputs/geo-objs/utm-land-data-large-for-plot.rds"))
 
 # and make a bounding box of the whole region
-bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc))
+bb <- sf::st_make_grid(sf::st_bbox(geo_data_sf_bc_cropped), n = 1)
+
+ggplot() + 
+  geom_sf(data = geo_data_sf_bc_cropped)
 
 # now since we have a polygon of BC, we cant a polygon of the things that 
 # are the waterways, so use the st_differnce of the bounding box and that 
 # geom object and we're good 
-non_land <- sf::st_difference(bb, geo_data_sf_bc)
+non_land <- sf::st_difference(bb, geo_data_sf_bc_cropped)
+saveRDS(non_land, here("./outputs/geo-objs/utm-water-area.rds"))
 
 ### old all analysis one study region ================================================
 
 # crop to just the study region
-non_land_study <- sf::st_crop(non_land, xmin = -128.85,
-                              xmax = -128.12, ymin = 52.25, 
-                              ymax = 52.95)
+non_land_study <-  sf::st_crop(
+  non_land,
+  ymin = 5788000, ymax = 5890000, xmin = 510000, xmax = 570000
+)
+ggplot() +
+  geom_sf(data = non_land_study) + 
+  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
 
 ggplot() +
   geom_sf(data = non_land_study) + 
@@ -83,6 +101,9 @@ bb_non_land_utm <- st_transform(bb_non_land,
 # make sure the projection is the same (UTM)
 utm_geo_data <- st_transform(non_land_study, 
                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+ggplot() +
+  geom_sf(data = utm_geo_data)
+
 saveRDS(utm_geo_data, here("./outputs/geo-objs/utm-geo-data.rds"))
 
 
@@ -160,8 +181,12 @@ ggplot() +
   geom_sf(data = utm_geo_data)
 
 # crop the land so we can plot that separately
-land_study <- sf::st_difference(bb_non_land_utm, utm_geo_data) %>% 
-  st_cast("MULTIPOLYGON")
+land_study <- sf::st_crop(
+  bc_utm, ymin = 5788000, ymax = 5890000, xmin = 510000, xmax = 570000)
+
+ggplot() +
+  geom_sf(data = land_study)
+
 utm_land_data <- st_transform(land_study, 
                               crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
 ggplot() + 
@@ -176,11 +201,11 @@ ggplot() +
 ## NOTE: also, I'm going to make a much bigger one of this for the year-by-year
 # plotting which needs a bigger area to show the populations of salmon too
 non_land_larger <- sf::st_crop(non_land, xmin = -129.5,
-                              xmax = -127.75, ymin = 52, 
-                              ymax = 54)
+                               xmax = -127.75, ymin = 52, 
+                               ymax = 54)
 utm_geo_data_large <- st_transform(non_land_larger, 
-                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
-saveRDS(utm_geo_data_large, here("./outputs/geo-objs/fresh/utm-geo-data-large.rds"))
+                                   crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+saveRDS(utm_geo_data_large, here("./outputs/geo-objs/utm-geo-data-large.rds"))
 
 # quick sanity check for what we're looking at 
 ggplot() + 
@@ -192,7 +217,7 @@ ggplot() +
 grid_sample <- sf::st_sample(
   sf::st_as_sfc(sf::st_bbox(utm_geo_data)),
   # the size is really large to make a fine grid
-  size = 205000, type = 'regular') %>% 
+  size = 225000, type = 'regular') %>% 
   sf::st_as_sf() %>%
   nngeo::st_connect(.,.,k = 9) 
 saveRDS(grid_sample, 
@@ -213,45 +238,37 @@ ggplot() +
   theme_base() 
 
 ## need to do a separate one for the west ======================================
-west <- sf::st_crop(non_land, xmin = -128.85,
-                    xmax = -128.3, ymin = 52.42, 
-                    ymax = 52.85)
-
-# make sure the projection is the same (UTM)
-utm_west_area <- st_transform(west, 
-                              crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
-ggplot() +
-  geom_sf(data = utm_west_area)
-# quick sanity check for what we're looking at 
-# ggplot() + 
-#   geom_sf(data = utm_west_area, color = 'black', fill = "grey90") +
-#   geom_sf(data = west_network %>% 
-#             activate("edges") %>% 
-#             st_as_sf()) +
-#   theme_base() 
-
-west_grid_sample <- sf::st_sample(
-  sf::st_as_sfc(sf::st_bbox(utm_west_area)),
-  # the size is really large to make a fine grid
-  size = 200000, type = 'regular') %>% 
-  sf::st_as_sf() %>%
-  nngeo::st_connect(.,.,k = 9) 
-
-west_grid_cropped <- west_grid_sample[sf::st_contains(
-  utm_west_area, west_grid_sample, sparse = F)]
-
-west_network <- as_sfnetwork(west_grid_cropped, directed = FALSE) %>% 
-  activate("edges") %>% 
-  mutate(weight = edge_length())
-west_network <- readRDS(here("./outputs/geo-objs/fresh/west-area-network.rds"))
-network <- readRDS(here("./outputs/geo-objs/fresh/all-area-network.rds"))
-
-ggplot() + 
-  geom_sf(data = utm_west_area) +
-  geom_sf(data = west_network %>% st_as_sf())
-
-saveRDS(west_network, 
-        here("./outputs/geo-objs/fresh/west-area-network.rds"))
+# west <- sf::st_crop(non_land, xmin = -128.85,
+#                     xmax = -128.3, ymin = 52.42, 
+#                     ymax = 52.85)
+# 
+# # make sure the projection is the same (UTM)
+# utm_west_area <- st_transform(west, 
+#                               crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+# 
+# # quick sanity check for what we're looking at 
+# # ggplot() + 
+# #   geom_sf(data = utm_west_area, color = 'black', fill = "grey90") +
+# #   geom_sf(data = west_network %>% 
+# #             activate("edges") %>% 
+# #             st_as_sf()) +
+# #   theme_base() 
+# 
+# west_grid_sample <- sf::st_sample(
+#   sf::st_as_sfc(sf::st_bbox(utm_west_area)),
+#   # the size is really large to make a fine grid
+#   size = 200000, type = 'regular') %>% 
+#   sf::st_as_sf() %>%
+#   nngeo::st_connect(.,.,k = 9) 
+# 
+# west_grid_cropped <- west_grid_sample[sf::st_contains(
+#   utm_west_area, west_grid_sample, sparse = F)]
+# 
+# west_network <- as_sfnetwork(west_grid_cropped, directed = FALSE) %>% 
+#   activate("edges") %>% 
+#   mutate(weight = edge_length())
+# saveRDS(west_network, 
+#         here("./outputs/geo-objs/west-area-network.rds"))
 # subset into the paths from each of the farms since that's how I'll need to 
 # plot them
 kid <- farms_utm[which(farms_utm$site == "Kid Bay"),]
@@ -267,6 +284,9 @@ network <- readRDS(here("./outputs/geo-objs/fresh/all-area-network.rds"))
 west_network <- readRDS(here("./outputs/geo-objs/fresh/west-area-network.rds"))
 
 ## kid paths ===================================================================
+
+network <- readRDS(here("./outputs/geo-objs/all-area-network.rds"))
+
 kid_paths <- sfnetworks::st_network_paths(
   x = network,
   from = kid, 
@@ -481,6 +501,8 @@ nodes_all_jackson <- jackson_paths %>%
 edges_all_jackson <- jackson_paths %>%
   pull(edge_paths) 
 
+
+start <- Sys.time()
 jackson_short_start <- Sys.time()
 cl <- parallel::makeCluster(18)
 
@@ -509,11 +531,12 @@ edges_nodes_keep_jackson <- list(
   edges = keep_edges_jackson
 )
 saveRDS(edges_nodes_keep_jackson,
-        here("./outputs/geo-objs/fresh/edges-nodes-to-keep-jackson.rds"))
-
+        here("./outputs/geo-objs/edges-nodes-to-keep-jackson.rds"))
+end <- Sys.time()
+print(end - start)
 ## cougar paths ===============================================================
 cougar_paths <- sfnetworks::st_network_paths(
-  x = west_network,
+  x = network,
   from = cougar, 
   weights = "weight"
 )  
@@ -553,7 +576,7 @@ saveRDS(edges_nodes_keep_cougar,
 
 ## alex paths ===============================================================
 alex_paths <- sfnetworks::st_network_paths(
-  x = west_network,
+  x = network,
   from = alex, 
   weights = "weight"
 )  
