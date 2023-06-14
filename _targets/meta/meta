@@ -1,5 +1,6 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
 %notin%|function|c5de772db35799a7|||||||||||||||
+all_edges_nodes|stem|883f8c96ef9d6895|72327a9b16af27af|c3b5fc02cdc369c1|1787179317||t19522.1403241981s|237f91a00ac3de41|125|rds|local|vector|||2.051||
 all_nodes_edges_to_keep|stem|783235cf0425cc15|c616c74a70085b3c|c3b5fc02cdc369c1|1662062916||t19511.2235430538s|b0efa4f1e05eee68|121|rds|local|vector|||0.001||
 all_power_sims|stem|4a2260aaaaed8a97|70b6ea9230da49bc|c3b5fc02cdc369c1|-1612245627|/home/cole/Github/kx-sea-lice/./outputs/power-analysis/pink-all-power-analysis-runs.csv|t19480.0709660834s|05777579ea6af832|6600350|file|local|vector|||0.001||
 all_region_network|stem|ed34075f953eb33d|094b6bf22bad0f08|c3b5fc02cdc369c1|-1766210777||t19511.2235429612s|6556730b296d7213|119|rds|local|vector|||0.001||
@@ -22,11 +23,13 @@ farm_locations|stem|7c9aa8ec7801ab3a|0a5855a37f7f0433|c3b5fc02cdc369c1|-18841691
 geo_spatial|stem|6d1f11cf41d68186|9a8037910cf09df6|c3b5fc02cdc369c1|-868371640|/home/cole/Github/kx-sea-lice/./data/geo-spatial/gadm36_CAN_1_sp.rds|t19061.3316046626s|22c665b2510b4b7b|19080844|file|local|vector|||0||
 get_data_csv|function|f55fbb93cbb1e4ef|||||||||||||||
 kx_sampling|stem|0b2767ae80dff6ba|89ac9ae29ece3593|c3b5fc02cdc369c1|-1690534363|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/kitasoo_sampling_sites.csv|t19340.8147421333s|6780c20ed7ba8483|607|file|local|vector|||0.001||
+large_land|stem|b848a9797776268a|f6de36fd117857a1|c3b5fc02cdc369c1|-572025115||t19522.1420254786s|bce99b594ffe2eda|128|rds|local|vector|||1.991||
 lice_regression|function|1a2b5cd910599cc4|||||||||||||||
 list_reassign|function|6b468980ce8503c5|||||||||||||||
-make_map_each_farm|function|60a674bbedb51f98|||||||||||||||
+make_map_each_farm|function|784dff362af2662c|||||||||||||||
 make_sampling_map|function|d20031d4da571bac|||||||||||||||
-make_yearly_popn_maps|function|b1a22cb331a81298|||||||||||||||
+make_yearly_popn_maps|function|4585d6529447a2c4|||||||||||||||
+network|stem|365e42e162a6358a|e1db21ba49998361|c3b5fc02cdc369c1|-1312999359|/home/cole/Github/kx-sea-lice/./outputs/geo-objs/fresh/network.qs|t19522.1302806806s|94ba1cae8401e00e|6795920|file|local|vector|||2.05||
 new_farm_lice|stem|429ddc53ca8d4c53|64cdd37e6d0d0f8e|c3b5fc02cdc369c1|1896230505|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx|t19339.7057683121s|13cadd82fda31a7e|1394218|file|local|vector|||2.001||
 old_farm_lice|stem|230a0a0eeaa66b1e|8ddef53d1c163c9a|c3b5fc02cdc369c1|-860842241|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19371.1554192771s|e2b8c6da6272f3c0|6212096|file|local|vector|||0.001||
 plot_power|function|37bd280df3fb61db|||||||||||||||
@@ -51,4 +54,4 @@ utm_land_data|stem|b7b52b2344afe28e|9330a5ad77df3462|c3b5fc02cdc369c1|17272683||
 west_region_network|stem|2d23ffdf4d13e748|b4094f6f883ba798|c3b5fc02cdc369c1|1091338309||t19511.2235446742s|f21b4888ae8bdafc|118|rds|local|vector|||0||
 wild_farm_lice_regression|stem|388a9f3ff11fb7df|8bf602031d81ebd5|17c47c69b297c214|-1129575649||t19511.2249352643s|303de8fdb625d7f0|113|rds|local|vector|||7.2||
 wild_lice_per_fish_plot|stem|49fc3cf67f9dce34|4aa359f68718bed0|ad6c6249c66f0a8b|1285149232||t19511.2248518854s|758d7d51407f572d|117|rds|local|vector|||2.356|1m22mUsing size aesthetic for lines was deprecated in ggplot2 3.4.0.36mℹ39m Please use linewidth instead.. 1m22mThe size argument of element_rect is deprecated as of ggplot2 3.4.0.36mℹ39m Please use the linewidth argument instead.|
-yearly_popn_exposure_maps|stem|f9ba33777b8aab56|99bedf0cac6a7a0e|61ac74bb2009bc11|1227065649||t19472.0992995701s||6341|rds|local|vector|||0.48||argument all_edges_nodes is missing, with no default
+yearly_popn_exposure_maps|stem|f9ba33777b8aab56|673750443bceb699|0d8bb6129ed4cf3d|1227065649||t19522.1750587669s|a829eb652194e338|6341|rds|local|vector|||1.552||
