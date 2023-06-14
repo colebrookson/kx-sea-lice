@@ -24,7 +24,7 @@ source(here::here("./R/05_functions_power_analysis.R"))
 tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2", 
                             "ggthemes", "wesanderson", "lubridate", "janitor",
                             "tibble", "ggrepel", "sp", "glmmTMB", "sf", 
-                            "sfnetworks", "qs"))
+                            "sfnetworks"))
 options(dplyr.summarise.inform = FALSE)
 
 list(
@@ -86,17 +86,20 @@ list(
   ),
   ## geo-data files ============================================================
   ### nodes to keep ============================================================
-  tar_target(all_edges_nodes, 
-            here::here("./outputs/geo-objs/fresh/all-edges-nodes-to-keep.rds")),
+  tar_target(all_nodes_edges_to_keep, 
+             here::here("./outputs/geo-objs/all-edges-nodes-to-keep.rds")),
   ### networks =================================================================
-  tar_target(network,
-             here::here("./outputs/geo-objs/fresh/network.qs"),
-             format = "file"),
+  tar_target(all_region_network,
+             here::here("./outputs/geo-objs/all-area-network.rds")),
+  tar_target(west_region_network,
+             here::here("./outputs/geo-objs/west-area-network.rds")),
   ### background area ==========================================================
-  # tar_target(utm_geo_data, 
-  #            here::here("./outputs/geo-objs/utm-geo-data.rds")),
-  tar_target(large_land,
-             here::here("./outputs/geo-objs/fresh/large-land-for-plotting.rds")),
+  tar_target(utm_geo_data, 
+             here::here("./outputs/geo-objs/utm-geo-data.rds")),
+  tar_target(utm_land_data,
+             here::here("./outputs/geo-objs/utm-land-data.rds")),
+  tar_target(utm_land_data_large,
+             here::here("./outputs/geo-objs/utm-land-data-large-for-plot.rds")),
   ## data cleaning =============================================================
   tar_target(
     clean_wild_lice_data,
@@ -211,19 +214,20 @@ list(
       output_path = here::here("./figs/maps/"),
       farm_path = here::here("./data/farm-lice/clean/")
     )
-  ),
-  tar_target(
-    yearly_popn_exposure_maps,
-    make_yearly_popn_maps(
-      sr_pop_data = clean_pink_spawner_recruit_data,
-      sr_pop_sites = get_data_csv(sr_pop_sites),
-      large_land = readRDS(large_land),
-      farm_data = clean_farm_lice_data,
-      farm_locs = clean_farm_locs,
-      network = qs::qread(network),
-      all_edges_nodes = all_edges_nodes,
-      fig_output = here::here("./figs/maps/yearly-pop-maps/"),
-      data_output = here::here("./data/spawner-recruit/clean/")
-    )
   )
+  # tar_target(
+  #   yearly_popn_exposure_maps,
+  #   make_yearly_popn_maps(
+  #     sr_pop_data = clean_pink_spawner_recruit_data,
+  #     sr_pop_sites = get_data_csv(sr_pop_sites),
+  #     utm_geo_data = readRDS(utm_geo_data),
+  #     utm_land_data = readRDS(utm_land_data),
+  #     farm_data = clean_farm_lice_data,
+  #     farm_locs = clean_farm_locs,
+  #     network = all_region_network,
+  #     west_network = west_region_network,
+  #     fig_output = here::here("./figs/maps/yearly-pop-maps/"),
+  #     data_output = here::here("./data/spawner-recruit/clean/")
+  #   )
+  # )
 )
