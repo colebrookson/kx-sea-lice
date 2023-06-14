@@ -389,22 +389,24 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
 
       # make the plot
       ggplot2::ggplot() +
-        geom_sf(data = large_land, fill = "white") +
         coord_sf(
           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") +
         geom_sf(data = network %>%
                   activate("nodes") %>%
                   slice(curr_nodes) %>%
                   st_as_sf(), fill = "lightpink", colour = "lightpink") +
+        geom_sf(data = large_land, fill = "white", colour = "grey70") +
         #geom_sf(data = utm_land_data_large, fill = "grey70") +
-        geom_sf(data = locs_temp_utm, aes(fill = type, shape = type), size = 2.5) +
+        geom_sf(data = locs_temp_utm, aes(fill = type, shape = type,  
+                                          size = type)) +
+        scale_size_manual(values = c(2.5, 1.8)) +
         scale_shape_manual("Location", values = c(21, 22)) +
         scale_fill_manual("Location", values = c("purple", "gold2")) +
         ggrepel::geom_text_repel(data = locs_temp_utm,
                                  aes(x = X, y = Y,
                                      label = site, fontface = ff, size = type),
-                                 max.overlaps = 30,) +
-        scale_size_manual(values = c(2.5, 2)) +
+                                 max.overlaps = 50) +
+        scale_size_manual(values = c(2.5, 1.5)) +
         theme_base() +
         coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
                  expand = FALSE) +
@@ -430,4 +432,55 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
     site_data_by_year,
     paste0(data_output, "site-name-combos-for-exposed-populations.csv")
   )
+}
+
+# plot_given_sites =============================================================
+plot_given_sites <- function(site_nums_missing, yr, site_name_combos) {
+  #' Maps just the populations that are given
+  #' 
+  #' @description To see where the missing farms are, plot just the ones that 
+  #' are not in the ones that have been given a category yet
+  #' 
+  #' @param site_nums_missing numeric. The integer vector of the farm numbers
+  #' @param yr integer. The year to plot
+  #' @param site_name_combos dataframe. Data with all of the site numbers and
+  #' year information 
+  #'  
+  #' @usage plot_given_sites(site_nums_missing, yr, site_name_combos)
+  #' @return ggplot2 object
+  #'
+  
+  site_name_combos <- site_name_combos %>% 
+    dplyr::filter(
+      site_num %in% site_nums_missing,
+      out_mig_year == yr) %>% 
+    sf::st_as_sf(., coords = c("long", "lat"))
+  # need to temp make it WGS84
+  sf::st_crs(site_name_combos) <- 4326
+  site_name_combos <- sf::st_transform(site_name_combos, 
+                                       crs="+proj=utm +zone=9 +datum=NAD83 +unit=m") %>% 
+    dplyr::mutate(
+      X = data.frame(sf::st_coordinates(.))$X,
+      Y = data.frame(sf::st_coordinates(.))$Y
+    ) 
+  
+  temp_plot <- ggplot2::ggplot() +
+    coord_sf(
+      datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") +
+    geom_sf(data = large_land, fill = "white", colour = "grey70") +
+    #geom_sf(data = utm_land_data_large, fill = "grey70") +
+    geom_sf(data = site_name_combos, aes(fill = "yellow")) +
+    ggrepel::geom_text_repel(data = site_name_combos,
+                             aes(x = X, y = Y,label = site_num),max.overlaps = 50) +
+    theme_base() +
+    coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
+             expand = FALSE) +
+    theme(
+      plot.background = element_rect(fill = "white"),
+      axis.text.x = element_text(angle = 90)
+    ) +
+    labs(
+      x = "Longitude", y = "Latitude"
+    )
+  return(temp_plot)
 }
