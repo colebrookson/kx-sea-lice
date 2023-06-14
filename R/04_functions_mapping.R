@@ -378,10 +378,9 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
       ) 
     
     ## figure out what nodes need to be kept for this year =====================
-    curr_nodes <- all_edges_nodes[
-      which(names(all_edges_nodes) %in% farm_locs_temp$site)] %>% 
-      unlist()
-      
+    curr_nodes <- all_edges_nodes[which(names(all_edges_nodes) %in% 
+                                          farm_locs_temp$site)] %>% unlist()
+    #print(curr_nodes)
     # make and save the dataframe
     ggplot2::ggsave(
 
