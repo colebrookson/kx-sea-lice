@@ -378,9 +378,9 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
       ) 
     
     ## figure out what nodes need to be kept for this year =====================
-    curr_nodes <- as.integer(all_edges_nodes[
+    curr_nodes <- all_edges_nodes[
       which(names(all_edges_nodes) %in% farm_locs_temp$site)] %>% 
-      unlist() %>% unname())
+      unlist()
       
     # make and save the dataframe
     ggplot2::ggsave(
@@ -395,8 +395,9 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") +
         geom_sf(data = network %>%
                   activate("nodes") %>%
-                  dplyr::slice(curr_nodes) %>%
+                  slice(curr_nodes) %>%
                   st_as_sf(), fill = "lightpink", colour = "lightpink") +
+        #geom_sf(data = utm_land_data_large, fill = "grey70") +
         geom_sf(data = locs_temp_utm, aes(fill = type, shape = type), size = 2.5) +
         scale_shape_manual("Location", values = c(21, 22)) +
         scale_fill_manual("Location", values = c("purple", "gold2")) +
