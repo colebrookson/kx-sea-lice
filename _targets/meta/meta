@@ -28,7 +28,7 @@ lice_regression|function|1a2b5cd910599cc4|||||||||||||||
 list_reassign|function|6b468980ce8503c5|||||||||||||||
 make_map_each_farm|function|784dff362af2662c|||||||||||||||
 make_sampling_map|function|d20031d4da571bac|||||||||||||||
-make_yearly_popn_maps|function|4585d6529447a2c4|||||||||||||||
+make_yearly_popn_maps|function|ebaff6e05091c400|||||||||||||||
 network|stem|365e42e162a6358a|e1db21ba49998361|c3b5fc02cdc369c1|-1312999359|/home/cole/Github/kx-sea-lice/./outputs/geo-objs/fresh/network.qs|t19522.1302806806s|94ba1cae8401e00e|6795920|file|local|vector|||2.05||
 new_farm_lice|stem|429ddc53ca8d4c53|64cdd37e6d0d0f8e|c3b5fc02cdc369c1|1896230505|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx|t19339.7057683121s|13cadd82fda31a7e|1394218|file|local|vector|||2.001||
 old_farm_lice|stem|230a0a0eeaa66b1e|8ddef53d1c163c9a|c3b5fc02cdc369c1|-860842241|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19371.1554192771s|e2b8c6da6272f3c0|6212096|file|local|vector|||0.001||
@@ -54,4 +54,4 @@ utm_land_data|stem|b7b52b2344afe28e|9330a5ad77df3462|c3b5fc02cdc369c1|17272683||
 west_region_network|stem|2d23ffdf4d13e748|b4094f6f883ba798|c3b5fc02cdc369c1|1091338309||t19511.2235446742s|f21b4888ae8bdafc|118|rds|local|vector|||0||
 wild_farm_lice_regression|stem|388a9f3ff11fb7df|8bf602031d81ebd5|17c47c69b297c214|-1129575649||t19511.2249352643s|303de8fdb625d7f0|113|rds|local|vector|||7.2||
 wild_lice_per_fish_plot|stem|49fc3cf67f9dce34|4aa359f68718bed0|ad6c6249c66f0a8b|1285149232||t19511.2248518854s|758d7d51407f572d|117|rds|local|vector|||2.356|1m22mUsing size aesthetic for lines was deprecated in ggplot2 3.4.0.36mℹ39m Please use linewidth instead.. 1m22mThe size argument of element_rect is deprecated as of ggplot2 3.4.0.36mℹ39m Please use the linewidth argument instead.|
-yearly_popn_exposure_maps|stem|f9ba33777b8aab56|673750443bceb699|0d8bb6129ed4cf3d|1227065649||t19522.1750587669s|a829eb652194e338|6341|rds|local|vector|||1.552||
+yearly_popn_exposure_maps|stem|f9ba33777b8aab56|673750443bceb699|49397b9f82357b95|1227065649||t19522.6775074076s|a829eb652194e338|6341|rds|local|vector|||27.164||
