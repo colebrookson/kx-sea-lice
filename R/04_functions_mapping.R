@@ -328,22 +328,23 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
       dplyr::select(site, lat, long)
     
     sr_pop_sites_filter <- sr_pop_sites %>% 
-      standardize_names(.) %>% 
       dplyr::filter(system_site %in% unique(sr_pop_data_area67$river)) 
     
     # get the populations in that year
     sr_pop_temp <- sr_pop_data_area67 %>% 
       # brood year of yr will pass fish farms in year + 1
       dplyr::filter(brood_year == (yr - 1))
+    
     # subset to just the locations that were shown to be present in that year
     site_year_temp <- sr_pop_sites_filter %>% 
       dplyr::filter(system_site %in% unique(sr_pop_temp$river)) %>% 
-      dplyr::select(system_site, y_lat, x_longt) %>% 
+      dplyr::select(system_site, y_lat, x_longt, unique_id) %>% 
       unique() %>% 
       dplyr::rename(site_name = system_site, lat = y_lat, long = x_longt) %>% 
-      dplyr::mutate(site_num = seq_len(nrow(.)),
+      dplyr::mutate(site_num = unique_id,
                     brood_year = unique(sr_pop_temp$brood_year)) %>% 
       dplyr::select(site_name, brood_year, lat, long, site_num)
+    
     # keep these data in the larger dataframe to refer back to
     site_data_by_year <- rbind(
       site_data_by_year,
@@ -457,8 +458,10 @@ plot_given_sites <- function(site_nums_missing, yr, site_df) {
   site_df <- site_df %>% 
     dplyr::filter(
       site_num %in% site_nums_missing,
-      out_mig_year == yr) %>% 
-    sf::st_as_sf(., coords = c("long", "lat"))
+      out_mig_year %in% yr) %>% 
+    dplyr::select(-out_mig_year) %>% 
+    unique() %>% 
+    sf::st_as_sf(., coords = c("long", "lat")) 
   # need to temp make it WGS84
   sf::st_crs(site_df) <- 4326
   site_df <- 
@@ -476,7 +479,9 @@ plot_given_sites <- function(site_nums_missing, yr, site_df) {
     #geom_sf(data = utm_land_data_large, fill = "grey70") +
     geom_point(data = site_df, aes(x = X, y = Y)) +
     ggrepel::geom_text_repel(data = site_df,
-                             aes(x = X, y = Y,label = site_num),max.overlaps = 50) +
+                             aes(x = X, y = Y,label = site_num),
+                             max.overlaps = 50, 
+                             size = 2) +
     theme_base() +
     coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
              expand = FALSE) +
@@ -489,3 +494,4 @@ plot_given_sites <- function(site_nums_missing, yr, site_df) {
     )
   return(temp_plot)
 }
+

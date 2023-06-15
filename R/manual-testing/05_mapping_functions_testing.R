@@ -104,4 +104,10 @@ jackson <- farms_utm[which(farms_utm$site == "Jackson Pass"),]
 cougar <- farms_utm[which(farms_utm$site == "Cougar Bay"),]
 alex <- farms_utm[which(farms_utm$site == "Alexander Inlet"),]
 
-
+# testing the GFE_IDs ==========================================================
+sr_pop_sites_gfe_counts <- sr_pop_sites %>% 
+  dplyr::group_by(GFE_ID, SPECIES_QUALIFIED, SYSTEM_SITE) %>% 
+  dplyr::summarize(n = n()) %>% 
+  dplyr::filter(n > 1)
+sr_pop_sites %>% 
+  dplyr::filter(GFE_ID == 62, SPECIES_QUALIFIED == "CK")

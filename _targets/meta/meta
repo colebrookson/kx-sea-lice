@@ -16,8 +16,10 @@ clean_farm_locs|stem|7c1f519a887b1b04|de3a5763002f19af|2c6442dc4b5db6cf|-8017436
 clean_kitasoo_sampling|function|2d712ed9aa26ba3b|||||||||||||||
 clean_pink_spawner_recruit_data|stem|f43b9fe0eb4f5c16|8134c724a125a19e|16d73c7516a54fc2|1143075027||t19511.2235885627s|fc11015d73e31694|165851|rds|local|vector|||0.506||
 clean_pk_sr_data|function|e2dab52f656612c4|||||||||||||||
+clean_pop_sites|function|0c683167ca6dc040|||||||||||||||
 clean_wild_lice|function|ead71563ece61bb3|||||||||||||||
 clean_wild_lice_data|stem|becf4e4140395eae|b46e97954db35645|717aad8fe02c78d7|-13439032||t19511.223571248s|fa5a00bd9557323a|120242|rds|local|vector|||1.253|One or more parsing issues, see problems for details|
+clean_wild_pop_location_data|stem|eba10a709baee163|bdfa41f47f450afb|8b6cc55cc5766c42|-4253491||t19523.0952922938s|d2ce0d34a9caf561|256329|rds|local|vector|||0.323||
 dates_to_join|stem|1c0be8222a6c269f|ebd1dfe2658f8cc1|c3b5fc02cdc369c1|235570657|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/unique_dates_manually_edited.csv|t19369.1463297283s|8b9a29a5ea833366|9400|file|local|vector|||0.001||
 farm_locations|stem|7c9aa8ec7801ab3a|0a5855a37f7f0433|c3b5fc02cdc369c1|-1884169169|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/farm_location_metadata.csv|t19340.1633181332s|39911213ec660508|5486|file|local|vector|||0.001||
 geo_spatial|stem|6d1f11cf41d68186|9a8037910cf09df6|c3b5fc02cdc369c1|-868371640|/home/cole/Github/kx-sea-lice/./data/geo-spatial/gadm36_CAN_1_sp.rds|t19061.3316046626s|22c665b2510b4b7b|19080844|file|local|vector|||0||
@@ -28,10 +30,11 @@ lice_regression|function|1a2b5cd910599cc4|||||||||||||||
 list_reassign|function|6b468980ce8503c5|||||||||||||||
 make_map_each_farm|function|784dff362af2662c|||||||||||||||
 make_sampling_map|function|d20031d4da571bac|||||||||||||||
-make_yearly_popn_maps|function|b4e73dd322e80730|||||||||||||||
+make_yearly_popn_maps|function|a05799e24ac50a8b|||||||||||||||
 network|stem|5da4371667f5fd28|e1db21ba49998361|c3b5fc02cdc369c1|-1312999359|/home/cole/Github/kx-sea-lice/./outputs/geo-objs/fresh/network.qs|t19522.7036478467s|94ba1cae8401e00e|6795920|file|local|vector|||2.248||
 new_farm_lice|stem|429ddc53ca8d4c53|64cdd37e6d0d0f8e|c3b5fc02cdc369c1|1896230505|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx|t19339.7057683121s|13cadd82fda31a7e|1394218|file|local|vector|||2.001||
 old_farm_lice|stem|230a0a0eeaa66b1e|8ddef53d1c163c9a|c3b5fc02cdc369c1|-860842241|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19371.1554192771s|e2b8c6da6272f3c0|6212096|file|local|vector|||0.001||
+plot_given_sites|function|59fac0c6d72d71eb|||||||||||||||
 plot_power|function|37bd280df3fb61db|||||||||||||||
 plot_wild_lice_data|function|629373191331b595|||||||||||||||
 power_analysis|stem|3d9f848cad276a6d|ef2a6dfc5cc97934|452d387d7080d422|-947125214||t19511.2235823128s|bf0d8caacacad815|112|rds|local|vector|||0.952||
@@ -44,6 +47,7 @@ raw_wild_lice_data|stem|7d7e0462623be403|c00b1b91feb5c5a6|c3b5fc02cdc369c1|13219
 slice_fun|function|31db056e420a6d7a|||||||||||||||
 sr_data|stem|49296c8848c0411f|9d04974aba95b805|33217b43f1415251|-1452995489|/home/cole/Github/kx-sea-lice/./data/spawner-recruit/raw/river-level-sr/NCC_streams_river-level_SR_data_2023-04-19.csv|t19471.069225277s|9411be00bbd9cd6a|11800441|file|local|vector|||0.001||
 sr_pop_sites|stem|08098f29dab02d6b|3e188540ea438f58|c3b5fc02cdc369c1|406721660|/home/cole/Github/kx-sea-lice/./data/spawner-recruit/raw/conservation_unit_system_site.csv|t19198.2831483607s|6df27c2a6b4a7b07|3353373|file|local|vector|||0.001||
+sr_pop_sites_raw|stem|08098f29dab02d6b|3e188540ea438f58|c3b5fc02cdc369c1|-594985282|/home/cole/Github/kx-sea-lice/./data/spawner-recruit/raw/conservation_unit_system_site.csv|t19198.2831483607s|6df27c2a6b4a7b07|3353373|file|local|vector|||2.307||
 standardize_names|function|5b63229e8588d8eb|||||||||||||||
 std_err|function|3b26304b718e3898|||||||||||||||
 study_map|stem|caff555517658349|e289be8a48f3d687|1621f278122433a1|934061817||t19511.2237068487s|bf0d8caacacad815|112|rds|local|vector|||9.644||
@@ -54,4 +58,4 @@ utm_land_data|stem|b7b52b2344afe28e|9330a5ad77df3462|c3b5fc02cdc369c1|17272683||
 west_region_network|stem|2d23ffdf4d13e748|b4094f6f883ba798|c3b5fc02cdc369c1|1091338309||t19511.2235446742s|f21b4888ae8bdafc|118|rds|local|vector|||0||
 wild_farm_lice_regression|stem|388a9f3ff11fb7df|8bf602031d81ebd5|17c47c69b297c214|-1129575649||t19511.2249352643s|303de8fdb625d7f0|113|rds|local|vector|||7.2||
 wild_lice_per_fish_plot|stem|49fc3cf67f9dce34|4aa359f68718bed0|ad6c6249c66f0a8b|1285149232||t19511.2248518854s|758d7d51407f572d|117|rds|local|vector|||2.356|1m22mUsing size aesthetic for lines was deprecated in ggplot2 3.4.0.36mℹ39m Please use linewidth instead.. 1m22mThe size argument of element_rect is deprecated as of ggplot2 3.4.0.36mℹ39m Please use the linewidth argument instead.|
-yearly_popn_exposure_maps|stem|f9ba33777b8aab56|9aab047723b70c62|83c1f6e91843d4d3|1227065649||t19522.7234224932s|a829eb652194e338|6341|rds|local|vector|||35.498||
+yearly_popn_exposure_maps|stem|75034dfc945ec43e|931c5679020d8f19|2c1c07fce550f696|1227065649||t19523.1054227664s|62cabdd0ad6f64cc|7009|rds|local|vector|||35.979||

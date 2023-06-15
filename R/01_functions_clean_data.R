@@ -728,7 +728,47 @@ clean_farm_lice <- function(old_lice, new_lice, data_output_path,
   return(data.frame(all_lice))
 }
 
-
+# clean_pop_sites =============================================================
+clean_pop_sites <- function(sr_pop_sites, output_path) {
+  #' Clean data on S-R population locations for mapping purposes
+  #' 
+  #' @description These data are actually pretty clean, but need some attention
+  #' to make everything clear and be in a good format for plotting
+  #' 
+  #' @param sr_pop_sites file. Data onthe locations and other CU/ locational 
+  #' information of each of the populations
+  #' @param output_path character. Where to save the clean data
+  #'  
+  #' @usage clean_farm_sites(sr_pop_sites, output_path)
+  #' @return the clean farmed lice data
+  #' 
+  
+  sr_sites_clean <- sr_pop_sites %>% 
+    standardize_names(.)
+  
+  # make a unique identifier for each system site
+  unique_ids <- sr_sites_clean %>% 
+    dplyr::select(system_site) %>% 
+    unique() %>% 
+    dplyr::mutate(
+      unique_id = seq(1, nrow(.))
+    )
+  
+  # join id's back to the main df
+  sr_sites_clean <- sr_sites_clean %>% 
+    dplyr::left_join(
+      ., 
+      y = unique_ids, 
+      by = "system_site"
+    )
+  
+  readr::write_csv(
+    sr_sites_clean, 
+    paste0(output_path, "clean-pop-loc-data.csv")
+  )
+  
+  return(sr_sites_clean)
+}
 
 
 

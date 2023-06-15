@@ -75,7 +75,7 @@ list(
     format = "file"
   ),
   tar_target(
-    sr_pop_sites,
+    sr_pop_sites_raw,
     here::here("./data/spawner-recruit/raw/conservation_unit_system_site.csv"),
     format = "file"
   ),
@@ -126,6 +126,13 @@ list(
       here::here(
         "./data/spawner-recruit/clean/"
       )
+    )
+  ),
+  tar_target(
+    clean_wild_pop_location_data,
+    clean_pop_sites(
+      sr_pop_sites = readr::read_csv(sr_pop_sites_raw), 
+      output_path = here::here("./data/spawner-recruit/clean/")
     )
   ),
   tar_target(
@@ -216,7 +223,7 @@ list(
     yearly_popn_exposure_maps,
     make_yearly_popn_maps(
       sr_pop_data = clean_pink_spawner_recruit_data,
-      sr_pop_sites = get_data_csv(sr_pop_sites),
+      sr_pop_sites = clean_wild_pop_location_data,
       large_land = readRDS(large_land),
       farm_data = clean_farm_lice_data,
       farm_locs = clean_farm_locs,
