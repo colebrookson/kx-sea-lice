@@ -254,7 +254,7 @@ make_map_each_farm <- function(utm_geo_data, utm_land_data, farm_locs, network,
 
 # make_yearly_popn_maps ========================================================
 make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
-                                  farm_data, farm_locs, network, 
+                                  farm_data, farm_locs, network, exposure_df,
                                   all_edges_nodes, fig_output, data_output) {
   #' Maps of each year's population and farm co-occurrence
   #' 
@@ -268,6 +268,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
   #' @param farm_locs dataframe. The cleaned data of the different 
   #' locations of the farms
   #' @param network sfnetwork tibble. The network for the entire region
+  #' @param exposure_df file. Dataframe on the exposure options
   #' @param all_edges_nodes list. The list of all the lists of edges and nodes
   #' to be kept to map onto the region
   #' @param fig_output character. Where to save the figure files
@@ -378,6 +379,24 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
         Y = data.frame(sf::st_coordinates(.))$Y
       ) 
     
+    # get the exposure df ready
+    exposure_df_temp <- exposure_df %>% 
+      dplyr::filter(year == yr) %>% 
+      dplyr::select(-year) %>% 
+      dplyr::mutate(sites = as.character(sites))
+    
+    # make an exposure fill 
+    locs_temp_utm <- locs_temp_utm %>% 
+      dplyr::left_join(
+        x = ., 
+        y = exposure_df_temp,
+        by = c("site" = "sites")
+      ) %>% 
+      dplyr::mutate(
+        exposure = factor(ifelse(is.na(exposure), " ", exposure),
+                          levels = c("yes", "maybe", "no", " "))
+      )
+    
     ## figure out what nodes need to be kept for this year =====================
     curr_nodes <- all_edges_nodes[which(names(all_edges_nodes) %in% 
                                           farm_locs_temp$site)] %>% unlist()
@@ -398,11 +417,12 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
                   st_as_sf(), fill = "lightpink", colour = "lightpink") +
         geom_sf(data = large_land, fill = "white", colour = "grey70") +
         #geom_sf(data = utm_land_data_large, fill = "grey70") +
-        geom_sf(data = locs_temp_utm, aes(fill = type, shape = type,  
+        geom_sf(data = locs_temp_utm, aes(fill = exposure, shape = type,  
                                           size = type)) +
         scale_size_manual(values = c(2.5, 1.8)) +
         scale_shape_manual("Location", values = c(21, 22)) +
-        scale_fill_manual("Location", values = c("purple", "gold2")) +
+        scale_fill_manual("Exposure", values = c("red3", "gold2", "green4",
+                                                 "purple")) +
         ggrepel::geom_text_repel(data = locs_temp_utm,
                                  aes(x = X, y = Y,
                                      label = site, fontface = ff, size = type),
@@ -416,7 +436,16 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
           axis.text.x = element_text(angle = 90)
         ) +
         guides(
-          size = "none"
+          size = "none",
+          fill = guide_legend(
+            override.aes = list(
+              shape = c(21,21,21,21),
+              size = c(3,3,3,3),
+              fill = c("red3", "gold2", "green4",
+                       "white"),
+              colour = c("black", "black", "black", "white")
+            )
+          )
         )+
         labs(
           x = "Longitude", y = "Latitude"

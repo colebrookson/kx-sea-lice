@@ -39,6 +39,7 @@ farm_data = tar_read(clean_farm_lice_data)
 farm_locs = tar_read(clean_farm_locs)
 network = qread(tar_read(network))
 all_edges_nodes = readRDS(tar_read(all_nodes_edges_to_keep))
+exposure_df = read_csv(tar_read(exposure_df))
 
 
 

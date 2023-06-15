@@ -21,6 +21,7 @@ clean_wild_lice|function|ead71563ece61bb3|||||||||||||||
 clean_wild_lice_data|stem|becf4e4140395eae|b46e97954db35645|717aad8fe02c78d7|-13439032||t19511.223571248s|fa5a00bd9557323a|120242|rds|local|vector|||1.253|One or more parsing issues, see problems for details|
 clean_wild_pop_location_data|stem|c12e086bfa7dca1a|bdfa41f47f450afb|0439c96a3b5e58c9|-4253491||t19523.2194812693s|3f795ab8f8d761fc|254550|rds|local|vector|||0.313||
 dates_to_join|stem|1c0be8222a6c269f|ebd1dfe2658f8cc1|c3b5fc02cdc369c1|235570657|/home/cole/Github/kx-sea-lice/./data/wild-lice/raw/unique_dates_manually_edited.csv|t19369.1463297283s|8b9a29a5ea833366|9400|file|local|vector|||0.001||
+exposure_df|stem|05d0b08c52af1fa3|52afabefb50abe53|c3b5fc02cdc369c1|159346632|/home/cole/Github/kx-sea-lice/./data/spawner-recruit/clean/exposure-categorization-df.csv|t19523.2538485963s|dcb9249317c5a50e|20224|file|local|vector|||2.269||
 farm_locations|stem|7c9aa8ec7801ab3a|0a5855a37f7f0433|c3b5fc02cdc369c1|-1884169169|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/farm_location_metadata.csv|t19340.1633181332s|39911213ec660508|5486|file|local|vector|||0.001||
 geo_spatial|stem|6d1f11cf41d68186|9a8037910cf09df6|c3b5fc02cdc369c1|-868371640|/home/cole/Github/kx-sea-lice/./data/geo-spatial/gadm36_CAN_1_sp.rds|t19061.3316046626s|22c665b2510b4b7b|19080844|file|local|vector|||0||
 get_data_csv|function|f55fbb93cbb1e4ef|||||||||||||||
@@ -34,7 +35,7 @@ make_yearly_popn_maps|function|13552742969cc325|||||||||||||||
 network|stem|5da4371667f5fd28|e1db21ba49998361|c3b5fc02cdc369c1|-1312999359|/home/cole/Github/kx-sea-lice/./outputs/geo-objs/fresh/network.qs|t19522.7036478467s|94ba1cae8401e00e|6795920|file|local|vector|||2.248||
 new_farm_lice|stem|429ddc53ca8d4c53|64cdd37e6d0d0f8e|c3b5fc02cdc369c1|1896230505|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx|t19339.7057683121s|13cadd82fda31a7e|1394218|file|local|vector|||2.001||
 old_farm_lice|stem|230a0a0eeaa66b1e|8ddef53d1c163c9a|c3b5fc02cdc369c1|-860842241|/home/cole/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19371.1554192771s|e2b8c6da6272f3c0|6212096|file|local|vector|||0.001||
-plot_given_sites|function|8b1df4e15ee69d2d|||||||||||||||
+plot_given_sites|function|8575152c78ad44ce|||||||||||||||
 plot_power|function|37bd280df3fb61db|||||||||||||||
 plot_wild_lice_data|function|629373191331b595|||||||||||||||
 power_analysis|stem|3d9f848cad276a6d|ef2a6dfc5cc97934|452d387d7080d422|-947125214||t19511.2235823128s|bf0d8caacacad815|112|rds|local|vector|||0.952||

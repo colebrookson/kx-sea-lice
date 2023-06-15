@@ -84,6 +84,11 @@ list(
     here::here("./outputs/power-analysis/pink-all-power-analysis-runs.csv"),
     format = "file"
   ),
+  tar_target(
+    exposure_df,
+    here::here("./data/spawner-recruit/clean/exposure-categorization-df.csv"),
+    format = "file"
+  ),
   ## geo-data files ============================================================
   ### nodes to keep ============================================================
   tar_target(all_edges_nodes, 
