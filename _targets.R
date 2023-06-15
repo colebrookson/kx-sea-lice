@@ -233,6 +233,7 @@ list(
       farm_data = clean_farm_lice_data,
       farm_locs = clean_farm_locs,
       network = qs::qread(network),
+      exposure_df = read_csv(tar_read(exposure_df)),
       all_edges_nodes = readRDS(all_edges_nodes),
       fig_output = here::here("./figs/maps/yearly-pop-maps/"),
       data_output = here::here("./data/spawner-recruit/clean/")

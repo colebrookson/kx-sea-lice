@@ -427,7 +427,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
                                  aes(x = X, y = Y,
                                      label = site, fontface = ff, size = type),
                                  max.overlaps = 50) +
-        scale_size_manual(values = c(2.5, 1.5)) +
+        scale_size_manual(values = c(2.5, 1.7)) +
         theme_base() +
         coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
                  expand = FALSE) +
@@ -444,6 +444,11 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
               fill = c("red3", "gold2", "green4",
                        "white"),
               colour = c("black", "black", "black", "white")
+            )
+          ),
+          shape = guide_legend(
+            override.aes = list(
+              size = c(3,3)
             )
           )
         )+
