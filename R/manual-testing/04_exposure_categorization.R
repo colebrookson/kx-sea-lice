@@ -24,6 +24,28 @@ site_name_combos <- readr::read_csv(
     -brood_year
   )
 
+# farms in which years =========================================================
+farms_2005 <- c("kid", "goat")
+farms_2006 <- c("kid", "goat", "loch", "jackson")
+farms_2007 <- c("kid", "jackson", "loch")
+farms_2008 <- c("kid", "goat", "sheep", "loch")
+farms_2009 <- c("kid", "goat", "sheep", "lime", "jackson")
+farms_2010 <- c("kid", "goat", "sheep", "lime", "jackson")
+farms_2011 <- c("kid", "goat", "sheep", "lime", "jackson", "loch")
+farms_2012 <- c("kid", "goat", "lime", "jackson")
+farms_2013 <- c("goat", "sheep", "jackson", "loch")
+farms_2014 <- c("kid", "goat", "sheep", "lime", "jackson", "loch")
+farms_2015 <- c("lime", "sheep", "jackson", "loch")
+farms_2016 <- c("kid", "goat", "sheep", "jackson", "loch")
+farms_2017 <- c("cougar", "alex", "sheep")
+farms_2018 <- c("kid", "goat", "alex")
+farms_2019 <- c("cougar", "alex", "kid")
+farms_2020 <- c("cougar", "alex", "sheep")
+
+func_group_1 <- c(2005)
+func_group_2 <- c(2006:2016)
+func_group_3 <- c(2017:2020)
+
 # never exposed ================================================================
 never_exposed <- c(
   43,92,96,97,6,48,59,53,57,70,93,82,69,50,91,73,60,90,62,68,79,47,84,76,26,33,
