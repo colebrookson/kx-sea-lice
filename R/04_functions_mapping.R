@@ -435,7 +435,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
 }
 
 # plot_given_sites =============================================================
-plot_given_sites <- function(site_nums_missing, yr, site_name_combos) {
+plot_given_sites <- function(site_nums_missing, yr, site_df) {
   #' Maps just the populations that are given
   #' 
   #' @description To see where the missing farms are, plot just the ones that 
@@ -443,22 +443,27 @@ plot_given_sites <- function(site_nums_missing, yr, site_name_combos) {
   #' 
   #' @param site_nums_missing numeric. The integer vector of the farm numbers
   #' @param yr integer. The year to plot
-  #' @param site_name_combos dataframe. Data with all of the site numbers and
+  #' @param site_df dataframe. Data with all of the site numbers and
   #' year information 
   #'  
-  #' @usage plot_given_sites(site_nums_missing, yr, site_name_combos)
+  #' @usage plot_given_sites(site_nums_missing, yr, site_df)
   #' @return ggplot2 object
   #'
   
-  site_name_combos <- site_name_combos %>% 
+  if(length(site_nums_missing) == 0) {
+    return("No sites missing")
+  }
+  
+  site_df <- site_df %>% 
     dplyr::filter(
       site_num %in% site_nums_missing,
       out_mig_year == yr) %>% 
     sf::st_as_sf(., coords = c("long", "lat"))
   # need to temp make it WGS84
-  sf::st_crs(site_name_combos) <- 4326
-  site_name_combos <- sf::st_transform(site_name_combos, 
-                                       crs="+proj=utm +zone=9 +datum=NAD83 +unit=m") %>% 
+  sf::st_crs(site_df) <- 4326
+  site_df <- 
+    sf::st_transform(site_df, 
+                     crs="+proj=utm +zone=9 +datum=NAD83 +unit=m") %>% 
     dplyr::mutate(
       X = data.frame(sf::st_coordinates(.))$X,
       Y = data.frame(sf::st_coordinates(.))$Y
@@ -469,8 +474,8 @@ plot_given_sites <- function(site_nums_missing, yr, site_name_combos) {
       datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") +
     geom_sf(data = large_land, fill = "white", colour = "grey70") +
     #geom_sf(data = utm_land_data_large, fill = "grey70") +
-    geom_sf(data = site_name_combos, aes(fill = "yellow")) +
-    ggrepel::geom_text_repel(data = site_name_combos,
+    geom_point(data = site_df, aes(x = X, y = Y)) +
+    ggrepel::geom_text_repel(data = site_df,
                              aes(x = X, y = Y,label = site_num),max.overlaps = 50) +
     theme_base() +
     coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
