@@ -184,5 +184,42 @@ alt_mod_3 <- lme4::lmer(survival ~ spawners:river + lice_3 * certainty +
                           (1|brood_year/area),
                         data = pink_sr)
 AIC(null_model, alt_mod_1, alt_mod_2, alt_mod_3)
+summary(alt_mod_1)
+summary(alt_mod_2)
+summary(alt_mod_3)
+-0.354 == -3.540e-01
 
+coefs_1 <- broom.mixed::tidy(alt_mod_1)
+coefs_2 <- broom.mixed::tidy(alt_mod_2)
+coefs_3 <- broom.mixed::tidy(alt_mod_3)
+coefs_1 %>% 
+  dplyr::filter(term == "lice_1")
+coefs_2 %>% 
+  dplyr::filter(term == "lice_2")
+coefs_3 %>% 
+  dplyr::filter(term %in% c("lice_3", "certaintyuncertain"))
 
+c_df <- data.frame(
+  c = c(-0.354,-0.354,-0.495,-0.5078),
+  std_err = c(0.147, 0.155, 0.155, 0.155),
+  model = c("model 1", "model 2", "model 3 - exp.", "model 3 - pot.")
+  ) %>% 
+  dplyr::mutate(
+    up = c + (1.96*std_err),
+    lo = c - (1.96*std_err)
+  )
+
+ggplot(data = c_df) + 
+  geom_errorbar(aes(x = model, ymin = lo, ymax = up),
+                width = 0) + 
+  geom_point(aes(x = model, y = c, fill = model), 
+             colour = "black", shape = 21, size = 3) + 
+  geom_hline(aes(yintercept = 0), colour = "grey80", linetype = "dashed") +
+  theme_base()
+
+# plot observations in each category ===========================================
+ggplot(data = exposure_df) + 
+  geom_histogram(aes(x = exposure), stat = "count",
+                 colour = "black", fill = c("yellow3", "green4", "red3")) + 
+  theme_base() + 
+  labs(y = "No. of Obs in Each Category")
