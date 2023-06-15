@@ -760,7 +760,8 @@ clean_pop_sites <- function(sr_pop_sites, output_path) {
       ., 
       y = unique_ids, 
       by = "system_site"
-    )
+    ) %>% 
+    select(gfe_id, unique_id, names(.)[which(names(.) != "map_label")])
   
   readr::write_csv(
     sr_sites_clean, 

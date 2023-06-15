@@ -181,4 +181,51 @@ exposed_df_2_large <- exposed_df_2_large %>%
     by = "site_num"
 )
 
+# group_3 ======================================================================
+pops_group_3 <- site_name_combos %>% 
+  dplyr::filter(out_mig_year %in% c(2017:2020)) %>% 
+  dplyr::select(site_num, site_name) %>% 
+  unique() 
+n_distinct(pops_group_3$site_num)
+plot_given_sites(
+  site_nums_missing = pops_group_3$site_num, 
+  yr = c(2017:2020), 
+  site_df = site_name_combos)
 
+def_exposed_group_3 <- c(
+  1207,1131,1135,1191,1198,1182,1129,1128,1171,1185,935,969,954
+)
+not_exposed_group_3 <- c(
+  1161,621,1178,1187,1165,1138,727,1140,1175,1213,1147,1144,
+  1152,1174,1199,1179,1130,953,1186,1164,1216,1148,1211,1151,1159,1202,
+  1139,1195,1163,1176,1132,1212,1172,1180,907,1032,1033,1218,965,1217,
+  932,878,896,928,926,562,217,818,837,902,1204,1200,
+  1041,879,962,890,984,1024,997,938,1158,1145,886,534,1038,933,1157
+)
+possibly_exposed_group_3 <- c(
+  1194,1127,883,1173,1134,1189,721,1125,1188,1205,1181,1126,889,1009,1166,941,
+  1026,1035,1157
+)
+
+group_3_sites_cat <- c(def_exposed_group_3, not_exposed_group_3, 
+                       possibly_exposed_group_3)
+
+pops_missing_group_3 <- pops_group_3 %>% 
+  dplyr::filter(site_num %notin% group_3_sites_cat)
+pops_missing_group_3 <- pops_missing_group_3$site_num
+
+if(any(duplicated(group_3_sites_cat))) {
+  print(group_3_sites_cat[which(duplicated(group_3_sites_cat))])
+  stop("ERROR - Duplicates in the the group_3 sites")
+}
+if(any(group_3_sites_cat %notin% pops_group_3$site_num)) {
+  print(group_3_sites_cat[which(group_3_sites_cat %notin% 
+                                  pops_group_3$site_num)] )
+  stop("ERROR - Typo somewhere in one of the assigned sites - it doesn't 
+       exist in the list of sites")
+}
+
+# look for the ones I've somehow missed so far
+plot_given_sites(pops_missing_group_3, 
+                 yr = c(2017:2020), 
+                 site_df = site_name_combos)

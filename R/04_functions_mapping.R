@@ -338,10 +338,10 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
     # subset to just the locations that were shown to be present in that year
     site_year_temp <- sr_pop_sites_filter %>% 
       dplyr::filter(system_site %in% unique(sr_pop_temp$river)) %>% 
-      dplyr::select(system_site, y_lat, x_longt, unique_id) %>% 
+      dplyr::select(system_site, y_lat, x_longt, gfe_id, unique_id) %>% 
       unique() %>% 
       dplyr::rename(site_name = system_site, lat = y_lat, long = x_longt) %>% 
-      dplyr::mutate(site_num = unique_id,
+      dplyr::mutate(site_num = gfe_id,
                     brood_year = unique(sr_pop_temp$brood_year)) %>% 
       dplyr::select(site_name, brood_year, lat, long, site_num)
     

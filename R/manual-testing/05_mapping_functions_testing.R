@@ -33,7 +33,7 @@ slice_fun <- function(net, temp_edges) {
 
 
 sr_pop_data = tar_read(clean_pink_spawner_recruit_data)
-sr_pop_sites = get_data_csv(tar_read(sr_pop_sites))
+sr_pop_sites = tar_read(clean_wild_pop_location_data)
 large_land = readRDS(tar_read(large_land))
 farm_data = tar_read(clean_farm_lice_data)
 farm_locs = tar_read(clean_farm_locs)
@@ -106,8 +106,8 @@ alex <- farms_utm[which(farms_utm$site == "Alexander Inlet"),]
 
 # testing the GFE_IDs ==========================================================
 sr_pop_sites_gfe_counts <- sr_pop_sites %>% 
-  dplyr::group_by(GFE_ID, SPECIES_QUALIFIED, SYSTEM_SITE) %>% 
+  dplyr::group_by(gfe_id, species_qualified, system_site) %>% 
   dplyr::summarize(n = n()) %>% 
   dplyr::filter(n > 1)
-sr_pop_sites %>% 
-  dplyr::filter(GFE_ID == 62, SPECIES_QUALIFIED == "CK")
+test = sr_sites_clean %>% 
+  dplyr::filter(unique_id == 480)
