@@ -436,7 +436,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
 }
 
 # plot_given_sites =============================================================
-plot_given_sites <- function(site_nums_missing, yr, site_df) {
+plot_given_sites <- function(site_nums_missing, yr, site_df, large_land) {
   #' Maps just the populations that are given
   #' 
   #' @description To see where the missing farms are, plot just the ones that 
