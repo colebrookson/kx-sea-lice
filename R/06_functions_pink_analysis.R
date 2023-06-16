@@ -7,6 +7,7 @@ library(lme4)
 library(lubridate)
 library(glmmTMB)
 library(stringr)
+library(brms)
 
 farm_lice <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
 pink_sr_df <- read_csv(here("./data/spawner-recruit/clean/pink-sr-data-clean.csv"))
@@ -172,6 +173,18 @@ pink_sr <- rbind(pink_sr_pre_2005, pink_sr_2005_onward)
 pink_sr <- pink_sr[which(pink_sr$recruits != 0),]
 
 # fit the models ===============================================================
+
+# see if the data can be sub-set
+pink_sr_river_counts = pink_sr %>% 
+  group_by(river, brood_year, area) %>% 
+  summarize(n = n())
+pink_sr <- pink_sr %>% 
+  dplyr::left_join(
+    ., 
+    y = pink_sr_river_counts,
+    by = "river"
+  )
+
 null_model <- lme4::lmer(survival ~ spawners:river + (1|brood_year/area),
                          data = pink_sr)
 alt_mod_1 <- lme4::lmer(survival ~ spawners:river + lice_1 +
@@ -180,13 +193,21 @@ alt_mod_1 <- lme4::lmer(survival ~ spawners:river + lice_1 +
 alt_mod_2 <- lme4::lmer(survival ~ spawners:river + lice_2 +
                           (1|brood_year/area),
                         data = pink_sr)
-alt_mod_3 <- lme4::lmer(survival ~ spawners:river + lice_3 * certainty +
+alt_mod_3 <- lme4::lmer(survival ~ spawners:river + lice_3:certainty +
                           (1|brood_year/area),
                         data = pink_sr)
-AIC(null_model, alt_mod_1, alt_mod_2, alt_mod_3)
+alt_mod_4 <- lme4::lmer(survival ~ spawners:river + lice_1 +
+                          (1|brood_year/area) + (1|river),
+                     family = "gaussian",
+                     data = test_pink_sr)
+fixef(alt_mod_3)
+ranef(alt_mod_3)
+
+AIC(null_model, alt_mod_1, alt_mod_2, alt_mod_3, alt_mod_4)
 summary(alt_mod_1)
 summary(alt_mod_2)
 summary(alt_mod_3)
+summary(alt_mod_4)
 -0.354 == -3.540e-01
 
 coefs_1 <- broom.mixed::tidy(alt_mod_1)
@@ -197,7 +218,8 @@ coefs_1 %>%
 coefs_2 %>% 
   dplyr::filter(term == "lice_2")
 coefs_3 %>% 
-  dplyr::filter(term %in% c("lice_3", "certaintyuncertain"))
+  dplyr::filter(term %in% c("lice_3:certaintycertain", 
+                            "lice_3:certaintyuncertain"))
 
 c_df <- data.frame(
   c = c(-0.354,-0.354,-0.495,-0.5078),
