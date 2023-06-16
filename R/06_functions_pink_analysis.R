@@ -8,6 +8,8 @@ library(lubridate)
 library(glmmTMB)
 library(stringr)
 library(brms)
+library(rstanarm)
+
 
 farm_lice <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
 pink_sr_df <- read_csv(here("./data/spawner-recruit/clean/pink-sr-data-clean.csv"))
@@ -145,7 +147,11 @@ pink_sr_2005_onward <- pink_sr %>%
       TRUE                ~ "certain"
     ))
   ) %>% 
-  dplyr::select(-c(fit, exposure))
+  dplyr::select(-c(fit, exposure)) %>% 
+  dplyr::mutate(
+    area = as.factor(area),
+    certainty = as.factor(certainty)
+  )
 
 pink_sr_pre_2005 <- pink_sr %>% 
   dplyr::filter(lice_year < 2005) %>% 
@@ -175,31 +181,49 @@ pink_sr <- pink_sr[which(pink_sr$recruits != 0),]
 # fit the models ===============================================================
 
 # see if the data can be sub-set
-pink_sr_river_counts = pink_sr %>% 
-  group_by(river, brood_year, area) %>% 
-  summarize(n = n())
-pink_sr <- pink_sr %>% 
-  dplyr::left_join(
-    ., 
-    y = pink_sr_river_counts,
-    by = "river"
-  )
+# pink_sr_river_counts = pink_sr %>% 
+#   group_by(river, brood_year, area) %>% 
+#   summarize(n = n())
+# pink_sr <- pink_sr %>% 
+#   dplyr::left_join(
+#     ., 
+#     y = pink_sr_river_counts,
+#     by = "river"
+#   )
 
-null_model <- lme4::lmer(survival ~ spawners:river + (1|brood_year/area),
+## frequentist model fits ======================================================
+
+freq_null_model <- lme4::lmer(survival ~ spawners:river + (1|brood_year/area),
                          data = pink_sr)
-alt_mod_1 <- lme4::lmer(survival ~ spawners:river + lice_1 +
+freq_alt_mod_1 <- lme4::lmer(survival ~ spawners:river + lice_1 +
                         (1|brood_year/area),
                       data = pink_sr)
-alt_mod_2 <- lme4::lmer(survival ~ spawners:river + lice_2 +
+freq_alt_mod_2 <- lme4::lmer(survival ~ spawners:river + lice_2 +
                           (1|brood_year/area),
                         data = pink_sr)
-alt_mod_3 <- lme4::lmer(survival ~ spawners:river + lice_3:certainty +
+freq_alt_mod_3 <- lme4::lmer(survival ~ spawners:river + lice_3:certainty +
                           (1|brood_year/area),
                         data = pink_sr)
-alt_mod_4 <- lme4::lmer(survival ~ spawners:river + lice_1 +
+freq_alt_mod_4 <- lme4::lmer(survival ~ spawners:river + lice_1 +
                           (1|brood_year/area) + (1|river),
                      family = "gaussian",
                      data = test_pink_sr)
+
+## test model with BRMS ========================================================
+
+bayes_null_model <- rstanarm::stan_glmer(
+  survival ~ spawners:river + (1|brood_year/area),
+  data = pink_sr,
+  family = gaussian(link = "log"),
+  prior = normal(0, 5),
+  chains = 4,
+  cores = 4
+)
+
+bayes_mod <- rstanarm::stan_glmer(survival ~ spawners:river + lice_3:certainty +
+                          (1|brood_year/area) + (1|river),
+                        data = pink_sr)
+# process model results ========================================================
 fixef(alt_mod_3)
 ranef(alt_mod_3)
 
