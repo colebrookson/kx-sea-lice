@@ -204,20 +204,30 @@ freq_alt_mod_2 <- lme4::lmer(survival ~ spawners:river + lice_2 +
 freq_alt_mod_3 <- lme4::lmer(survival ~ spawners:river + lice_3:certainty +
                           (1|brood_year/area),
                         data = pink_sr)
-freq_alt_mod_4 <- lme4::lmer(survival ~ spawners:river + lice_1 +
-                          (1|brood_year/area) + (1|river),
-                     family = "gaussian",
-                     data = test_pink_sr)
 
+freq_alt_mod_4 <- lme4::lmer(survival ~ spawners:river + lice_1 +
+                                      (1|brood_year/area) + (1|river),
+                                    data = pink_sr)
+
+all_fit <- allFit(freq_alt_mod_4, maxfun = 1e05)
 ## test model with BRMS ========================================================
 
-bayes_null_model <- rstanarm::stan_glmer(
+bayes_null_model <- rstanarm::stan_lmer(
   survival ~ spawners:river + (1|brood_year/area),
   data = pink_sr,
-  family = gaussian(link = "log"),
-  prior = normal(0, 5),
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
   chains = 4,
-  cores = 4
+  cores = 8
+)
+
+bayes_alt_model <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_3:certainty + (1|brood_year/area) + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  cores = 8
 )
 
 bayes_mod <- rstanarm::stan_glmer(survival ~ spawners:river + lice_3:certainty +
