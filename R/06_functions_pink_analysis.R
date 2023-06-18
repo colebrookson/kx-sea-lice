@@ -87,7 +87,7 @@ ggplot(data = pred_yearly) +
 
 # keep only the relevant info for pinks
 pink_sr <- pink_sr_df %>% 
-  dplyr::select(gfe_id, brood_year, river, species, area, 
+  dplyr::select(gfe_id, brood_year, con_unit, river, species, area, 
                 spawners, returns, recruits) %>% 
   # get the survival
   dplyr::rowwise() %>% 
@@ -213,16 +213,18 @@ all_fit <- allFit(freq_alt_mod_4, maxfun = 1e05)
 ## test model with BRMS ========================================================
 
 bayes_null_model <- rstanarm::stan_lmer(
-  survival ~ spawners:river + (1|brood_year/area),
+  survival ~ spawners:river + (1|brood_year/area) + 
+    (con_unit/brood_year) + (1|river),
   data = pink_sr,
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
-  cores = 8
+  cores = 4
 )
 
 bayes_alt_model <- rstanarm::stan_lmer(
-  survival ~ spawners:river + lice_3:certainty + (1|brood_year/area) + (1|river),
+  survival ~ spawners:river + lice_3:certainty + (1|brood_year/area) + 
+    (1|river),
   data = pink_sr,
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
