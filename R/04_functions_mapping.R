@@ -189,11 +189,73 @@ list_reassign <- function(l, nodes_edges) {
   
 }
 
+# make_map_each_farm ===========================================================
+make_map_each_farm <- function(utm_geo_data, utm_land_data, farm_locs, network, 
+                               west_network, all_edges_nodes, fig_output) {
+  #' Maps of each farm's buffer
+  #' 
+  #' @description Get a sense of what each farm's buffer is and if it makes 
+  #' sense
+  #' 
+  #' @param utm_geo_data file. The geo-spatial data rds file
+  #' @param farm_locs dataframe. The cleaned data of the different 
+  #' locations of the farms
+  #' @param network sfnetwork tibble. The network for the entire region
+  #' @param west_network sfnetwork tibble. The network for the western region
+  #' @param all_edges_nodes list. The list of all the lists of edges and nodes
+  #' to be kept to map onto the region
+  #' @param fig_output character. Where to save the figure files
+  #'  
+  #' @usage make_map_each_farm(utm_geo_data, utm_land_data, network, 
+  #' west_network, all_edges_nodes, fig_output)
+  #' @return NA
+  #'
+
+  farms_sf <- sf::st_as_sf(farm_locs, coords = c("long", "lat"))
+  
+  # set the coordinates for WGS84
+  sf::st_crs(farms_sf) <- 4326 
+  # transform to utm 
+  farms_utm <- sf::st_transform(farms_sf,  
+                                crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+  
+  for(farm in unique(farms_utm$site)) {
+    
+    # get the nodes 
+    curr_edges_nodes <- all_edges_nodes[
+      which(names(all_edges_nodes) %in% farm)]
+    curr_nodes <- sapply(curr_edges_nodes, list_reassign, 
+                         nodes_edges="nodes") %>% 
+      unlist() %>% unname()
+    
+    if(farm %in% c("Alexander Inlet", "Cougar Bay")) {
+      net = west_network
+    } else {
+      net = network
+    }
+    
+    ggplot2::ggplot() +
+      geom_sf(data = utm_geo_data, fill = "white") + 
+      geom_sf(data = network %>%
+              activate("nodes") %>%
+              slice(edges_nodes_to_keep_loch$nodes) %>% 
+              st_as_sf(), fill = "lightpink", colour = "lightpink") +
+      #geom_sf(data = utm_land_data, fill = "grey70") +
+      geom_sf(data = farms_utm[which(farms_utm$site == farm), ],
+              shape = 21, fill = "purple1", colour = "black", size = 2.5) +
+      theme_base() +
+      labs(
+        x = "Longitude", y = "Latitude", main = farm
+      )
+    
+  }
+
+}
+
 # make_yearly_popn_maps ========================================================
-make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data, 
-                                  utm_land_data, farm_data, farm_locs, network, 
-                                  west_network, all_edges_nodes, fig_output, 
-                                  data_output) {
+make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
+                                  farm_data, farm_locs, network, exposure_df,
+                                  all_edges_nodes, fig_output, data_output) {
   #' Maps of each year's population and farm co-occurrence
   #' 
   #' @description To determine which farms are high, medium, or low risk, we
@@ -206,7 +268,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
   #' @param farm_locs dataframe. The cleaned data of the different 
   #' locations of the farms
   #' @param network sfnetwork tibble. The network for the entire region
-  #' @param west_network sfnetwork tibble. The network for the western region
+  #' @param exposure_df file. Dataframe on the exposure options
   #' @param all_edges_nodes list. The list of all the lists of edges and nodes
   #' to be kept to map onto the region
   #' @param fig_output character. Where to save the figure files
@@ -267,22 +329,23 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
       dplyr::select(site, lat, long)
     
     sr_pop_sites_filter <- sr_pop_sites %>% 
-      standardize_names(.) %>% 
       dplyr::filter(system_site %in% unique(sr_pop_data_area67$river)) 
     
     # get the populations in that year
     sr_pop_temp <- sr_pop_data_area67 %>% 
       # brood year of yr will pass fish farms in year + 1
       dplyr::filter(brood_year == (yr - 1))
+    
     # subset to just the locations that were shown to be present in that year
     site_year_temp <- sr_pop_sites_filter %>% 
       dplyr::filter(system_site %in% unique(sr_pop_temp$river)) %>% 
-      dplyr::select(system_site, y_lat, x_longt) %>% 
+      dplyr::select(system_site, y_lat, x_longt, gfe_id, unique_id) %>% 
       unique() %>% 
       dplyr::rename(site_name = system_site, lat = y_lat, long = x_longt) %>% 
-      dplyr::mutate(site_num = seq_len(nrow(.)),
+      dplyr::mutate(site_num = gfe_id,
                     brood_year = unique(sr_pop_temp$brood_year)) %>% 
       dplyr::select(site_name, brood_year, lat, long, site_num)
+    
     # keep these data in the larger dataframe to refer back to
     site_data_by_year <- rbind(
       site_data_by_year,
@@ -315,6 +378,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
       dplyr::mutate(
         X = data.frame(sf::st_coordinates(.))$X,
         Y = data.frame(sf::st_coordinates(.))$Y
+<<<<<<< HEAD
       ) %>% 
       dplyr::mutate(
         type = as.factor(type),
@@ -329,14 +393,41 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
                          nodes_edges="nodes") %>% 
       unlist()
       
+=======
+      ) 
+    
+    # get the exposure df ready
+    exposure_df_temp <- exposure_df %>% 
+      dplyr::filter(year == yr) %>% 
+      dplyr::select(-year) %>% 
+      dplyr::mutate(sites = as.character(sites))
+    
+    # make an exposure fill 
+    locs_temp_utm <- locs_temp_utm %>% 
+      dplyr::left_join(
+        x = ., 
+        y = exposure_df_temp,
+        by = c("site" = "sites")
+      ) %>% 
+      dplyr::mutate(
+        exposure = factor(ifelse(is.na(exposure), " ", exposure),
+                          levels = c("yes", "maybe", "no", " "))
+      )
+    
+    ## figure out what nodes need to be kept for this year =====================
+    curr_nodes <- all_edges_nodes[which(names(all_edges_nodes) %in% 
+                                          farm_locs_temp$site)] %>% unlist()
+    #print(curr_nodes)
+>>>>>>> a638f0e22f5082bbaca7e27d8a503501b461d332
     # make and save the dataframe
-    ggplot2::ggsave( 
-      
+    ggplot2::ggsave(
+
       # output path
       paste0(fig_output, "map-by-year-", yr, ".png"),
-    
+
       # make the plot
       ggplot2::ggplot() +
+<<<<<<< HEAD
         # geom_sf(data = utm_geo_data, fill = "white") +
         geom_sf(data = network %>%
                   activate("nodes") %>%
@@ -355,10 +446,39 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
                                      label = site, fontface = ff, size = fsize),
                                  max.overlaps = 20) + 
         scale_size_manual("", values = c(1.9, 2.5)) + 
+=======
+        coord_sf(
+          datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") +
+        geom_sf(data = network %>%
+                  activate("nodes") %>%
+                  slice(curr_nodes) %>%
+                  st_as_sf(), fill = "lightpink", colour = "lightpink") +
+        geom_sf(data = large_land, fill = "white", colour = "grey70") +
+        #geom_sf(data = utm_land_data_large, fill = "grey70") +
+        geom_sf(data = locs_temp_utm, aes(fill = exposure, shape = type,  
+                                          size = type)) +
+        scale_size_manual(values = c(2.5, 1.8)) +
+        scale_shape_manual("Location", values = c(21, 22)) +
+        scale_fill_manual("Exposure", values = c("red3", "gold2", "green4",
+                                                 "purple")) +
+        ggrepel::geom_text_repel(data = locs_temp_utm,
+                                 aes(x = X, y = Y,
+                                     label = site, fontface = ff, size = type),
+                                 max.overlaps = 50) +
+        scale_size_manual(values = c(2.5, 1.7)) +
+        theme_base() +
+        coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
+                 expand = FALSE) +
+        theme(
+          plot.background = element_rect(fill = "white"),
+          axis.text.x = element_text(angle = 90)
+        ) +
+>>>>>>> a638f0e22f5082bbaca7e27d8a503501b461d332
         guides(
           size = "none",
           fill = guide_legend(
             override.aes = list(
+<<<<<<< HEAD
               size = 3
             )
           )
@@ -373,6 +493,26 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
         ),
       
       # make the size 
+=======
+              shape = c(21,21,21,21),
+              size = c(3,3,3,3),
+              fill = c("red3", "gold2", "green4",
+                       "white"),
+              colour = c("black", "black", "black", "white")
+            )
+          ),
+          shape = guide_legend(
+            override.aes = list(
+              size = c(3,3)
+            )
+          )
+        )+
+        labs(
+          x = "Longitude", y = "Latitude", title = yr
+        ),
+
+      # make the size
+>>>>>>> a638f0e22f5082bbaca7e27d8a503501b461d332
       height = 8, width = 9
     )
     
@@ -383,4 +523,68 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, utm_geo_data,
     site_data_by_year,
     paste0(data_output, "site-name-combos-for-exposed-populations.csv")
   )
+<<<<<<< HEAD
+=======
 }
+
+# plot_given_sites =============================================================
+plot_given_sites <- function(site_nums_missing, yr, site_df, large_land) {
+  #' Maps just the populations that are given
+  #' 
+  #' @description To see where the missing farms are, plot just the ones that 
+  #' are not in the ones that have been given a category yet
+  #' 
+  #' @param site_nums_missing numeric. The integer vector of the farm numbers
+  #' @param yr integer. The year to plot
+  #' @param site_df dataframe. Data with all of the site numbers and
+  #' year information 
+  #'  
+  #' @usage plot_given_sites(site_nums_missing, yr, site_df)
+  #' @return ggplot2 object
+  #'
+  
+  if(length(site_nums_missing) == 0) {
+    return("No sites missing")
+  }
+  
+  site_df <- site_df %>% 
+    dplyr::filter(
+      site_num %in% site_nums_missing,
+      out_mig_year %in% yr) %>% 
+    dplyr::select(-out_mig_year) %>% 
+    unique() %>% 
+    sf::st_as_sf(., coords = c("long", "lat")) 
+  # need to temp make it WGS84
+  sf::st_crs(site_df) <- 4326
+  site_df <- 
+    sf::st_transform(site_df, 
+                     crs="+proj=utm +zone=9 +datum=NAD83 +unit=m") %>% 
+    dplyr::mutate(
+      X = data.frame(sf::st_coordinates(.))$X,
+      Y = data.frame(sf::st_coordinates(.))$Y
+    ) 
+  
+  temp_plot <- ggplot2::ggplot() +
+    coord_sf(
+      datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") +
+    geom_sf(data = large_land, fill = "white", colour = "grey70") +
+    #geom_sf(data = utm_land_data_large, fill = "grey70") +
+    geom_point(data = site_df, aes(x = X, y = Y)) +
+    ggrepel::geom_text_repel(data = site_df,
+                             aes(x = X, y = Y,label = site_num),
+                             max.overlaps = 50, 
+                             size = 2) +
+    theme_base() +
+    coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
+             expand = FALSE) +
+    theme(
+      plot.background = element_rect(fill = "white"),
+      axis.text.x = element_text(angle = 90)
+    ) +
+    labs(
+      x = "Longitude", y = "Latitude"
+    )
+  return(temp_plot)
+>>>>>>> a638f0e22f5082bbaca7e27d8a503501b461d332
+}
+

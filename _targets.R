@@ -24,7 +24,7 @@ source(here::here("./R/05_functions_power_analysis.R"))
 tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2", 
                             "ggthemes", "wesanderson", "lubridate", "janitor",
                             "tibble", "ggrepel", "sp", "glmmTMB", "sf", 
-                            "sfnetworks"))
+                            "sfnetworks", "qs"))
 options(dplyr.summarise.inform = FALSE)
 
 list(
@@ -75,7 +75,7 @@ list(
     format = "file"
   ),
   tar_target(
-    sr_pop_sites,
+    sr_pop_sites_raw,
     here::here("./data/spawner-recruit/raw/conservation_unit_system_site.csv"),
     format = "file"
   ),
@@ -84,20 +84,24 @@ list(
     here::here("./outputs/power-analysis/pink-all-power-analysis-runs.csv"),
     format = "file"
   ),
+  tar_target(
+    exposure_df,
+    here::here("./data/spawner-recruit/clean/exposure-categorization-df.csv"),
+    format = "file"
+  ),
   ## geo-data files ============================================================
   ### nodes to keep ============================================================
-  tar_target(all_nodes_edges_to_keep, 
-             here::here("./outputs/geo-objs/all-edges-nodes-to-keep.rds")),
+  tar_target(all_edges_nodes, 
+            here::here("./outputs/geo-objs/fresh/all-edges-nodes-to-keep.rds")),
   ### networks =================================================================
-  tar_target(all_region_network,
-             here::here("./outputs/geo-objs/all-area-network.rds")),
-  tar_target(west_region_network,
-             here::here("./outputs/geo-objs/west-area-network.rds")),
+  tar_target(network,
+             here::here("./outputs/geo-objs/fresh/network.qs"),
+             format = "file"),
   ### background area ==========================================================
-  tar_target(utm_geo_data, 
-             here::here("./outputs/geo-objs/utm-geo-data.rds")),
-  tar_target(utm_land_data,
-             here::here("./outputs/geo-objs/utm-land-data-for-plot.rds")),
+  # tar_target(utm_geo_data, 
+  #            here::here("./outputs/geo-objs/utm-geo-data.rds")),
+  tar_target(large_land,
+             here::here("./outputs/geo-objs/fresh/large-land-for-plotting.rds")),
   ## data cleaning =============================================================
   tar_target(
     clean_wild_lice_data,
@@ -127,6 +131,13 @@ list(
       here::here(
         "./data/spawner-recruit/clean/"
       )
+    )
+  ),
+  tar_target(
+    clean_wild_pop_location_data,
+    clean_pop_sites(
+      sr_pop_sites = readr::read_csv(sr_pop_sites_raw), 
+      output_path = here::here("./data/spawner-recruit/clean/")
     )
   ),
   tar_target(
@@ -211,6 +222,21 @@ list(
       geo_data = readRDS(geo_spatial),
       output_path = here::here("./figs/maps/"),
       farm_path = here::here("./data/farm-lice/clean/")
+    )
+  ),
+  tar_target(
+    yearly_popn_exposure_maps,
+    make_yearly_popn_maps(
+      sr_pop_data = clean_pink_spawner_recruit_data,
+      sr_pop_sites = clean_wild_pop_location_data,
+      large_land = readRDS(large_land),
+      farm_data = clean_farm_lice_data,
+      farm_locs = clean_farm_locs,
+      network = qs::qread(network),
+      exposure_df = read_csv(tar_read(exposure_df)),
+      all_edges_nodes = readRDS(all_edges_nodes),
+      fig_output = here::here("./figs/maps/yearly-pop-maps/"),
+      data_output = here::here("./data/spawner-recruit/clean/")
     )
   )
   # tar_target(
