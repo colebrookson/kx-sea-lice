@@ -219,22 +219,47 @@ bayes_null_model <- rstanarm::stan_lmer(
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
-  cores = 4
+  cores = 16
 )
+qs::qsave(bayes_null_model, 
+          here("./outputs/model-outputs/bayes-null-model-ob.qs"))
 
-bayes_alt_model <- rstanarm::stan_lmer(
+bayes_alt_model_1 <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_1 + (1|brood_year/area) + 
+    (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  cores = 16
+)
+qs::qsave(bayes_alt_model_1, 
+          here("./outputs/model-outputs/bayes-alt-model-1-ob.qs"))
+
+bayes_alt_model_2 <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_2 + (1|brood_year/area) + 
+    (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  cores = 16
+)
+qs::qsave(bayes_alt_model_2, 
+          here("./outputs/model-outputs/bayes-alt-model-2-ob.qs"))
+
+bayes_alt_model_3 <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty + (1|brood_year/area) + 
     (1|river),
   data = pink_sr,
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
-  cores = 8
+  cores = 16
 )
+qs::qsave(bayes_alt_model_3, 
+          here("./outputs/model-outputs/bayes-alt-model-3-ob.qs"))
 
-bayes_mod <- rstanarm::stan_glmer(survival ~ spawners:river + lice_3:certainty +
-                          (1|brood_year/area) + (1|river),
-                        data = pink_sr)
 # process model results ========================================================
 fixef(alt_mod_3)
 ranef(alt_mod_3)
