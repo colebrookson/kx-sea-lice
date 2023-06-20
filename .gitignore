@@ -3,5 +3,5 @@
 .RData
 .Ruserdata
 /data/farm-lice/
-/data/spawner-recruit/
-/data/wild-lice/
+#/data/spawner-recruit/
+#/data/wild-lice/
