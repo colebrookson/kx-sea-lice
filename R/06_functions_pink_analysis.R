@@ -327,14 +327,25 @@ alt1_shiny <- shinystan::as.shinystan(bayes_alt_model_1)
 alt2_shiny <- shinystan::as.shinystan(bayes_alt_model_2)
 alt3_shiny <- shinystan::as.shinystan(bayes_alt_model_3)
 
-# do a leave one out process
+# calculate the waic for each of the models, then save the objects again
 bayes_null_model$waic <- waic(bayes_null_model,
                 cores = 12)
-bayes_alt_model_1$waic <- loo(bayes_alt_model_1,
+bayes_alt_model_1$waic <- waic(bayes_alt_model_1,
                 cores = 17)
-bayes_alt_model_2$waic <- loo(bayes_alt_model_2,
-                cores = 17)
-bayes_alt_model_3$waic <- loo(bayes_alt_model_3,
-                cores = 17)
+bayes_alt_model_2$waic <- waic(bayes_alt_model_2,
+                cores = 16)
+bayes_alt_model_3$waic <- waic(bayes_alt_model_3,
+                cores = 16)
+
+qs::qsave(bayes_null_model,
+          here("./outputs/model-outputs/bayes-null-model-ob.qs"))
+qs::qsave(bayes_alt_model_1,
+          here("./outputs/model-outputs/bayes-alt-model-1-ob.qs"))
+qs::qsave(bayes_alt_model_2,
+          here("./outputs/model-outputs/bayes-alt-model-2-ob.qs"))
+qs::qsave(bayes_alt_model_3,
+          here("./outputs/model-outputs/bayes-alt-model-3-ob.qs"))
+
+# compare the models 
 
 
