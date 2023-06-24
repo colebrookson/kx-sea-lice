@@ -328,17 +328,13 @@ alt2_shiny <- shinystan::as.shinystan(bayes_alt_model_2)
 alt3_shiny <- shinystan::as.shinystan(bayes_alt_model_3)
 
 # do a leave one out process
-bayes_null_model$loo <- loo(bayes_null_model,
-                k_threshold = 0.9,
-                cores = 16)
-bayes_alt_model_1$loo <- loo(bayes_alt_model_1,
-                k_threshold = 0.9, 
+bayes_null_model$waic <- waic(bayes_null_model,
+                cores = 12)
+bayes_alt_model_1$waic <- loo(bayes_alt_model_1,
                 cores = 17)
-bayes_alt_model_2$loo <- loo(bayes_alt_model_2,
-                k_threshold = 0.9, 
+bayes_alt_model_2$waic <- loo(bayes_alt_model_2,
                 cores = 17)
-bayes_alt_model_3$loo <- loo(bayes_alt_model_3,
-                k_threshold = 0.9,
+bayes_alt_model_3$waic <- loo(bayes_alt_model_3,
                 cores = 17)
 
 
