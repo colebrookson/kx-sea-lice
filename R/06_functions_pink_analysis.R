@@ -268,7 +268,7 @@ bayes_null_model <- rstanarm::stan_lmer(
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
-  cores = 16
+  cores = 8
 )
 qs::qsave(bayes_null_model,
           here("./outputs/model-outputs/bayes-null-model-ob.qs"))
@@ -280,7 +280,7 @@ bayes_alt_model_1 <- rstanarm::stan_lmer(
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
-  cores = 16
+  cores = round(0.8 * parallel::detectCores())
 )
 qs::qsave(bayes_alt_model_1,
           here("./outputs/model-outputs/bayes-alt-model-1-ob.qs"))
@@ -292,7 +292,7 @@ bayes_alt_model_2 <- rstanarm::stan_lmer(
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
-  cores = 16
+  cores = round(0.8 * parallel::detectCores())
 )
 qs::qsave(bayes_alt_model_2,
           here("./outputs/model-outputs/bayes-alt-model-2-ob.qs"))
@@ -304,7 +304,7 @@ bayes_alt_model_3 <- rstanarm::stan_lmer(
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
-  cores = 16
+  cores = round(0.8 * parallel::detectCores())
 )
 qs::qsave(bayes_alt_model_3,
           here("./outputs/model-outputs/bayes-alt-model-3-ob.qs"))
