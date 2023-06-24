@@ -177,7 +177,7 @@ pink_sr <- rbind(pink_sr_pre_2005, pink_sr_2005_onward)
 # get rid of the two observations with recruits = 0
 pink_sr <- pink_sr[which(pink_sr$recruits != 0),]
 
-# fit the models ===============================================================
+# frequentist approach =========================================================
 
 # see if the data can be sub-set
 # pink_sr_river_counts = pink_sr %>% 
@@ -190,7 +190,7 @@ pink_sr <- pink_sr[which(pink_sr$recruits != 0),]
 #     by = "river"
 #   )
 
-## frequentist model fits ======================================================
+## model fits ==================================================================
 
 freq_null_model <- lme4::lmer(survival ~ spawners:river + (1|brood_year/area),
                          data = pink_sr)
@@ -209,57 +209,8 @@ freq_alt_mod_4 <- lme4::lmer(survival ~ spawners:river + lice_1 +
                                     data = pink_sr)
 
 all_fit <- allFit(freq_alt_mod_4, maxfun = 1e05)
-## test model with BRMS ========================================================
 
-bayes_null_model <- rstanarm::stan_lmer(
-  survival ~ spawners:river + (1|brood_year/area) + 
-    (con_unit/brood_year) + (1|river),
-  data = pink_sr,
-  #family = gaussian(link = "identity"),
-  #prior = normal(0, 5),
-  chains = 4,
-  cores = 16
-)
-qs::qsave(bayes_null_model, 
-          here("./outputs/model-outputs/bayes-null-model-ob.qs"))
-
-bayes_alt_model_1 <- rstanarm::stan_lmer(
-  survival ~ spawners:river + lice_1 + (1|brood_year/area) + 
-    (1|river),
-  data = pink_sr,
-  #family = gaussian(link = "identity"),
-  #prior = normal(0, 5),
-  chains = 4,
-  cores = 16
-)
-qs::qsave(bayes_alt_model_1, 
-          here("./outputs/model-outputs/bayes-alt-model-1-ob.qs"))
-
-bayes_alt_model_2 <- rstanarm::stan_lmer(
-  survival ~ spawners:river + lice_2 + (1|brood_year/area) + 
-    (1|river),
-  data = pink_sr,
-  #family = gaussian(link = "identity"),
-  #prior = normal(0, 5),
-  chains = 4,
-  cores = 16
-)
-qs::qsave(bayes_alt_model_2, 
-          here("./outputs/model-outputs/bayes-alt-model-2-ob.qs"))
-
-bayes_alt_model_3 <- rstanarm::stan_lmer(
-  survival ~ spawners:river + lice_3:certainty + (1|brood_year/area) + 
-    (1|river),
-  data = pink_sr,
-  #family = gaussian(link = "identity"),
-  #prior = normal(0, 5),
-  chains = 4,
-  cores = 16
-)
-qs::qsave(bayes_alt_model_3, 
-          here("./outputs/model-outputs/bayes-alt-model-3-ob.qs"))
-
-# process model results ========================================================
+## process model results =======================================================
 fixef(alt_mod_3)
 ranef(alt_mod_3)
 
@@ -285,7 +236,7 @@ c_df <- data.frame(
   c = c(-0.354,-0.354,-0.495,-0.5078),
   std_err = c(0.147, 0.155, 0.155, 0.155),
   model = c("model 1", "model 2", "model 3 - exp.", "model 3 - pot.")
-  ) %>% 
+) %>% 
   dplyr::mutate(
     up = c + (1.96*std_err),
     lo = c - (1.96*std_err)
@@ -299,9 +250,95 @@ ggplot(data = c_df) +
   geom_hline(aes(yintercept = 0), colour = "grey80", linetype = "dashed") +
   theme_base()
 
-# plot observations in each category ===========================================
+## plot observations in each category ==========================================
 ggplot(data = exposure_df) + 
   geom_histogram(aes(x = exposure), stat = "count",
                  colour = "black", fill = c("yellow3", "green4", "red3")) + 
   theme_base() + 
   labs(y = "No. of Obs in Each Category")
+
+# bayesian approach ============================================================
+
+## model fitting ===============================================================
+# 
+# bayes_null_model <- rstanarm::stan_lmer(
+#   survival ~ spawners:river + (1|brood_year/area) + 
+#     (con_unit/brood_year) + (1|river),
+#   data = pink_sr,
+#   #family = gaussian(link = "identity"),
+#   #prior = normal(0, 5),
+#   chains = 4,
+#   cores = 16
+# )
+# qs::qsave(bayes_null_model, 
+#           here("./outputs/model-outputs/bayes-null-model-ob.qs"))
+# 
+# bayes_alt_model_1 <- rstanarm::stan_lmer(
+#   survival ~ spawners:river + lice_1 + (1|brood_year/area) + 
+#     (1|river),
+#   data = pink_sr,
+#   #family = gaussian(link = "identity"),
+#   #prior = normal(0, 5),
+#   chains = 4,
+#   cores = 16
+# )
+# qs::qsave(bayes_alt_model_1, 
+#           here("./outputs/model-outputs/bayes-alt-model-1-ob.qs"))
+# 
+# bayes_alt_model_2 <- rstanarm::stan_lmer(
+#   survival ~ spawners:river + lice_2 + (1|brood_year/area) + 
+#     (1|river),
+#   data = pink_sr,
+#   #family = gaussian(link = "identity"),
+#   #prior = normal(0, 5),
+#   chains = 4,
+#   cores = 16
+# )
+# qs::qsave(bayes_alt_model_2, 
+#           here("./outputs/model-outputs/bayes-alt-model-2-ob.qs"))
+# 
+# bayes_alt_model_3 <- rstanarm::stan_lmer(
+#   survival ~ spawners:river + lice_3:certainty + (1|brood_year/area) + 
+#     (1|river),
+#   data = pink_sr,
+#   #family = gaussian(link = "identity"),
+#   #prior = normal(0, 5),
+#   chains = 4,
+#   cores = 16
+# )
+# qs::qsave(bayes_alt_model_3, 
+#           here("./outputs/model-outputs/bayes-alt-model-3-ob.qs"))
+
+## Model selection =============================================================
+
+bayes_null_model <- qs::qread(
+  here("./outputs/model-outputs/bayes-null-model-ob.qs"))
+bayes_alt_model_1 <- qs::qread(
+  here("./outputs/model-outputs/bayes-alt-model-1-ob.qs"))
+bayes_alt_model_2 <- qs::qread(
+  here("./outputs/model-outputs/bayes-alt-model-2-ob.qs"))
+bayes_alt_model_3 <- qs::qread(
+  here("./outputs/model-outputs/bayes-alt-model-3-ob.qs"))
+
+launch_shinystan(bayes_null_model, ppd = FALSE)
+
+null_shiny <- shinystan::as.shinystan(bayes_null_model)
+alt1_shiny <- shinystan::as.shinystan(bayes_alt_model_1)
+alt2_shiny <- shinystan::as.shinystan(bayes_alt_model_2)
+alt3_shiny <- shinystan::as.shinystan(bayes_alt_model_3)
+
+# do a leave one out process
+bayes_null_model$loo <- loo(bayes_null_model,
+                k_threshold = 0.9,
+                cores = 16)
+bayes_alt_model_1$loo <- loo(bayes_alt_model_1,
+                k_threshold = 0.9, 
+                cores = 17)
+bayes_alt_model_2$loo <- loo(bayes_alt_model_2,
+                k_threshold = 0.9, 
+                cores = 17)
+bayes_alt_model_3$loo <- loo(bayes_alt_model_3,
+                k_threshold = 0.9,
+                cores = 17)
+
+
