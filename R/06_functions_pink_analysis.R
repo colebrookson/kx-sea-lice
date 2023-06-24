@@ -189,125 +189,125 @@ pink_sr <- pink_sr[which(pink_sr$recruits != 0),]
 #     y = pink_sr_river_counts,
 #     by = "river"
 #   )
-
-## model fits ==================================================================
-
-freq_null_model <- lme4::lmer(survival ~ spawners:river + (1|brood_year/area),
-                         data = pink_sr)
-freq_alt_mod_1 <- lme4::lmer(survival ~ spawners:river + lice_1 +
-                        (1|brood_year/area),
-                      data = pink_sr)
-freq_alt_mod_2 <- lme4::lmer(survival ~ spawners:river + lice_2 +
-                          (1|brood_year/area),
-                        data = pink_sr)
-freq_alt_mod_3 <- lme4::lmer(survival ~ spawners:river + lice_3:certainty +
-                          (1|brood_year/area),
-                        data = pink_sr)
-
-freq_alt_mod_4 <- lme4::lmer(survival ~ spawners:river + lice_1 +
-                                      (1|brood_year/area) + (1|river),
-                                    data = pink_sr)
-
-all_fit <- allFit(freq_alt_mod_4, maxfun = 1e05)
-
-## process model results =======================================================
-fixef(alt_mod_3)
-ranef(alt_mod_3)
-
-AIC(null_model, alt_mod_1, alt_mod_2, alt_mod_3, alt_mod_4)
-summary(alt_mod_1)
-summary(alt_mod_2)
-summary(alt_mod_3)
-summary(alt_mod_4)
--0.354 == -3.540e-01
-
-coefs_1 <- broom.mixed::tidy(alt_mod_1)
-coefs_2 <- broom.mixed::tidy(alt_mod_2)
-coefs_3 <- broom.mixed::tidy(alt_mod_3)
-coefs_1 %>% 
-  dplyr::filter(term == "lice_1")
-coefs_2 %>% 
-  dplyr::filter(term == "lice_2")
-coefs_3 %>% 
-  dplyr::filter(term %in% c("lice_3:certaintycertain", 
-                            "lice_3:certaintyuncertain"))
-
-c_df <- data.frame(
-  c = c(-0.354,-0.354,-0.495,-0.5078),
-  std_err = c(0.147, 0.155, 0.155, 0.155),
-  model = c("model 1", "model 2", "model 3 - exp.", "model 3 - pot.")
-) %>% 
-  dplyr::mutate(
-    up = c + (1.96*std_err),
-    lo = c - (1.96*std_err)
-  )
-
-ggplot(data = c_df) + 
-  geom_errorbar(aes(x = model, ymin = lo, ymax = up),
-                width = 0) + 
-  geom_point(aes(x = model, y = c, fill = model), 
-             colour = "black", shape = 21, size = 3) + 
-  geom_hline(aes(yintercept = 0), colour = "grey80", linetype = "dashed") +
-  theme_base()
-
-## plot observations in each category ==========================================
-ggplot(data = exposure_df) + 
-  geom_histogram(aes(x = exposure), stat = "count",
-                 colour = "black", fill = c("yellow3", "green4", "red3")) + 
-  theme_base() + 
-  labs(y = "No. of Obs in Each Category")
+# 
+# ## model fits ==================================================================
+# 
+# freq_null_model <- lme4::lmer(survival ~ spawners:river + (1|brood_year/area),
+#                          data = pink_sr)
+# freq_alt_mod_1 <- lme4::lmer(survival ~ spawners:river + lice_1 +
+#                         (1|brood_year/area),
+#                       data = pink_sr)
+# freq_alt_mod_2 <- lme4::lmer(survival ~ spawners:river + lice_2 +
+#                           (1|brood_year/area),
+#                         data = pink_sr)
+# freq_alt_mod_3 <- lme4::lmer(survival ~ spawners:river + lice_3:certainty +
+#                           (1|brood_year/area),
+#                         data = pink_sr)
+# 
+# freq_alt_mod_4 <- lme4::lmer(survival ~ spawners:river + lice_1 +
+#                                       (1|brood_year/area) + (1|river),
+#                                     data = pink_sr)
+# 
+# all_fit <- allFit(freq_alt_mod_4, maxfun = 1e05)
+# 
+# ## process model results =======================================================
+# fixef(alt_mod_3)
+# ranef(alt_mod_3)
+# 
+# AIC(null_model, alt_mod_1, alt_mod_2, alt_mod_3, alt_mod_4)
+# summary(alt_mod_1)
+# summary(alt_mod_2)
+# summary(alt_mod_3)
+# summary(alt_mod_4)
+# -0.354 == -3.540e-01
+# 
+# coefs_1 <- broom.mixed::tidy(alt_mod_1)
+# coefs_2 <- broom.mixed::tidy(alt_mod_2)
+# coefs_3 <- broom.mixed::tidy(alt_mod_3)
+# coefs_1 %>% 
+#   dplyr::filter(term == "lice_1")
+# coefs_2 %>% 
+#   dplyr::filter(term == "lice_2")
+# coefs_3 %>% 
+#   dplyr::filter(term %in% c("lice_3:certaintycertain", 
+#                             "lice_3:certaintyuncertain"))
+# 
+# c_df <- data.frame(
+#   c = c(-0.354,-0.354,-0.495,-0.5078),
+#   std_err = c(0.147, 0.155, 0.155, 0.155),
+#   model = c("model 1", "model 2", "model 3 - exp.", "model 3 - pot.")
+# ) %>% 
+#   dplyr::mutate(
+#     up = c + (1.96*std_err),
+#     lo = c - (1.96*std_err)
+#   )
+# 
+# ggplot(data = c_df) + 
+#   geom_errorbar(aes(x = model, ymin = lo, ymax = up),
+#                 width = 0) + 
+#   geom_point(aes(x = model, y = c, fill = model), 
+#              colour = "black", shape = 21, size = 3) + 
+#   geom_hline(aes(yintercept = 0), colour = "grey80", linetype = "dashed") +
+#   theme_base()
+# 
+# ## plot observations in each category ==========================================
+# ggplot(data = exposure_df) + 
+#   geom_histogram(aes(x = exposure), stat = "count",
+#                  colour = "black", fill = c("yellow3", "green4", "red3")) + 
+#   theme_base() + 
+#   labs(y = "No. of Obs in Each Category")
 
 # bayesian approach ============================================================
 
 ## model fitting ===============================================================
 # 
-# bayes_null_model <- rstanarm::stan_lmer(
-#   survival ~ spawners:river + (1|brood_year/area) + 
-#     (con_unit/brood_year) + (1|river),
-#   data = pink_sr,
-#   #family = gaussian(link = "identity"),
-#   #prior = normal(0, 5),
-#   chains = 4,
-#   cores = 16
-# )
-# qs::qsave(bayes_null_model, 
-#           here("./outputs/model-outputs/bayes-null-model-ob.qs"))
-# 
-# bayes_alt_model_1 <- rstanarm::stan_lmer(
-#   survival ~ spawners:river + lice_1 + (1|brood_year/area) + 
-#     (1|river),
-#   data = pink_sr,
-#   #family = gaussian(link = "identity"),
-#   #prior = normal(0, 5),
-#   chains = 4,
-#   cores = 16
-# )
-# qs::qsave(bayes_alt_model_1, 
-#           here("./outputs/model-outputs/bayes-alt-model-1-ob.qs"))
-# 
-# bayes_alt_model_2 <- rstanarm::stan_lmer(
-#   survival ~ spawners:river + lice_2 + (1|brood_year/area) + 
-#     (1|river),
-#   data = pink_sr,
-#   #family = gaussian(link = "identity"),
-#   #prior = normal(0, 5),
-#   chains = 4,
-#   cores = 16
-# )
-# qs::qsave(bayes_alt_model_2, 
-#           here("./outputs/model-outputs/bayes-alt-model-2-ob.qs"))
-# 
-# bayes_alt_model_3 <- rstanarm::stan_lmer(
-#   survival ~ spawners:river + lice_3:certainty + (1|brood_year/area) + 
-#     (1|river),
-#   data = pink_sr,
-#   #family = gaussian(link = "identity"),
-#   #prior = normal(0, 5),
-#   chains = 4,
-#   cores = 16
-# )
-# qs::qsave(bayes_alt_model_3, 
-#           here("./outputs/model-outputs/bayes-alt-model-3-ob.qs"))
+bayes_null_model <- rstanarm::stan_lmer(
+  survival ~ spawners:river + (1|brood_year/area) +
+    (1|con_unit/brood_year) + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  cores = 16
+)
+qs::qsave(bayes_null_model,
+          here("./outputs/model-outputs/bayes-null-model-ob.qs"))
+
+bayes_alt_model_1 <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_1 + (1|brood_year/area) +
+    (1|con_unit/brood_year) + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  cores = 16
+)
+qs::qsave(bayes_alt_model_1,
+          here("./outputs/model-outputs/bayes-alt-model-1-ob.qs"))
+
+bayes_alt_model_2 <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_2 + (1|brood_year/area) +
+    (1|con_unit/brood_year) + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  cores = 16
+)
+qs::qsave(bayes_alt_model_2,
+          here("./outputs/model-outputs/bayes-alt-model-2-ob.qs"))
+
+bayes_alt_model_3 <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_3:certainty + (1|brood_year/area) +
+    (1|con_unit/brood_year) + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  cores = 16
+)
+qs::qsave(bayes_alt_model_3,
+          here("./outputs/model-outputs/bayes-alt-model-3-ob.qs"))
 
 ## Model selection =============================================================
 
@@ -320,7 +320,7 @@ bayes_alt_model_2 <- qs::qread(
 bayes_alt_model_3 <- qs::qread(
   here("./outputs/model-outputs/bayes-alt-model-3-ob.qs"))
 
-launch_shinystan(bayes_null_model, ppd = FALSE)
+#launch_shinystan(bayes_null_model, ppd = FALSE)
 
 null_shiny <- shinystan::as.shinystan(bayes_null_model)
 alt1_shiny <- shinystan::as.shinystan(bayes_alt_model_1)
