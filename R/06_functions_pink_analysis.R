@@ -8,6 +8,7 @@ library(lubridate)
 library(glmmTMB)
 library(stringr)
 library(rstanarm)
+library(bayesplot)
 
 
 farm_lice <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
@@ -268,7 +269,7 @@ bayes_null_model <- rstanarm::stan_lmer(
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
-  cores = 8
+  cores = round(0.8 * parallel::detectCores())
 )
 qs::qsave(bayes_null_model,
           here("./outputs/model-outputs/bayes-null-model-ob.qs"))
@@ -321,6 +322,7 @@ bayes_alt_model_3 <- qs::qread(
   here("./outputs/model-outputs/bayes-alt-model-3-ob.qs"))
 
 #launch_shinystan(bayes_null_model, ppd = FALSE)
+launch_shinystan(bayes_alt_model_3, ppd = FALSE)
 
 null_shiny <- shinystan::as.shinystan(bayes_null_model)
 alt1_shiny <- shinystan::as.shinystan(bayes_alt_model_1)
@@ -346,6 +348,28 @@ qs::qsave(bayes_alt_model_2,
 qs::qsave(bayes_alt_model_3,
           here("./outputs/model-outputs/bayes-alt-model-3-ob.qs"))
 
-# compare the models 
+## compare the models ==========================================================
 
+## plot the results ============================================================
+bayesplot::color_scheme_set("purple")
+pairs(bayes_alt_model_3, 
+      pars = c("(Intercept)", "log-posterior", "lice_3:certaintycertain", 
+               "sigma", "lice_3:certaintyuncertain"))
 
+# trying to look at the divergent transitions 
+draws <- as.array(bayes_alt_model_3, 
+                  pars = c("(Intercept)", "lice_3:certaintycertain",
+                           "lice_3:certaintyuncertain", "sigma"))
+np <- bayesplot::nuts_params(bayes_alt_model_3)
+bayesplot::color_scheme_set("darkgray")
+div_style <- bayesplot::parcoord_style_np(div_color = "green", 
+                               div_size = 0.05, div_alpha = 0.4)
+
+bayesplot::mcmc_parcoord(
+  draws,
+  transform = function(x) {(x - mean(x)) / sd(x)},
+  size = 0.25,
+  alpha = 0.1,
+  np = np,
+  np_style = div_style
+)
