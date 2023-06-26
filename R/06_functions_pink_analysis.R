@@ -305,8 +305,8 @@ bayes_alt_model_3 <- rstanarm::stan_lmer(
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
-  adapt_delta = 0.99,
-  control = list(max_treedepth = 20),
+  adapt_delta = 0.999,
+  control = list(max_treedepth = 25),
   cores = round(0.8 * parallel::detectCores())
 )
 qs::qsave(bayes_alt_model_3,
