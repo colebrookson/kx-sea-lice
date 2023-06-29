@@ -269,6 +269,8 @@ bayes_null_model <- rstanarm::stan_lmer(
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
+  adapt_delta = 0.999,
+  control = list(max_treedepth = 25),
   cores = round(0.8 * parallel::detectCores())
 )
 qs::qsave(bayes_null_model,
@@ -281,6 +283,8 @@ bayes_alt_model_1 <- rstanarm::stan_lmer(
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
+  adapt_delta = 0.999,
+  control = list(max_treedepth = 25),
   cores = round(0.8 * parallel::detectCores())
 )
 qs::qsave(bayes_alt_model_1,
@@ -293,6 +297,8 @@ bayes_alt_model_2 <- rstanarm::stan_lmer(
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
+  adapt_delta = 0.999,
+  control = list(max_treedepth = 25),
   cores = round(0.8 * parallel::detectCores())
 )
 qs::qsave(bayes_alt_model_2,
@@ -375,3 +381,40 @@ bayesplot::mcmc_parcoord(
   np = np,
   np_style = div_style
 )
+
+### plot of the important parameters ===========================================
+posterior <- as.matrix(bayes_alt_model_3)
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 90% intervals")
+bayesplot::mcmc_areas(
+  posterior,
+  pars = c("(Intercept)", "lice_3:certaintycertain", 
+           "lice_3:certaintyuncertain"),
+  prob = 0.9
+  ) + 
+  plot_title + 
+  scale_y_discrete(labels = c("Growth Rate", "Certain Lice", "Uncertain Lice"))
+
+### posterior predict ==========================================================
+color_scheme_set("red")
+bayesplot::ppc_dens_overlay(
+  y = bayes_alt_model_3$y,
+  yrep = posterior_predict(bayes_alt_model_3, draws = 500)
+)
+
+### Trace plots ================================================================
+color_scheme_set("viridis")
+dimnames(bayes_alt_model_3)
+bayesplot::mcmc_trace(
+  bayes_alt_model_3, 
+  pars = c("(Intercept)", "lice_3:certaintycertain",
+           "lice_3:certaintyuncertain"))
+
+### extract statistics =========================================================
+fit_summary <- summary(bayes_alt_model_3)
+names(fit_summary)
+plot(bayes_alt_model_3, "rhat_hist")
+bayesplot::color_scheme_set("red")
+plot(bayes_alt_model_3, "neff_hist")
+bayesplot::color_scheme_set("purple")
+plot(bayes_alt_model_3, "neff_hist")
