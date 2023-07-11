@@ -329,8 +329,8 @@ qs::qsave(bayes_alt_model_con_unit_no_area,
 bayes_alt_model_all_re <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty  
   + (1|area_year)
+  + (1|brood_year)
   + (1+con_unit||brood_year) 
-  + (1|brood_year) 
   + (1|river),
   data = pink_sr,
   #family = gaussian(link = "identity"),
