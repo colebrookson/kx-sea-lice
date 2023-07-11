@@ -319,7 +319,7 @@ bayes_alt_model_con_unit_no_area <- rstanarm::stan_lmer(
   chains = 4,
   adapt_delta = 0.999,
   control = list(max_treedepth = 25),
-  cores = ,
+  cores = 4,
   iter = 2000
 )
 qs::qsave(bayes_alt_model_con_unit_no_area,
@@ -328,9 +328,9 @@ qs::qsave(bayes_alt_model_con_unit_no_area,
 
 bayes_alt_model_all_re <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty  
-  + (1|area_year)
-  + (1|brood_year)
-  + (1+con_unit||brood_year) 
+  #+ (1|area_year)
+  + (0+con_unit|brood_year) 
+  + (1|brood_year) 
   + (1|river),
   data = pink_sr,
   #family = gaussian(link = "identity"),
@@ -338,7 +338,7 @@ bayes_alt_model_all_re <- rstanarm::stan_lmer(
   chains = 4,
   adapt_delta = 0.9999,
   control = list(max_treedepth = 35),
-  cores = 4,
+  cores = round(0.9 * parallel::detectCores()),
   iter = 5000
 )
 qs::qsave(bayes_alt_model_all_re,
