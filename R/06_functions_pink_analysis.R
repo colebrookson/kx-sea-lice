@@ -283,8 +283,8 @@ bayes_alt_model_old <- rstanarm::stan_lmer(
   chains = 4,
   #adapt_delta = 0.999,
   #control = list(max_treedepth = 25),
-  cores = round(0.8 * parallel::detectCores()),
-  iter = 500
+  cores = 4,
+  iter = 2000
 )
 qs::qsave(bayes_alt_model_old,
           here("./outputs/model-outputs/bayes-alt-model-old-ob.qs"))
@@ -301,16 +301,16 @@ bayes_alt_model_river <- rstanarm::stan_lmer(
   chains = 4,
   adapt_delta = 0.999,
   control = list(max_treedepth = 25),
-  cores = round(0.8 * parallel::detectCores()),
+  cores = 4,
   iter = 500
 )
 qs::qsave(bayes_alt_model_river,
           here("./outputs/model-outputs/bayes-alt-model-river-ob.qs"))
 
-bayes_alt_model_con_unit_no_river <- rstanarm::stan_lmer(
+bayes_alt_model_con_unit_no_area <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty  
-  #+ (1|brood_year/area),
-  + (0+con_unit|brood_year) 
+  + (1|brood_year)
+  + (1+con_unit||brood_year) 
   #+ (1|brood_year) 
   + (1|river),
   data = pink_sr,
@@ -319,17 +319,17 @@ bayes_alt_model_con_unit_no_river <- rstanarm::stan_lmer(
   chains = 4,
   adapt_delta = 0.999,
   control = list(max_treedepth = 25),
-  cores = round(0.8 * parallel::detectCores()),
-  iter = 500
+  cores = ,
+  iter = 2000
 )
-qs::qsave(bayes_alt_model_con_unit_no_river,
-          here("./outputs/model-outputs/bayes-alt-model-con-unit-ob.qs"))
+qs::qsave(bayes_alt_model_con_unit_no_area,
+          here("./outputs/model-outputs/bayes-alt-model-con-unit-no-area-ob.qs"))
 
 
 bayes_alt_model_all_re <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty  
-  #+ (1|area_year)
-  + (0+con_unit|brood_year) 
+  + (1|area_year)
+  + (1+con_unit||brood_year) 
   + (1|brood_year) 
   + (1|river),
   data = pink_sr,
@@ -338,7 +338,7 @@ bayes_alt_model_all_re <- rstanarm::stan_lmer(
   chains = 4,
   adapt_delta = 0.9999,
   control = list(max_treedepth = 35),
-  cores = round(0.9 * parallel::detectCores()),
+  cores = 4,
   iter = 5000
 )
 qs::qsave(bayes_alt_model_all_re,
