@@ -178,6 +178,16 @@ pink_sr <- rbind(pink_sr_pre_2005, pink_sr_2005_onward)
 # get rid of the two observations with recruits = 0
 pink_sr <- pink_sr[which(pink_sr$recruits != 0),]
 
+# make a separate factor that accounts for brood year and area 
+pink_sr$area_year <- as.factor(paste(pink_sr$brood_year,
+                                     pink_sr$area, sep = "_"))
+
+# make sure all RE's are factors
+pink_sr$brood_year <- as.factor(pink_sr$brood_year)
+pink_sr$area <- as.factor(pink_sr$area)
+pink_sr$con_unit <- as.factor(pink_sr$con_unit)
+pink_sr$river <- as.factor(pink_sr$river)
+
 # frequentist approach =========================================================
 
 # see if the data can be sub-set
@@ -260,11 +270,88 @@ pink_sr <- pink_sr[which(pink_sr$recruits != 0),]
 
 # bayesian approach ============================================================
 
+## trouble shooting ============================================================
+bayes_alt_model_old <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_3:certainty  
+  + (1|brood_year/area),
+  #+ (0+con_unit|brood_year) 
+  #+ (1|brood_year) 
+  #+ (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  #adapt_delta = 0.999,
+  #control = list(max_treedepth = 25),
+  cores = round(0.8 * parallel::detectCores()),
+  iter = 500
+)
+qs::qsave(bayes_alt_model_old,
+          here("./outputs/model-outputs/bayes-alt-model-old-ob.qs"))
+
+bayes_alt_model_river <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_3:certainty  
+  + (1|brood_year/area),
+  #+ (0+con_unit|brood_year) 
+  #+ (1|brood_year) 
+  + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.999,
+  control = list(max_treedepth = 25),
+  cores = round(0.8 * parallel::detectCores()),
+  iter = 500
+)
+qs::qsave(bayes_alt_model_river,
+          here("./outputs/model-outputs/bayes-alt-model-river-ob.qs"))
+
+bayes_alt_model_con_unit_no_river <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_3:certainty  
+  #+ (1|brood_year/area),
+  + (0+con_unit|brood_year) 
+  #+ (1|brood_year) 
+  + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.999,
+  control = list(max_treedepth = 25),
+  cores = round(0.8 * parallel::detectCores()),
+  iter = 500
+)
+qs::qsave(bayes_alt_model_con_unit_no_river,
+          here("./outputs/model-outputs/bayes-alt-model-con-unit-ob.qs"))
+
+
+bayes_alt_model_all_re <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_3:certainty  
+  #+ (1|area_year)
+  + (0+con_unit|brood_year) 
+  + (1|brood_year) 
+  + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.9999,
+  control = list(max_treedepth = 35),
+  cores = round(0.9 * parallel::detectCores()),
+  iter = 5000
+)
+qs::qsave(bayes_alt_model_all_re,
+          here("./outputs/model-outputs/bayes-alt-model-all-re-ob.qs"))
+
+
 ## model fitting ===============================================================
 # 
 bayes_null_model <- rstanarm::stan_lmer(
-  survival ~ spawners:river + (1|brood_year/area) +
-    (1|con_unit/brood_year) + (1|river),
+  survival ~ spawners:river 
+  + (0+con_unit|brood_year) 
+  + (1|brood_year) 
+  + (1|river),
   data = pink_sr,
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
@@ -277,8 +364,10 @@ qs::qsave(bayes_null_model,
           here("./outputs/model-outputs/bayes-null-model-ob.qs"))
 
 bayes_alt_model_1 <- rstanarm::stan_lmer(
-  survival ~ spawners:river + lice_1 + (1|brood_year/area) +
-    (1|con_unit/brood_year) + (1|river),
+  survival ~ spawners:river + lice_1 
+  + (0+con_unit|brood_year) 
+  + (1|brood_year) 
+  + (1|river),
   data = pink_sr,
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
@@ -291,8 +380,10 @@ qs::qsave(bayes_alt_model_1,
           here("./outputs/model-outputs/bayes-alt-model-1-ob.qs"))
 
 bayes_alt_model_2 <- rstanarm::stan_lmer(
-  survival ~ spawners:river + lice_2 + (1|brood_year/area) +
-    (1|con_unit/brood_year) + (1|river),
+  survival ~ spawners:river + lice_2  
+  + (0+con_unit|brood_year) 
+  + (1|brood_year) 
+  + (1|river),
   data = pink_sr,
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
@@ -305,8 +396,11 @@ qs::qsave(bayes_alt_model_2,
           here("./outputs/model-outputs/bayes-alt-model-2-ob.qs"))
 
 bayes_alt_model_3 <- rstanarm::stan_lmer(
-  survival ~ spawners:river + lice_3:certainty + (1|brood_year/area) +
-    (1|con_unit/brood_year) + (1|river),
+  survival ~ spawners:river + lice_3:certainty  
+  #+ (1|area_year)
+  + (0+con_unit|brood_year) 
+  + (1|brood_year) 
+  + (1|river),
   data = pink_sr,
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
@@ -357,6 +451,12 @@ qs::qsave(bayes_alt_model_3,
           here("./outputs/model-outputs/bayes-alt-model-3-ob.qs"))
 
 ## compare the models ==========================================================
+rstanarm::loo_compare(
+  bayes_null_model, bayes_alt_model_1, bayes_alt_model_2,
+  bayes_alt_model_3,
+  criterion = "waic"
+)
+
 
 ## plot the results ============================================================
 bayesplot::color_scheme_set("purple")
@@ -371,7 +471,7 @@ draws <- as.array(bayes_alt_model_3,
 np <- bayesplot::nuts_params(bayes_alt_model_3)
 bayesplot::color_scheme_set("darkgray")
 div_style <- bayesplot::parcoord_style_np(div_color = "green", 
-                               div_size = 0.05, div_alpha = 0.4)
+                                          div_size = 0.05, div_alpha = 0.4)
 
 bayesplot::mcmc_parcoord(
   draws,
@@ -391,7 +491,7 @@ bayesplot::mcmc_areas(
   pars = c("(Intercept)", "lice_3:certaintycertain", 
            "lice_3:certaintyuncertain"),
   prob = 0.9
-  ) + 
+) + 
   plot_title + 
   scale_y_discrete(labels = c("Growth Rate", "Certain Lice", "Uncertain Lice"))
 
