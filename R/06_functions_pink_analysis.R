@@ -270,6 +270,29 @@ pink_sr$river <- as.factor(pink_sr$river)
 
 # bayesian approach ============================================================
 
+test_1 <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_3:certainty  + (1|brood_year/area) + 
+    (1+con_unit||brood_year) + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.999,
+  control = list(max_treedepth = 25),
+  cores = 4
+)
+test_2 <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_3:certainty  + (1|area_year) + (1|area) + 
+    (1+con_unit|brood_year)  + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.999,
+  control = list(max_treedepth = 25),
+  cores = 4
+)
+
 ## trouble shooting ============================================================
 bayes_alt_model_old <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty  
