@@ -270,28 +270,203 @@ pink_sr$river <- as.factor(pink_sr$river)
 
 # bayesian approach ============================================================
 
-test_1 <- rstanarm::stan_lmer(
+## just brood year and area ====================================================
+start_time <- Sys.time()
+by_area_null <- rstanarm::stan_lmer(
+  survival ~ spawners:river + (1|brood_year/area),
+  data = pink_sr,
+  chains = 4,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 4, 
+  iter = 8000
+)
+qs::qsave(by_area_null,
+          here("./outputs/model-outputs/by-area-null.qs"))
+by_area_alt <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_3:certainty + (1|brood_year/area),
+  data = pink_sr,
+  chains = 4,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 4, 
+  iter = 8000
+)
+qs::qsave(by_area_alt,
+          here("./outputs/model-outputs/by-area-alt.qs"))
+end_time <- Sys.time()
+end_time - start_time
+## conservation unit and brood year ============================================
+start_time <- Sys.time() 
+con_by_null <- rstanarm::stan_lmer(
+  survival ~ spawners:river + (1|brood_year) +
+    (-1+con_unit|brood_year),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 4, 
+  iter = 8000
+)
+qs::qsave(con_by_null,
+          here("./outputs/model-outputs/con-by-null.qs"))
+con_by_alt <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_3:certainty  + (1|brood_year) +
+    (-1+con_unit|brood_year),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 4, 
+  iter = 8000
+)
+qs::qsave(con_by_alt,
+          here("./outputs/model-outputs/con-by-alt.qs"))
+end_time <- Sys.time() 
+end_time - start_time
+
+## river and brood year ========================================================
+river_by_null <- rstanarm::stan_lmer(
+  survival ~ spawners:river + (1|river) + (1|brood_year),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 4, 
+  iter = 8000
+)
+qs::qsave(river_by_null,
+          here("./outputs/model-outputs/river-by-null.qs"))
+river_by_alt <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_3:certainty  +(1|river) + (1|brood_year),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 4, 
+  iter = 8000
+)
+qs::qsave(river_by_alt,
+          here("./outputs/model-outputs/river-by-alt.qs"))
+
+## con unit brood year area ====================================================
+by_area_con_by_null <- rstanarm::stan_lmer(
+  survival ~ spawners:river + (1|brood_year/area) +
+    (-1+con_unit|brood_year),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 4, 
+  iter = 8000
+)
+qs::qsave(by_area_con_by_null,
+          here("./outputs/model-outputs/by-area-con-by-null.qs"))
+
+by_area_con_by_alt <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_3:certainty  + (1|brood_year/area) +
+    (-1+con_unit|brood_year),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 4, 
+  iter = 8000
+)
+qs::qsave(by_area_con_by_alt,
+          here("./outputs/model-outputs/by-area-con-by-alt.qs"))
+
+## river brood year area =======================================================
+by_area_river_null <- rstanarm::stan_lmer(
+  survival ~ spawners:river + (1|brood_year/area) + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 4, 
+  iter = 8000
+)
+qs::qsave(by_area_river_null,
+          here("./outputs/model-outputs/by-area-river-null.qs"))
+          
+by_area_river_alt <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty  + (1|brood_year/area) + 
-    (1+con_unit||brood_year) + (1|river),
+    (1|river),
   data = pink_sr,
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
-  adapt_delta = 0.999,
-  control = list(max_treedepth = 25),
-  cores = 4
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 4, 
+  iter = 8000
 )
-test_2 <- rstanarm::stan_lmer(
+qs::qsave(by_area_river_alt,
+          here("./outputs/model-outputs/by-area-river-alt.qs"))
+
+## all re's ====================================================================
+all_re_null <- rstanarm::stan_lmer(
+  survival ~ spawners:river + (1|brood_year/area) + 
+    (-1+con_unit|brood_year) + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 4,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 4, 
+  iter = 8000
+)
+qs::qsave(all_re_null,
+          here("./outputs/model-outputs/all-re-null.qs"))
+
+all_re_alt <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty  + (1|area_year) + (1|area) + 
-    (1+con_unit|brood_year)  + (1|river),
+    (-1+con_unit|brood_year)  + (1|river),
   data = pink_sr,
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
   chains = 4,
-  adapt_delta = 0.999,
-  control = list(max_treedepth = 25),
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
   cores = 4
 )
+qs::qsave(all_re_alt,
+          here("./outputs/model-outputs/all-re-alt.qs"))
+
+fitting_stan_model <- function(formula, data, chains, adapt_delta, 
+                               max_treedepth, cores, output_path, name) {
+  
+  # fit the model
+  mod <- rstanarm::stan_lmer(
+    formula = formula,
+    data = data,
+    chains = chains,
+    adapt_delta = adapt_delta,
+    control = list(max_treedepth = max_treedepth),
+    cores = cores
+  )
+  
+  # save model
+  qs::qsave(
+    mod, 
+    file = paste0(here("./model-outputs/"), name)
+  )
+}
 
 ## trouble shooting ============================================================
 bayes_alt_model_old <- rstanarm::stan_lmer(
