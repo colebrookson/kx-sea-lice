@@ -330,6 +330,7 @@ end_time <- Sys.time()
 end_time - start_time
 
 ## river and brood year ========================================================
+start_time <- Sys.time()
 river_by_null <- rstanarm::stan_lmer(
   survival ~ spawners:river + (1|river) + (1|brood_year),
   data = pink_sr,
@@ -417,8 +418,10 @@ by_area_river_alt <- rstanarm::stan_lmer(
 )
 qs::qsave(by_area_river_alt,
           here("./outputs/model-outputs/by-area-river-alt.qs"))
-
+end_time <- Sys.time() 
+end_time - start_time
 ## all re's ====================================================================
+start_time <- Sys.time()
 all_re_null <- rstanarm::stan_lmer(
   survival ~ spawners:river + (1|brood_year/area) + 
     (-1+con_unit|brood_year) + (1|river),
@@ -448,8 +451,12 @@ all_re_alt <- rstanarm::stan_lmer(
 qs::qsave(all_re_alt,
           here("./outputs/model-outputs/all-re-alt.qs"))
 
+end_time <- Sys.time() 
+end_time - start_time
+
 fitting_stan_model <- function(formula, data, chains, adapt_delta, 
                                max_treedepth, cores, output_path, name) {
+  
   
   # fit the model
   mod <- rstanarm::stan_lmer(
