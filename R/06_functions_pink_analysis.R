@@ -722,3 +722,5 @@ bayesplot::color_scheme_set("red")
 plot(bayes_alt_model_3, "neff_hist")
 bayesplot::color_scheme_set("purple")
 plot(bayes_alt_model_3, "neff_hist")
+
+
