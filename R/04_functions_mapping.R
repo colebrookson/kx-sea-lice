@@ -378,7 +378,6 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
       dplyr::mutate(
         X = data.frame(sf::st_coordinates(.))$X,
         Y = data.frame(sf::st_coordinates(.))$Y
-<<<<<<< HEAD
       ) %>% 
       dplyr::mutate(
         type = as.factor(type),
@@ -392,9 +391,6 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
     curr_nodes <- sapply(curr_edges_nodes, list_reassign, 
                          nodes_edges="nodes") %>% 
       unlist()
-      
-=======
-      ) 
     
     # get the exposure df ready
     exposure_df_temp <- exposure_df %>% 
@@ -418,7 +414,6 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
     curr_nodes <- all_edges_nodes[which(names(all_edges_nodes) %in% 
                                           farm_locs_temp$site)] %>% unlist()
     #print(curr_nodes)
->>>>>>> a638f0e22f5082bbaca7e27d8a503501b461d332
     # make and save the dataframe
     ggplot2::ggsave(
 
@@ -427,7 +422,6 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
 
       # make the plot
       ggplot2::ggplot() +
-<<<<<<< HEAD
         # geom_sf(data = utm_geo_data, fill = "white") +
         geom_sf(data = network %>%
                   activate("nodes") %>%
@@ -446,7 +440,6 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
                                      label = site, fontface = ff, size = fsize),
                                  max.overlaps = 20) + 
         scale_size_manual("", values = c(1.9, 2.5)) + 
-=======
         coord_sf(
           datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m") +
         geom_sf(data = network %>%
@@ -473,27 +466,10 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
           plot.background = element_rect(fill = "white"),
           axis.text.x = element_text(angle = 90)
         ) +
->>>>>>> a638f0e22f5082bbaca7e27d8a503501b461d332
         guides(
           size = "none",
           fill = guide_legend(
             override.aes = list(
-<<<<<<< HEAD
-              size = 3
-            )
-          )
-        ) + 
-        theme_base() +
-        theme(
-          plot.background = element_rect(fill = "white"),
-          axis.text.x = element_text(angle = 90)
-        ) + 
-        labs(
-          x = "Longitude", y = "Latitude"
-        ),
-      
-      # make the size 
-=======
               shape = c(21,21,21,21),
               size = c(3,3,3,3),
               fill = c("red3", "gold2", "green4",
@@ -512,7 +488,6 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
         ),
 
       # make the size
->>>>>>> a638f0e22f5082bbaca7e27d8a503501b461d332
       height = 8, width = 9
     )
     
@@ -523,8 +498,6 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
     site_data_by_year,
     paste0(data_output, "site-name-combos-for-exposed-populations.csv")
   )
-<<<<<<< HEAD
-=======
 }
 
 # plot_given_sites =============================================================
@@ -585,6 +558,5 @@ plot_given_sites <- function(site_nums_missing, yr, site_df, large_land) {
       x = "Longitude", y = "Latitude"
     )
   return(temp_plot)
->>>>>>> a638f0e22f5082bbaca7e27d8a503501b461d332
 }
 

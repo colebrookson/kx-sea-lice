@@ -282,7 +282,7 @@ by_area_null <- rstanarm::stan_lmer(
   iter = 8000
 )
 qs::qsave(by_area_null,
-          here("./outputs/model-outputs/by-area-null.qs"))
+          here("./outputs/model-outputs/pink/by-area-null.qs"))
 by_area_alt <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty + (1|brood_year/area),
   data = pink_sr,
@@ -293,7 +293,7 @@ by_area_alt <- rstanarm::stan_lmer(
   iter = 8000
 )
 qs::qsave(by_area_alt,
-          here("./outputs/model-outputs/by-area-alt.qs"))
+          here("./outputs/model-outputs/pink/by-area-alt.qs"))
 end_time <- Sys.time()
 end_time - start_time
 ## conservation unit and brood year ============================================
@@ -311,7 +311,7 @@ con_by_null <- rstanarm::stan_lmer(
   iter = 8000
 )
 qs::qsave(con_by_null,
-          here("./outputs/model-outputs/con-by-null.qs"))
+          here("./outputs/model-outputs/pink/con-by-null.qs"))
 con_by_alt <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty  + (1|brood_year) +
     (-1+con_unit|brood_year),
@@ -325,7 +325,7 @@ con_by_alt <- rstanarm::stan_lmer(
   iter = 8000
 )
 qs::qsave(con_by_alt,
-          here("./outputs/model-outputs/con-by-alt.qs"))
+          here("./outputs/model-outputs/pink/con-by-alt.qs"))
 end_time <- Sys.time() 
 end_time - start_time
 
@@ -343,7 +343,7 @@ river_by_null <- rstanarm::stan_lmer(
   iter = 8000
 )
 qs::qsave(river_by_null,
-          here("./outputs/model-outputs/river-by-null.qs"))
+          here("./outputs/model-outputs/pink/river-by-null.qs"))
 river_by_alt <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty  +(1|river) + (1|brood_year),
   data = pink_sr,
@@ -356,7 +356,7 @@ river_by_alt <- rstanarm::stan_lmer(
   iter = 8000
 )
 qs::qsave(river_by_alt,
-          here("./outputs/model-outputs/river-by-alt.qs"))
+          here("./outputs/model-outputs/pink/river-by-alt.qs"))
 
 ## con unit brood year area ====================================================
 by_area_con_by_null <- rstanarm::stan_lmer(
@@ -372,7 +372,7 @@ by_area_con_by_null <- rstanarm::stan_lmer(
   iter = 8000
 )
 qs::qsave(by_area_con_by_null,
-          here("./outputs/model-outputs/by-area-con-by-null.qs"))
+          here("./outputs/model-outputs/pink/by-area-con-by-null.qs"))
 
 by_area_con_by_alt <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty  + (1|brood_year/area) +
@@ -387,7 +387,7 @@ by_area_con_by_alt <- rstanarm::stan_lmer(
   iter = 8000
 )
 qs::qsave(by_area_con_by_alt,
-          here("./outputs/model-outputs/by-area-con-by-alt.qs"))
+          here("./outputs/model-outputs/pink/by-area-con-by-alt.qs"))
 
 ## river brood year area =======================================================
 by_area_river_null <- rstanarm::stan_lmer(
@@ -402,7 +402,7 @@ by_area_river_null <- rstanarm::stan_lmer(
   iter = 8000
 )
 qs::qsave(by_area_river_null,
-          here("./outputs/model-outputs/by-area-river-null.qs"))
+          here("./outputs/model-outputs/pink/by-area-river-null.qs"))
           
 by_area_river_alt <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty  + (1|brood_year/area) + 
@@ -417,7 +417,7 @@ by_area_river_alt <- rstanarm::stan_lmer(
   iter = 8000
 )
 qs::qsave(by_area_river_alt,
-          here("./outputs/model-outputs/by-area-river-alt.qs"))
+          here("./outputs/model-outputs/pink/by-area-river-alt.qs"))
 end_time <- Sys.time() 
 end_time - start_time
 ## all re's ====================================================================
@@ -435,7 +435,7 @@ all_re_null <- rstanarm::stan_lmer(
   iter = 8000
 )
 qs::qsave(all_re_null,
-          here("./outputs/model-outputs/all-re-null.qs"))
+          here("./outputs/model-outputs/pink/all-re-null.qs"))
 
 all_re_alt <- rstanarm::stan_lmer(
   survival ~ spawners:river + lice_3:certainty  + (1|area_year) + (1|area) + 
@@ -449,7 +449,7 @@ all_re_alt <- rstanarm::stan_lmer(
   cores = 4
 )
 qs::qsave(all_re_alt,
-          here("./outputs/model-outputs/all-re-alt.qs"))
+          here("./outputs/model-outputs/pink/all-re-alt.qs"))
 
 end_time <- Sys.time() 
 end_time - start_time
