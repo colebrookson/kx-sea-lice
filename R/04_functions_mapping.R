@@ -252,10 +252,200 @@ list_reassign <- function(l, nodes_edges) {
 #' 
 #' }
 
+# make_nonexposure_yearly_maps =================================================
+make_nonexposure_yearly_maps <- function(sr_pop_data, sr_pop_sites, large_land,
+                                         farm_data, farm_locs, network, 
+                                         all_edges_nodes, fig_output, species) {
+  #' Population & farm co-occurence without exposure
+  #' 
+  #' @description Maps of each year's population and farm co-occurrence, but 
+  #' without any of the exposure categorizations, these maps are helpful for 
+  #' making the classifications
+  #' 
+  #' @param sr_pop_data dataframe. The cleaned pink SR data
+  #' @param sr_pop_sites file. Information on all the populations locations
+  #' @param large_land file. The geo-spatial data rds file
+  #' @param farm_data dataframe. Data of the info for the different farms
+  #' @param farm_locs dataframe. The cleaned data of the different 
+  #' locations of the farms
+  #' @param network sfnetwork tibble. The network for the entire region
+  #' @param exposure_df file. Dataframe on the exposure options
+  #' @param all_edges_nodes list. The list of all the lists of edges and nodes
+  #' to be kept to map onto the region
+  #' @param species character. The species of salmon being plotted.
+  #' @param fig_output character. Where to save the figure files
+  #' @param data_output character. Where to save the data files 
+  #'  
+  #' @usage make_yearly_popn_maps(sr_pop_data, sr_pop_sites, geo_data,
+  #' farm_data, clean_farm_locs, output_path)
+  #' @return NA
+  #'
+  
+  # filter the sites to just the ones in our data
+  sr_pop_data_area67 <- sr_pop_data %>% 
+    dplyr::filter(area %in% c(6, 7))
+  
+  # clean the farm data names so they match up between the dataframe
+  farm_data <- farm_data %>% 
+    dplyr::mutate(
+      farm = dplyr::case_when(
+        farm == "Goat" ~ "Goat Cove",
+        farm == "Sheep Pass" ~ "Sheep Passage",
+        farm == "Lime" ~ "Lime Point",
+        farm == "Alexander" ~ "Alexander Inlet",
+        TRUE ~ as.character(farm)
+      )
+    )
+  
+  # this is an empty dataframe to fill in 
+  site_data_by_year <- data.frame(
+    site_name = as.character(),
+    brood_year = as.numeric(),
+    lat = as.numeric(),
+    long = as.numeric(),
+    site_num = as.numeric()
+  )
+  
+  ## set up the farms that we'll need to plot but with sf functions ============
+  farms_sf <- sf::st_as_sf(farm_locs, coords = c("long", "lat"))
+  
+  # set the coordinates for WGS84
+  sf::st_crs(farms_sf) <- 4326 
+  # transform to utm 
+  farms_utm <- sf::st_transform(farms_sf,  
+                                crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
+  
+  for(yr in 2005:2020) {
+    
+    # get the farms in that time period
+    farms_temp <- (farm_data %>% 
+                     dplyr::filter(year == yr) %>% 
+                     dplyr::filter(month %in% c(3, 4)) %>% 
+                     dplyr::group_by(farm) %>% 
+                     dplyr::summarize(inventory = 
+                                        mean(mean_inventory, 
+                                             na.rm = TRUE)))$farm
+    
+    farm_locs_temp <- farm_locs %>% 
+      dplyr::filter(site %in% farms_temp) %>% 
+      dplyr::select(site, lat, long)
+    
+    sr_pop_sites_filter <- sr_pop_sites %>% 
+      dplyr::filter(system_site %in% unique(sr_pop_data_area67$river)) 
+    
+    # get the populations in that year
+    sr_pop_temp <- sr_pop_data_area67 %>% 
+      # brood year of yr will pass fish farms in year + 1
+      dplyr::filter(brood_year == (yr - 1))
+    
+    # subset to just the locations that were shown to be present in that year
+    site_year_temp <- sr_pop_sites_filter %>% 
+      dplyr::filter(system_site %in% unique(sr_pop_temp$river)) %>% 
+      dplyr::select(system_site, y_lat, x_longt, gfe_id, unique_id) %>% 
+      unique() %>% 
+      dplyr::rename(site_name = system_site, lat = y_lat, long = x_longt) %>% 
+      dplyr::mutate(site_num = gfe_id,
+                    brood_year = unique(sr_pop_temp$brood_year)) %>% 
+      dplyr::select(site_name, brood_year, lat, long, site_num)
+    
+    # keep these data in the larger dataframe to refer back to
+    site_data_by_year <- rbind(
+      site_data_by_year,
+      site_year_temp
+    )
+    
+    # put the farm locations and the population locations together
+    locs_temp <- rbind(
+      (farm_locs_temp %>% 
+         dplyr::mutate(type = "farm")),
+      (site_year_temp %>% 
+         dplyr::mutate(type = "population") %>% 
+         dplyr::mutate(type = as.factor(type),
+                       site = as.character(site_num)) %>% 
+         dplyr::select(site, lat, long, type))
+    ) %>%
+      # this is being done to the whole resulting df
+      dplyr::mutate(
+        ff = ifelse(type == "farm", "bold", "plain"),
+        fsize = ifelse(type == "farm", 1.8, 1.5)
+      ) %>% 
+      sf::st_as_sf(., coords = c("long", "lat"))
+    
+    # need to temp make it WGS84
+    sf::st_crs(locs_temp) <- 4326
+    
+    # transform to utm 
+    locs_temp_utm <- sf::st_transform(
+      locs_temp, 
+      crs="+proj=utm +zone=9 +datum=NAD83 +unit=m") %>% 
+      dplyr::mutate(
+        X = data.frame(sf::st_coordinates(.))$X,
+        Y = data.frame(sf::st_coordinates(.))$Y
+      ) %>% 
+      dplyr::mutate(
+        type = as.factor(type),
+        ff = as.factor(ff),
+        fsize = as.factor(fsize)
+      )
+    
+    ## figure out what nodes need to be kept for this year =====================
+    curr_edges_nodes <- all_edges_nodes[
+      which(names(all_edges_nodes) %in% farm_locs_temp$site)]
+    curr_nodes <- sapply(curr_edges_nodes, list_reassign, 
+                         nodes_edges="nodes") %>% 
+      unlist()
+    
+    ## figure out what nodes need to be kept for this year =====================
+    curr_nodes <- all_edges_nodes[which(names(all_edges_nodes) %in% 
+                                          farm_locs_temp$site)] %>% unlist()
+    #print(curr_nodes)
+    # make and save the dataframe
+    ggplot2::ggsave(
+      
+      # output path
+      paste0(fig_output, "map-by-year-", yr, ".png"),
+      
+      # make the plot
+      ggplot2::ggplot() +
+        geom_sf(data = network %>%
+                  activate("nodes") %>%
+                  slice(curr_nodes) %>% 
+                  sf::st_as_sf(), 
+                fill = "lightpink", colour = "lightpink") +
+        geom_sf(data = large_land, fill = "white", colour = "grey70") +
+        #geom_sf(data = utm_land_data_large, fill = "grey70") +
+        geom_sf(data = locs_temp_utm, aes(fill = type, shape = type,  
+                                          size = type)) +
+        scale_size_manual("Location", values = c(2.5, 1.8)) +
+        scale_shape_manual("Location", values = c(21, 22)) +
+        scale_fill_manual("Location", values = c("red", "#30D5C8")) +
+        ggrepel::geom_text_repel(data = locs_temp_utm,
+                                 aes(x = X, y = Y,
+                                     label = site, fontface = ff, size = type),
+                                 max.overlaps = 50) +
+        theme_base() +
+        coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
+                 expand = FALSE) +
+        theme(
+          plot.background = element_rect(fill = "white"),
+          axis.text.x = element_text(angle = 90)
+        ) +
+        labs(
+          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr)
+        ),
+      
+      # make the size
+      height = 8, width = 9
+    )
+    
+  }
+}
+
 # make_yearly_popn_maps ========================================================
 make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
                                   farm_data, farm_locs, network, exposure_df,
-                                  all_edges_nodes, fig_output, data_output) {
+                                  all_edges_nodes, fig_output, species,
+                                  data_output) {
   #' Maps of each year's population and farm co-occurrence
   #' 
   #' @description To determine which farms are high, medium, or low risk, we
@@ -271,6 +461,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
   #' @param exposure_df file. Dataframe on the exposure options
   #' @param all_edges_nodes list. The list of all the lists of edges and nodes
   #' to be kept to map onto the region
+  #' @param species character. The species being plotted (salmon).
   #' @param fig_output character. Where to save the figure files
   #' @param data_output character. Where to save the data files 
   #'  
@@ -439,9 +630,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
         ggrepel::geom_text_repel(data = locs_temp_utm,
                                  aes(x = X, y = Y,
                                      label = site, fontface = ff, size = type),
-                                 max.overlaps = 50) +
-        scale_size_manual(values = c(2.5, 1.7)) +
-        theme_base() +
+                                 max.overlaps = 50) +        theme_base() +
         coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
                  expand = FALSE) +
         theme(
@@ -478,7 +667,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
   # write out the data with the corresponding names/numbers for each year
   readr::write_csv(
     site_data_by_year,
-    paste0(data_output, "site-name-combos-for-exposed-populations.csv")
+    paste0(data_output, "pink-site-name-combos-for-exposed-populations.csv")
   )
 }
 
