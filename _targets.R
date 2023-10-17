@@ -265,8 +265,8 @@ list(
       exposure_df = read_csv(tar_read(pink_exposure_df)),
       all_edges_nodes = readRDS(all_edges_nodes),
       species = "Pink",
-      fig_output = here::here("./figs/maps/yearly-pop-maps/pink/"),
-      data_output = here::here("./data/spawner-recruit/clean/")
+      fig_output = here::here("./figs/maps/yearly-pop-maps/pink//"),
+      data_output = here::here("./data/spawner-recruit/clean//")
     )
   )
   # tar_target(

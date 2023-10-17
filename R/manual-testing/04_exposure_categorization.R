@@ -47,7 +47,9 @@ func_group_1 <- c(2005)
 func_group_2 <- c(2006:2016)
 func_group_3 <- c(2017:2020)
 
-# never exposed ================================================================
+# pink populations =============================================================
+
+## never exposed ================================================================
 # never_exposed <- c(
 #   562,1213,896,721,1140,1144,1154,1152,1199,1179,953,938,480,1033,907,
 #   1032,932,965,1217,1158,1159,1151,1148,1211,1202,1195,1163,1132,1176,1212,
@@ -58,7 +60,7 @@ func_group_3 <- c(2017:2020)
 #   stop("ERROR - Duplicates in the never exposed category")
 # }
 
-# group_1 ======================================================================
+## group_1 ======================================================================
 pops_group_1 <- site_name_combos %>% 
   dplyr::filter(out_mig_year == 2005) %>% 
   dplyr::select(site_num) %>% 
@@ -120,7 +122,7 @@ exposed_df_group_1 <- data.frame(
     )
   )
 
-# group_2 ======================================================================
+## group_2 ======================================================================
 pops_group_2 <- site_name_combos %>% 
   dplyr::filter(out_mig_year %in% c(2006:2016)) %>% 
   dplyr::select(site_num, site_name) %>% 
@@ -210,7 +212,7 @@ exposed_df_2_large <- exposed_df_2_large %>%
 all(group_2_sites_cat %in% pops_group_2$site_num)
 all(pops_group_2$site_num %in% group_2_sites_cat)
 
-# group_3 ======================================================================
+## group_3 ======================================================================
 pops_group_3 <- site_name_combos %>% 
   dplyr::filter(out_mig_year %in% c(2017:2020)) %>% 
   dplyr::select(site_num, site_name) %>% 
@@ -292,7 +294,7 @@ exposed_df_3_large <- exposed_df_3_large %>%
     year = out_mig_year
   )
 
-# note and save the exposure dataframe =========================================
+## note and save the exposure dataframe =========================================
 exposure_df <- rbind(
   exposed_df_group_1, exposed_df_2_large, exposed_df_3_large
 )
