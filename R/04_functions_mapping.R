@@ -503,7 +503,9 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
   farms_utm <- sf::st_transform(farms_sf,  
                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
   
-  for(yr in 2005:2020) {
+  # only loop through the years we actually HAVE for the species at hand
+  max_yr <- ifelse(species == "Pink", 2020, 2017)
+  for(yr in 2005:max_yr) {
     
     # get the farms in that time period
     farms_temp <- (farm_data %>% 
@@ -535,12 +537,6 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
       dplyr::mutate(site_num = gfe_id,
                     brood_year = unique(sr_pop_temp$brood_year)) %>% 
       dplyr::select(site_name, brood_year, lat, long, site_num)
-    
-    # keep these data in the larger dataframe to refer back to
-    site_data_by_year <- rbind(
-      site_data_by_year,
-      site_year_temp
-    )
     
     # put the farm locations and the population locations together
     locs_temp <- rbind(
@@ -654,21 +650,13 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
           )
         )+
         labs(
-          x = "Longitude", y = "Latitude", title = yr
+          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr)
         ),
 
       # make the size
       height = 8, width = 9
     )
-    
   }
-  
-  # write out the data with the corresponding names/numbers for each year
-  readr::write_csv(
-    site_data_by_year,
-    paste0(data_output, species, 
-           "-site-name-combos-for-exposed-populations.csv")
-  )
 }
 
 # plot_given_sites =============================================================

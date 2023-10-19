@@ -90,6 +90,12 @@ list(
       "./data/spawner-recruit/clean/pink-exposure-categorization-df.csv"),
     format = "file"
   ),
+  tar_target(
+    chum_exposure_df,
+    here::here(
+      "./data/spawner-recruit/clean/chum-exposure-categorization-df.csv"),
+    format = "file"
+  ),
   ## geo-data files ============================================================
   ### nodes to keep ============================================================
   tar_target(all_edges_nodes, 
@@ -270,22 +276,22 @@ list(
       fig_output = here::here("./figs/maps/yearly-pop-maps/pink//"),
       data_output = here::here("./data/spawner-recruit/clean//")
     )
+  ),
+  tar_target(
+    yearly_popn_exposure_maps_chum,
+    make_yearly_popn_maps(
+      sr_pop_data = clean_chum_spawner_recruit_data,
+      sr_pop_sites = clean_wild_pop_location_data,
+      large_land = readRDS(large_land),
+      farm_data = clean_farm_lice_data,
+      farm_locs = clean_farm_locs,
+      network = qs::qread(network),
+      exposure_df = read_csv(tar_read(chum_exposure_df)),
+      all_edges_nodes = readRDS(all_edges_nodes),
+      species = "Chum",
+      fig_output = here::here("./figs/maps/yearly-pop-maps/chum//")
+    )
   )
-  # tar_target(
-  #   yearly_popn_exposure_maps_chum,
-  #   make_yearly_popn_maps(
-  #     sr_pop_data = clean_chum_spawner_recruit_data,
-  #     sr_pop_sites = clean_wild_pop_location_data,
-  #     large_land = readRDS(large_land),
-  #     farm_data = clean_farm_lice_data,
-  #     farm_locs = clean_farm_locs,
-  #     network = qs::qread(network),
-  #     exposure_df = read_csv(tar_read(exposure_df)),
-  #     all_edges_nodes = readRDS(all_edges_nodes),
-  #     fig_output = here::here("./figs/maps/yearly-pop-maps/chum/"),
-  #     data_output = here::here("./data/spawner-recruit/clean/")
-  #   )
-  # )
   
   # tar_target(
   #   yearly_popn_exposure_maps,

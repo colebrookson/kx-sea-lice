@@ -168,10 +168,10 @@ chum_all_rivers <- chum %>%
   )  
 
 chum_site_name_combos <- sr_pop_sites %>% 
-  dplyr::select(system_site, y_lat, x_longt, gfe_id, brood_year) %>%
+  dplyr::select(system_site, y_lat, x_longt, gfe_id) %>%
   #dplyr::filter(brood_year > 2003) %>% 
   dplyr::rename(
-    site_name = river
+    site_name = system_site
   ) %>% 
   unique()
 
