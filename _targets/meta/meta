@@ -30,9 +30,9 @@ large_land|stem|b5e96b14b6844886|f6de36fd117857a1|c3b5fc02cdc369c1|-572025115||t
 lice_regression|function|1a2b5cd910599cc4|||||||||||||||
 list_reassign|function|6b468980ce8503c5|||||||||||||||
 make_map_each_farm|function|784dff362af2662c|||||||||||||||
-make_nonexposure_yearly_maps|function|17ba2baf266841f3|||||||||||||||
+make_nonexposure_yearly_maps|function|61379183f8b76d61|||||||||||||||
 make_sampling_map|function|d20031d4da571bac|||||||||||||||
-make_yearly_popn_maps|function|4e3d22907c2b9daf|||||||||||||||
+make_yearly_popn_maps|function|7a56e98fc4d6a41b|||||||||||||||
 network|stem|5da4371667f5fd28|e1db21ba49998361|c3b5fc02cdc369c1|-1312999359|C:/Users/brookson/Documents/Github/kx-sea-lice/./outputs/geo-objs/fresh/network.qs|t19528.8803849896s|94ba1cae8401e00e|6795920|file|local|vector|||0||
 new_farm_lice|stem|429ddc53ca8d4c53|64cdd37e6d0d0f8e|c3b5fc02cdc369c1|1896230505|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx|t19494.1427735348s|13cadd82fda31a7e|1394218|file|local|vector|||0||
 old_farm_lice|stem|230a0a0eeaa66b1e|8ddef53d1c163c9a|c3b5fc02cdc369c1|-860842241|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19494.1427738969s|e2b8c6da6272f3c0|6212096|file|local|vector|||0||
@@ -61,8 +61,8 @@ utm_land_data|stem|b7b52b2344afe28e|9330a5ad77df3462|c3b5fc02cdc369c1|17272683||
 west_region_network|stem|2d23ffdf4d13e748|b4094f6f883ba798|c3b5fc02cdc369c1|1091338309||t19511.2235446742s|f21b4888ae8bdafc|118|rds|local|vector|||0||
 wild_farm_lice_regression|stem|7fc7cda1eb2ec335|1dedcaa68a43d59f|7be4fa5d87a2b0c2|-1129575649||t19647.6633300699s|7dead8e41ac4f62d|130|rds|local|vector|||10.05||
 wild_lice_per_fish_plot|stem|b13ba3278842dc84|5b206de9c81e35e1|c3d6de4ecf771120|1285149232||t19647.6627311319s|63e5c65d6d1ce375|134|rds|local|vector|||3.53|1m22mUsing size aesthetic for lines was deprecated in ggplot2 3.4.0.36mℹ39m Please use linewidth instead.. 1m22mThe size argument of element_rect is deprecated as of ggplot2 3.4.0.36mℹ39m Please use the linewidth argument instead.|
-yearly_nonexposure_maps_chum|stem|15d7f6b08f6e9a66|f18258418eb26cc6|af6c99c11dff968b|-358074478||t19647.6587443124s|a1c456b03adbfbf8|44|rds|local|vector|||37.75||
-yearly_nonexposure_maps_pink|stem|15d7f6b08f6e9a66|ea7111bf35483de1|ba6828b116a20d28|-340875375||t19647.6632134532s|a1c456b03adbfbf8|44|rds|local|vector|||41.62||
+yearly_nonexposure_maps_chum|stem|a2715c92b6f24916|a38f953865dc0b1e|0b03722595733ddb|-358074478||t19649.2058090895s|dffaa6f9b5cd0615|7101|rds|local|vector|||40.71|agg could not write to the given file|
+yearly_nonexposure_maps_pink|stem|4408805cab3b0da9|9a559146cfc6f9d3|7170be96e22cc6d3|-340875375||t19649.2071428166s|d76c24168a75d63d|7271|rds|local|vector|||41.18||
 yearly_popn_exposure_maps|stem|6f6c5b49f08ee810|871d6ad74cc0180f|7a6972da2fd84f01|1227065649||t19523.6143990292s|d76c24168a75d63d|7271|rds|local|vector|||33.971||
 yearly_popn_exposure_maps_chum|stem||e205fefb88678b39|e2bcbb2df7d0fabd|-1493995460||t19646.7398736618s||0|rds|local|vector|||34.66||replacement has 2 rows, data has 1
-yearly_popn_exposure_maps_pink|stem|4408805cab3b0da9|821fdc3bf21d57c9|9e1487603055ae76|-1924596653||t19647.6592330263s|d76c24168a75d63d|7271|rds|local|vector|||42.14||
+yearly_popn_exposure_maps_pink|stem|4408805cab3b0da9|9e24c2f13949e2b8|bc328826e35178c8|-1924596653||t19647.6592330263s||7271|rds|local|vector|||0.2||object site_data_by_year not found

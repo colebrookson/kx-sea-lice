@@ -236,7 +236,8 @@ list(
       network = qs::qread(network),
       all_edges_nodes = readRDS(all_edges_nodes),
       species = "Pink",
-      fig_output = here::here("./figs/maps/yearly-pop-maps/pink/no-exposure//")
+      fig_output = here::here("./figs/maps/yearly-pop-maps/pink/no-exposure//"),
+      data_output = here::here("./data/spawner-recruit/clean//")
     )
   ),
   tar_target(
@@ -250,7 +251,8 @@ list(
       network = qs::qread(network),
       all_edges_nodes = readRDS(all_edges_nodes),
       species = "Chum",
-      fig_output = here::here("./figs/maps/yearly-pop-maps/chum/no-exposure//")
+      fig_output = here::here("./figs/maps/yearly-pop-maps/chum/no-exposure//"),
+      data_output = here::here("./data/spawner-recruit/clean//")
     )
   ),
   tar_target(

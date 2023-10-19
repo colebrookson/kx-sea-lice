@@ -255,7 +255,8 @@ list_reassign <- function(l, nodes_edges) {
 # make_nonexposure_yearly_maps =================================================
 make_nonexposure_yearly_maps <- function(sr_pop_data, sr_pop_sites, large_land,
                                          farm_data, farm_locs, network, 
-                                         all_edges_nodes, fig_output, species) {
+                                         all_edges_nodes, fig_output, species,
+                                         data_output) {
   #' Population & farm co-occurence without exposure
   #' 
   #' @description Maps of each year's population and farm co-occurrence, but 
@@ -439,6 +440,13 @@ make_nonexposure_yearly_maps <- function(sr_pop_data, sr_pop_sites, large_land,
     )
     
   }
+  
+  # write out the data with the corresponding names/numbers for each year
+  readr::write_csv(
+    site_data_by_year,
+    paste0(data_output, species, 
+           "-site-name-combos-for-exposed-populations.csv")
+  )
 }
 
 # make_yearly_popn_maps ========================================================
@@ -485,15 +493,6 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
         TRUE ~ as.character(farm)
       )
     )
-  
-  # this is an empty dataframe to fill in 
-  site_data_by_year <- data.frame(
-    site_name = as.character(),
-    brood_year = as.numeric(),
-    lat = as.numeric(),
-    long = as.numeric(),
-    site_num = as.numeric()
-  )
   
   ## set up the farms that we'll need to plot but with sf functions ============
   farms_sf <- sf::st_as_sf(farm_locs, coords = c("long", "lat"))
@@ -667,7 +666,8 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
   # write out the data with the corresponding names/numbers for each year
   readr::write_csv(
     site_data_by_year,
-    paste0(data_output, "pink-site-name-combos-for-exposed-populations.csv")
+    paste0(data_output, species, 
+           "-site-name-combos-for-exposed-populations.csv")
   )
 }
 
@@ -716,8 +716,7 @@ plot_given_sites <- function(site_nums_missing, yr, site_df, large_land) {
     geom_point(data = site_df, aes(x = X, y = Y)) +
     ggrepel::geom_text_repel(data = site_df,
                              aes(x = X, y = Y,label = site_num),
-                             max.overlaps = 50, 
-                             size = 2) +
+                             max.overlaps = 50) +
     theme_base() +
     coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
              expand = FALSE) +

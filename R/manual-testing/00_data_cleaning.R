@@ -40,7 +40,6 @@ psf_df <- readr::read_csv(
 head(psf_df)
 unique(psf_df$Species)
 
-
 pink_sr <- psf_df %>% 
   dplyr::filter(species %in% c("Pink (even)", "Pink (odd)"),
                 parameter %in% c("lnRS", "Recruits", "Spawners")) %>%
@@ -54,7 +53,6 @@ ggplot(data = pink_sr) +
   geom_point(aes(x = year, y = "Spawners"))
 
 # the stream level data
-
 stream_sr <- read_csv(here("./data/spawner-recruit/raw/river-level-sr/NCC_streams_river-level_SR_data_2023-04-19.csv")) %>% 
   dplyr::rename(
     gfe_id = GFE_ID,
@@ -157,7 +155,7 @@ chum_streams_to_exclude <- all_chum_obs_per_stream %>%
   dplyr::filter(
     n < 4
   ) 
-chum_streams_to_keep <- all_pinks_obs_per_stream %>% 
+chum_streams_to_keep <- all_chum_obs_per_stream %>% 
   dplyr::filter(
     river %notin% chum_streams_to_exclude$river
   )
@@ -168,6 +166,16 @@ chum_all_rivers <- chum %>%
   dplyr::arrange(
     brood_year
   )  
+
+chum_site_name_combos <- sr_pop_sites %>% 
+  dplyr::select(system_site, y_lat, x_longt, gfe_id, brood_year) %>%
+  #dplyr::filter(brood_year > 2003) %>% 
+  dplyr::rename(
+    site_name = river
+  ) %>% 
+  unique()
+
+readr::write_csv(chum_site_name_combos, here("./data/spawner-recruit/clean/chum-site-name-combos-for-exposed-populations.csv"))
 
 ## coho ========================================================================
 coho <- stream_sr %>%
