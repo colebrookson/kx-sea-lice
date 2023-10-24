@@ -14,7 +14,7 @@ library(bayesplot)
 farm_lice <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
 chum_sr_df <- read_csv(here("./data/spawner-recruit/clean/chum-sr-data-clean.csv"))
 wild_lice <- read_csv(here("./data/wild-lice/clean/clean-wild-lice-df.csv"))
-exposure_df <- read_csv(here("./data/spawner-recruit/clean/exposure-categorization-df.csv"))
+exposure_df <- read_csv(here("./data/spawner-recruit/clean/chum-exposure-categorization-df.csv"))
 
 source(here("./R/00_functions_global.R"))
 
