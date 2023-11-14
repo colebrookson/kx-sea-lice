@@ -365,6 +365,10 @@ all_re_alt <- rstanarm::stan_lmer(
 qs::qsave(all_re_alt,
           here("./outputs/model-outputs/chum/all-re-alt.qs"))
 
+posterior_plotting <- function(data, re_name) {
+  
+}
+
 bayesplot::color_scheme_set("purple")
 pairs(all_re_alt, 
       pars = c("(Intercept)", "log-posterior", "lice_3:certaintycertain", 

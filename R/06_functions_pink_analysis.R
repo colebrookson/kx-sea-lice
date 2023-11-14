@@ -10,7 +10,6 @@ library(stringr)
 library(rstanarm)
 library(bayesplot)
 
-
 farm_lice <- read_csv(here("./data/farm-lice/clean/clean-farm-lice-df.csv"))
 pink_sr_df <- read_csv(here("./data/spawner-recruit/clean/pink-sr-data-clean.csv"))
 wild_lice <- read_csv(here("./data/wild-lice/clean/clean-wild-lice-df.csv"))

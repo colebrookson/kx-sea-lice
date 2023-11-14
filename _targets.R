@@ -292,20 +292,12 @@ list(
       fig_output = here::here("./figs/maps/yearly-pop-maps/chum//")
     )
   )
+  ## model fitting =============================================================
+  #' NOTE: 
+  #' Here are represented only the final models for each species. Each sub-model
+  #' was also fit, but is not included in it's pipeline since they're 
+  #' computationally intensive and run in parallel over a long period of time. 
+  #' The code for these model fitting procedures can be found in the 
+  #' `R/manual-testing` folder
   
-  # tar_target(
-  #   yearly_popn_exposure_maps,
-  #   make_yearly_popn_maps(
-  #     sr_pop_data = clean_pink_spawner_recruit_data,
-  #     sr_pop_sites = get_data_csv(sr_pop_sites),
-  #     utm_geo_data = readRDS(utm_geo_data),
-  #     utm_land_data = readRDS(utm_land_data),
-  #     farm_data = clean_farm_lice_data,
-  #     farm_locs = clean_farm_locs,
-  #     network = all_region_network,
-  #     west_network = west_region_network,
-  #     fig_output = here::here("./figs/maps/yearly-pop-maps/"),
-  #     data_output = here::here("./data/spawner-recruit/clean/")
-  #   )
-  # )
 )
