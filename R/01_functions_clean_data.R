@@ -135,7 +135,8 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, raw_output_path,
         legend.position = "none"
       )
   )
-
+  # remove the 2005 years 
+  #wild_lice_to_save <- wild_lice_to_save[which(wild_lice_to_save$year != 2005),]
   
   # write out clean data
   readr::write_csv(
@@ -551,6 +552,11 @@ clean_farm_lice <- function(old_lice, new_lice, data_output_path,
   
   # old lice ===================================================================
   
+  old_lice <- readxl::read_excel(targets::tar_read(old_farm_lice),
+                                 sheet = 9)
+  new_lice <- readxl::read_excel(targets::tar_read(new_farm_lice),
+                                            sheet = 5)
+  
   # remove obs with NAs in the date column 
   old_lice <- old_lice %>% 
     dplyr::filter(!is.na(DATE))
@@ -581,7 +587,7 @@ clean_farm_lice <- function(old_lice, new_lice, data_output_path,
       adult_fem_w_egg = `adult_female____with_eggs`,
       num_fish_sampled = `#_of_fish_sampled`
     )
-  
+
   # there's one specific problem, a space in the character vector of the 
   # inventories, so I'll change that first
   old_lice[which(old_lice$site_inventory == 
@@ -599,12 +605,12 @@ clean_farm_lice <- function(old_lice, new_lice, data_output_path,
     dplyr::rowwise() %>% 
     dplyr::mutate(
       lice = sum(adult_fem_no_egg, 
-                 adult_fem_w_egg, na.rm = TRUE)
+                 adult_fem_w_egg, na.rm = FALSE)
     ) %>% 
     dplyr::group_by(year, month, farm) %>% 
     dplyr::summarize(
-      mean_inventory = mean(inventory, na.rm = TRUE), 
-      lice = mean(lice, na.rm = TRUE)
+      mean_inventory = mean(inventory, na.rm = FALSE), 
+      lice = mean(lice, na.rm = FALSE)
     ) %>% 
     dplyr::rowwise() %>% 
     dplyr::mutate(
@@ -728,6 +734,30 @@ clean_farm_lice <- function(old_lice, new_lice, data_output_path,
   return(data.frame(all_lice))
 }
 
+extrapolate_lice_years <- function(farm_lice, wild_lice) {
+  farm_lice = targets::tar_read(clean_farm_lice_data)
+  wild_lice = targets::tar_read(clean_wild_lice_data)
+  
+  unique(farm_lice$year)
+  unique(wild_lice$year)
+  
+  reg_wild_lice <- wild_lice %>%
+    dplyr::mutate(year = as.factor(year)) %>%
+    dplyr::group_by(year) %>%
+    dplyr::summarize(wild_lice = mean(lep_total, na.rm = TRUE))
+  
+  reg_farm_lice <- data.frame(farm_lice) %>%
+    dplyr::mutate(year = as.numeric(year)) %>% 
+    #dplyr::filter(year > 2005) %>%
+    dplyr::mutate(year = as.factor(year) ) %>% 
+    dplyr::group_by(year) %>%
+    dplyr::summarize(farm_lice = mean(total_lice, na.rm = TRUE))
+  
+  reg_data <- data.frame(cbind(
+    reg_wild_lice, farm_lice = reg_farm_lice$farm_lice
+  ))
+}
+
 # clean_pop_sites =============================================================
 clean_pop_sites <- function(sr_pop_sites, output_path) {
   #' Clean data on S-R population locations for mapping purposes
@@ -771,6 +801,21 @@ clean_pop_sites <- function(sr_pop_sites, output_path) {
   return(sr_sites_clean)
 }
 
-
-
-
+# get_farms_per_year ===========================================================
+get_farms_per_year <- function(farm_lice, output_path) {
+  #' Make a plot and table with the number of farms through time 
+  #' 
+  #' @description These data are actually pretty clean, but need some attention
+  #' to make everything clear and be in a good format for plotting
+  #' 
+  #' @param sr_pop_sites file. Data onthe locations and other CU/ locational 
+  #' information of each of the populations
+  #' @param output_path character. Where to save the clean data
+  #'  
+  #' @usage clean_farm_sites(sr_pop_sites, output_path)
+  #' @return the clean farmed lice data
+  #'
+  
+  
+  
+}

@@ -184,7 +184,6 @@ lice_regression <- function(wild_lice, farm_lice, mod_output_path,
                vjust = 2)
   )
   
-
   ## both laredos excluded =====================================================
   model_both_lar <- stats::lm(
     wild_lice ~ farm_lice,
@@ -280,7 +279,6 @@ lice_regression <- function(wild_lice, farm_lice, mod_output_path,
                size = 7,
                hjust = -0.5,
                vjust = 2)
-
   )
 }
 

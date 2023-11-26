@@ -10,7 +10,7 @@
 #'
 
 # plot_power =================================================================
-plot_power <- function(all_power_sims, output_path) {
+plot_power <- function(all_power_sims, output_path, species) {
   #' Pull in all the required data to do this analysis and plot the results
   #' 
   #' @description The simulations have all run and now this function takes in 
@@ -18,6 +18,7 @@ plot_power <- function(all_power_sims, output_path) {
   #' 
   #' @param all_power_sims file. All of the simulated power analysis info
   #' @param output_path character. Location to write out the plot
+  #' @param species character. Which of the fish species we're modeling
   #'  
   #' @usage plot_power(all_power_sims, output_path)
   #' @return NA
@@ -43,7 +44,7 @@ plot_power <- function(all_power_sims, output_path) {
   ggplot2::ggsave(
 
     #filename
-    paste0(output_path, "power-plot.png"),
+    paste0(output_path, species, "-power-plot.png"),
 
     # the plot itself
     ggplot(data = all_power_sims) +

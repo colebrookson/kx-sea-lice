@@ -79,11 +79,16 @@ list(
     here::here("./data/spawner-recruit/raw/conservation_unit_system_site.csv"),
     format = "file"
   ),
-  tar_target(
-    all_power_sims,
-    here::here("./outputs/power-analysis/pink-all-power-analysis-runs.csv"),
-    format = "file"
-  ),
+  # tar_target(
+  #   pink_power_sims,
+  #   here::here("./outputs/power-analysis/pink-all-power-analysis-runs.csv"),
+  #   format = "file"
+  # ),
+  # tar_target(
+  #   chum_power_sims,
+  #   here::here("./outputs/power-analysis/chum-all-power-analysis-runs.csv"),
+  #   format = "file"
+  # ),
   tar_target(
     pink_exposure_df,
     here::here(
@@ -192,27 +197,48 @@ list(
   #' located in the folder `./outputs/power-analysis/saved-runs/` but all other
   #' analysis of those files, namely the summarizing and plotting of those data
   #' from the outputs are done in this target below
-  tar_target(
-    prep_pink_data_power_analysis,
-    power_prep_pink(
-      wild_lice = clean_wild_lice_data
-    )
-  ),
-  tar_target(
-    power_analysis_prep_pink,
-    power_pink_mod(
-      pred_yearly = prep_pink_data_power_analysis,
-      pink_sr_df = clean_pink_spawner_recruit_data,
-      output_path = here::here("./outputs/power-analysis//")
-    )
-  ),
-  tar_target(
-    power_analysis,
-    plot_power(
-      all_power_sims = get_data_csv(all_power_sims),
-      output_path = here::here("./figs/power-analysis//")
-    )
-  ),
+  # tar_target(
+  #   prep_pink_data_power_analysis,
+  #   power_prep_pink(
+  #     wild_lice = clean_wild_lice_data
+  #   )
+  # ),
+  # tar_target(
+  #   power_analysis_prep_pink,
+  #   power_pink_mod(
+  #     pred_yearly = prep_pink_data_power_analysis,
+  #     pink_sr_df = clean_pink_spawner_recruit_data,
+  #     output_path = here::here("./outputs/power-analysis//")
+  #   )
+  # ),
+  # tar_target(
+  #   pink_power_analysis,
+  #   plot_power(
+  #     power_sims = get_data_csv(pink_power_sims),
+  #     output_path = here::here("./figs/power-analysis//")
+  #   )
+  # ),
+  # tar_target(
+  #   prep_chum_data_power_analysis,
+  #   power_prep_chum(
+  #     wild_lice = clean_wild_lice_data
+  #   )
+  # ),
+  # tar_target(
+  #   power_analysis_prep_chum,
+  #   power_chum_mod(
+  #     pred_yearly = prep_chum_data_power_analysis,
+  #     chum_sr_df = clean_chum_spawner_recruit_data,
+  #     output_path = here::here("./outputs/power-analysis//")
+  #   )
+  # )
+  # tar_target(
+  #   chum_power_analysis,
+  #   plot_power(
+  #     power_sims = get_data_csv(chum_power_sims),
+  #     output_path = here::here("./figs/power-analysis//")
+  #   )
+  # ),
   ## useful plots/extra content ================================================
   tar_target(
     wild_lice_per_fish_plot,

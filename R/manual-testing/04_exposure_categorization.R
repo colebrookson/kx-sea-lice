@@ -63,6 +63,13 @@ func_group_3 <- c(2017:2020)
 
 # pink populations =============================================================
 
+#' Note there are three exposure possibilities:
+#' 1) Where all "maybe" populations are "maybe" 
+#' 2) Where all northern "maybe" populations are "maybe" and all southern
+#' populations are "no"
+#' 3) Where all southern "maybe" populations are "maybe" and all northern
+#' populations are "no"
+
 ## never exposed ===============================================================
 # never_exposed <- c(
 #   562,1213,896,721,1140,1144,1154,1152,1199,1179,953,938,480,1033,907,
@@ -86,17 +93,28 @@ def_exposed_pinkgroup_1 <- c(
 )
 not_exposed_pinkgroup_1 <- c(
   553,163,512,1077,1080,1046,1081,1045,1042,1041,1040,1082,1083,1035,1034,1036,
-  1037,1030,1029,1907,1906,1908,1905,1086,1085,1087,1910,1909,1904,1903,1911,
+  1037,1030,1029,1907,1906,1908,1086,1085,1087,1910,1909,1904,1903,1911,
   1902,1901,1900,429,1870,1869,1588,1709,1875,1859,1841,1857,1843,1854,1845,
-  1844,1846,1851,1846,1850,1474,2687,1422,201,987,1799,2689,999,998,3553,
-  1090,1897,1813,1800,1807,989,1801,2615
+  1844,1851,1846,1850,1474,1422,201,1799,3553,
+  1090,1897,2615
 )
-possibly_exposed_pinkgroup_1 <- c(
-  1838,1020,1021,1022,1023,1025,1905,1007,1008,1834,1833,1871
+possibly_exposed_pinkgroup_1_all_maybe <- c(
+  1838,1020,1021,1022,1023,1025,1905,1007,1008,1834,1833,1871,2687,1801,1800,
+  987,989,2689,1813,999,998,1807
 )
-
+possibly_exposed_pinkgroup_1_north_maybe <- c(
+  1905,1025,1871,1023,1020,1022,1838,1021
+)
+possibly_exposed_pinkgroup_1_south_maybe <- 
+  possibly_exposed_pinkgroup_1_all_maybe %notin% 
+  possibly_exposed_pinkgroup_1_north_maybe
+  
 pinkgroup_1_sites_cat <- c(def_exposed_pinkgroup_1, not_exposed_pinkgroup_1, 
-                       possibly_exposed_pinkgroup_1)
+                           possibly_exposed_pinkgroup_1_all_maybe)
+if(any(duplicated(pinkgroup_1_sites_cat))) {
+  stop(paste0("duplicated pops:", 
+              pinkgroup_1_sites_cat[which(duplicated(pinkgroup_1_sites_cat)) ]))
+}
 
 pops_missing_pinkgroup_1 <- pops_pinkgroup_1 %>% 
   dplyr::filter(site_num %notin% pinkgroup_1_sites_cat)
@@ -124,6 +142,14 @@ plot_given_sites(
   large_land = readRDS(tar_read(large_land))
 )
 
+# look at just the maybes to determine north vs south
+plot_given_sites(
+  site_nums_missing = possibly_exposed_pinkgroup_1_all_maybe, 
+  yr = 2005, 
+  site_df = pink_site_name_combos,
+  large_land = readRDS(tar_read(large_land))
+)
+
 exposed_df_pinkgroup_1 <- data.frame(
   sites = pops_pinkgroup_1$site_num,
   year = rep(2005,length(pops_pinkgroup_1$site_num)) 
@@ -131,8 +157,13 @@ exposed_df_pinkgroup_1 <- data.frame(
   dplyr::mutate(
     exposure = dplyr::case_when(
       sites %in% def_exposed_pinkgroup_1                   ~ "yes",
-      sites %in% possibly_exposed_pinkgroup_1              ~ "maybe",
+      sites %in% possibly_exposed_pinkgroup_1_all_maybe    ~ "maybe",
       sites %in% not_exposed_pinkgroup_1                   ~ "no"
+    ),
+    maybes = dplyr::case_when(
+      sites %in% possibly_exposed_pinkgroup_1_north_maybe  ~ "north",
+      sites %in% possibly_exposed_pinkgroup_1_south_maybe  ~ "south",
+      TRUE                                                 ~ NA
     )
   )
 
@@ -162,13 +193,19 @@ not_exposed_pinkgroup_2 <- c(
   1030,1035,1034,1036,1037,1038,1029,1850,1851,1846,1845,1844,1853,1852,1855,
   1854,1843,1842,1841,1863
 )
-possibly_exposed_pinkgroup_2 <- c(
+possibly_exposed_pinkgroup_2_all_maybe <- c(
  1838,1021,1020,1022,1023,1024,1025,1026,1027,1028,1905,1001,1813,2689,993,992,
  991,990,989,1807,1871,999,998,1804,1809,1800,1801,1803,987,988,2687
 )
+possibly_exposed_pinkgroup_2_north_maybe <- c(
+  1905,1028,1027,1026,1025,1024,1023,1022,1021,1020,1871
+)
+possibly_exposed_pinkgroup_2_south_maybe <- 
+  possibly_exposed_pinkgroup_2_all_maybe %notin% 
+  possibly_exposed_pinkgroup_2_north_maybe
 
 pinkgroup_2_sites_cat <- c(def_exposed_pinkgroup_2, not_exposed_pinkgroup_2, 
-                       possibly_exposed_pinkgroup_2)
+                       possibly_exposed_pinkgroup_2_all_maybe)
 
 pops_missing_pinkgroup_2 <- pops_pinkgroup_2 %>% 
   dplyr::filter(site_num %notin% pinkgroup_2_sites_cat)
@@ -176,6 +213,12 @@ pops_missing_pinkgroup_2 <- pops_missing_pinkgroup_2$site_num
 
 plot_given_sites(
   site_nums_missing = pops_missing_pinkgroup_2, 
+  yr = c(2006:2016), 
+  site_df = pink_site_name_combos,
+  large_land = readRDS(tar_read(large_land))
+)
+plot_given_sites(
+  site_nums_missing = possibly_exposed_pinkgroup_2_all_maybe, 
   yr = c(2006:2016), 
   site_df = pink_site_name_combos,
   large_land = readRDS(tar_read(large_land))
@@ -206,8 +249,13 @@ exposed_df_pinkgroup_2 <- data.frame(
   dplyr::mutate(
     exposure = dplyr::case_when(
       site_num %in% def_exposed_pinkgroup_2                   ~ "yes",
-      site_num %in% possibly_exposed_pinkgroup_2              ~ "maybe",
+      site_num %in% possibly_exposed_pinkgroup_2_all_maybe    ~ "maybe",
       site_num %in% not_exposed_pinkgroup_2                   ~ "no"
+    ),
+    maybes = dplyr::case_when(
+      site_num %in% possibly_exposed_pinkgroup_2_north_maybe  ~ "north",
+      site_num %in% possibly_exposed_pinkgroup_2_south_maybe  ~ "south",
+      TRUE                                                    ~ NA
     )
   )
 
@@ -247,16 +295,25 @@ not_exposed_pinkgroup_3 <- c(
   1054,1077,1050,1046,1057,1068,512,1072,486,553,163,169,1080,1081,1045,1044,
   1042,1041,1040,1038,1029,1037,1030,1036,1035,1034,7990614,1083,1084,1086,
   1085,1910,1909,3553,1908,1907,1906,1090,1911,1903,1902,1901,1872,429,1870,
-  1869,1897,1890,1588,1709,1883,1817,1005,993,992,991,990,989,1799,1807,988,
-  987,1803,201,2615,899,439,1422,2687,1474,1905,1904,1087,1001,1813,2689,999,998
+  1869,1897,1890,1588,1709,1883,1817,1799,
+  201,2615,899,439,1422,1474,1904,1087,1813
 )
-possibly_exposed_pinkgroup_3 <- c(
+possibly_exposed_pinkgroup_3_all_maybe <- c(
   1833,1834,1008,1007,1816,1850,1852,1854,1843,1838,1020,1021,1022,1023,1024,
-  1025,1026,1871,1027,1028
+  1025,1026,1871,1027,1028,2687,1803,987,988,1807,1005,1001,999,998,993,
+  991,992,990,2689,989,1905
 )
+possibly_exposed_pinkgroup_3_north_maybe <- c(
+  1028,1905,1027,1025,1026,1024,1023,1022,1021,1020,1871,1838,1850,1852,1854,
+  1843
+)
+possibly_exposed_pinkgroup_3_south_maybe <-
+  possibly_exposed_pinkgroup_3_all_maybe %notin%
+  possibly_exposed_pinkgroup_3_north_maybe
+
 
 pinkgroup_3_sites_cat <- c(def_exposed_pinkgroup_3, not_exposed_pinkgroup_3, 
-                       possibly_exposed_pinkgroup_3)
+                           possibly_exposed_pinkgroup_3_all_maybe)
 
 pops_missing_pinkgroup_3 <- pops_pinkgroup_3 %>% 
   dplyr::filter(site_num %notin% pinkgroup_3_sites_cat)
@@ -278,6 +335,10 @@ plot_given_sites(pops_missing_pinkgroup_3,
                  yr = c(2017:2020), 
                  site_df = pink_site_name_combos,
                  large_land = readRDS(tar_read(large_land)))
+plot_given_sites(c(possibly_exposed_pinkgroup_3_all_maybe),
+                 yr = c(2017:2020), 
+                 site_df = pink_site_name_combos,
+                 large_land = readRDS(tar_read(large_land)))
 
 all(pinkgroup_3_sites_cat %in% pops_pinkgroup_3$site_num)
 all(pops_pinkgroup_3$site_num %in% pinkgroup_3_sites_cat)
@@ -291,8 +352,13 @@ exposed_df_pinkgroup_3 <- data.frame(
   dplyr::mutate(
     exposure = dplyr::case_when(
       site_num %in% def_exposed_pinkgroup_3                   ~ "yes",
-      site_num %in% possibly_exposed_pinkgroup_3              ~ "maybe",
+      site_num %in% possibly_exposed_pinkgroup_3_all_maybe    ~ "maybe",
       site_num %in% not_exposed_pinkgroup_3                   ~ "no"
+    ),
+    maybes = dplyr::case_when(
+      site_num %in% possibly_exposed_pinkgroup_3_north_maybe  ~ "north",
+      site_num %in% possibly_exposed_pinkgroup_3_south_maybe  ~ "south",
+      TRUE                                                    ~ NA
     )
   )
 
