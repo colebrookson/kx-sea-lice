@@ -675,7 +675,8 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
           )
         )+
         labs(
-          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr)
+          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr,
+                                                          "all maybes")
         ),
 
       # make the size
@@ -735,7 +736,8 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
           )
         )+
         labs(
-          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr)
+          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr,
+                                                          "north maybes")
         ),
     
     # make the size
@@ -796,7 +798,8 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
           )
         )+
         labs(
-          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr)
+          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr,
+                                                          "south maybes")
         ),
       
       # make the size
