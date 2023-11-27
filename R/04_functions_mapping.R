@@ -479,17 +479,17 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
   #'
   
   # TESTING
-  sr_pop_data = tar_read(clean_pink_spawner_recruit_data)
-  sr_pop_sites = tar_read(clean_wild_pop_location_data)
-  large_land = readRDS(tar_read(large_land))
-  farm_data = tar_read(clean_farm_lice_data)
-  farm_locs = tar_read(clean_farm_locs)
-  network = qs::qread(tar_read(network))
-  exposure_df = read_csv(tar_read(pink_exposure_df))
-  all_edges_nodes = readRDS(tar_read(all_edges_nodes))
-  species = "Pink"
-  fig_output = here::here("./figs/maps/yearly-pop-maps/pink//")
-  data_output = here::here("./data/spawner-recruit/clean//")
+  # sr_pop_data = tar_read(clean_pink_spawner_recruit_data)
+  # sr_pop_sites = tar_read(clean_wild_pop_location_data)
+  # large_land = readRDS(tar_read(large_land))
+  # farm_data = tar_read(clean_farm_lice_data)
+  # farm_locs = tar_read(clean_farm_locs)
+  # network = qs::qread(tar_read(network))
+  # exposure_df = read_csv(tar_read(pink_exposure_df))
+  # all_edges_nodes = readRDS(tar_read(all_edges_nodes))
+  # species = "Pink"
+  # fig_output = here::here("./figs/maps/yearly-pop-maps/pink//")
+  # data_output = here::here("./data/spawner-recruit/clean//")
   
   # filter the sites to just the ones in our data
   sr_pop_data_area67 <- sr_pop_data %>% 
@@ -739,7 +739,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
         ),
     
     # make the size
-    height = 8, width = 9
+    height = 8, width = 6
     )
     
     ### south maybes ===========================================================
@@ -800,7 +800,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
         ),
       
       # make the size
-      height = 8, width = 9
+      height = 8, width = 6
     )
   }
 }
