@@ -478,6 +478,19 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
   #' @return NA
   #'
   
+  # TESTING
+  sr_pop_data = tar_read(clean_pink_spawner_recruit_data)
+  sr_pop_sites = tar_read(clean_wild_pop_location_data)
+  large_land = readRDS(tar_read(large_land))
+  farm_data = tar_read(clean_farm_lice_data)
+  farm_locs = tar_read(clean_farm_locs)
+  network = qs::qread(tar_read(network))
+  exposure_df = read_csv(tar_read(pink_exposure_df))
+  all_edges_nodes = readRDS(tar_read(all_edges_nodes))
+  species = "Pink"
+  fig_output = here::here("./figs/maps/yearly-pop-maps/pink//")
+  data_output = here::here("./data/spawner-recruit/clean//")
+  
   # filter the sites to just the ones in our data
   sr_pop_data_area67 <- sr_pop_data %>% 
     dplyr::filter(area %in% c(6, 7))
@@ -594,23 +607,35 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
       ) %>% 
       dplyr::mutate(
         exposure = factor(ifelse(is.na(exposure), " ", exposure),
-                          levels = c("yes", "maybe", "no", " "))
+                          levels = c("yes", "maybe", "no", " ")),
+        exposure_maybe = factor(
+          dplyr::case_when(
+            exposure == " "   ~ " ",
+            exposure == "no"  ~ "no",
+            exposure == "yes" ~ "yes",
+            maybes == "north" ~ "north maybe",
+            maybes == "south" ~ "south maybe"
+          )
+        )
       )
     
     ## figure out what nodes need to be kept for this year =====================
     curr_nodes <- all_edges_nodes[which(names(all_edges_nodes) %in% 
                                           farm_locs_temp$site)] %>% unlist()
     #print(curr_nodes)
+    
+    
+    ### all maybes ============================================================
+    
     # make and save the dataframe
     ggplot2::ggsave(
 
       # output path
-      paste0(fig_output, "map-by-year-", yr, ".png"),
+      paste0(fig_output, "//all-maybes//", "map-by-year-", yr, ".png"),
 
-      # make the plot
       ggplot2::ggplot() +
         geom_sf(data = network %>%
-                  activate("nodes") %>%
+                  sfnetworks::activate("nodes") %>%
                   slice(curr_nodes) %>% 
                   sf::st_as_sf(), 
                 fill = "lightpink", colour = "lightpink") +
@@ -620,7 +645,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
                                           size = type)) +
         scale_size_manual(values = c(2.5, 1.8)) +
         scale_shape_manual("Location", values = c(21, 22)) +
-        scale_fill_manual("Exposure", values = c("red3", "gold2", "green4",
+        scale_fill_manual("Exposure", values = c("red3", "gold2", "lightblue2",
                                                  "purple")) +
         ggrepel::geom_text_repel(data = locs_temp_utm,
                                  aes(x = X, y = Y,
@@ -638,7 +663,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
             override.aes = list(
               shape = c(21,21,21,21),
               size = c(3,3,3,3),
-              fill = c("red3", "gold2", "green4",
+              fill = c("red3", "gold2", "lightblue2",
                        "white"),
               colour = c("black", "black", "black", "white")
             )
@@ -653,6 +678,127 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
           x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr)
         ),
 
+      # make the size
+      height = 8, width = 9
+    )
+    ### north maybes ===========================================================
+    locs_temp_utm_n <- locs_temp_utm
+    locs_temp_utm_n[which(
+      locs_temp_utm_n$exposure_maybe == "south maybe"
+    ), "exposure"] <- "no"
+    locs_temp_utm_n$exposure
+      
+    ggplot2::ggsave(
+      
+      # output path
+      paste0(fig_output, "//north-maybes//", "map-by-year-", yr, ".png"),
+      # plot
+      ggplot2::ggplot() +
+        geom_sf(data = network %>%
+                  sfnetworks::activate("nodes") %>%
+                  slice(curr_nodes) %>% 
+                  sf::st_as_sf(), 
+                fill = "lightpink", colour = "lightpink") +
+        geom_sf(data = large_land, fill = "white", colour = "grey70") +
+        #geom_sf(data = utm_land_data_large, fill = "grey70") +
+        geom_sf(data = locs_temp_utm_n, aes(fill = exposure, shape = type,  
+                                          size = type)) +
+        scale_size_manual(values = c(2.5, 1.8)) +
+        scale_shape_manual("Location", values = c(21, 22)) +
+        scale_fill_manual("Exposure", values = c("red3", "gold2", "lightblue2",
+                                                 "purple")) +
+        ggrepel::geom_text_repel(data = locs_temp_utm_n,
+                                 aes(x = X, y = Y,
+                                     label = site, fontface = ff, size = type),
+                                 max.overlaps = 50) +        theme_base() +
+        coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
+                 expand = FALSE) +
+        theme(
+          plot.background = element_rect(fill = "white"),
+          axis.text.x = element_text(angle = 90)
+        ) +
+        guides(
+          size = "none",
+          fill = guide_legend(
+            override.aes = list(
+              shape = c(21,21,21,21),
+              size = c(3,3,3,3),
+              fill = c("red3", "gold2", "lightblue2",
+                       "white"),
+              colour = c("black", "black", "black", "white")
+            )
+          ),
+          shape = guide_legend(
+            override.aes = list(
+              size = c(3,3)
+            )
+          )
+        )+
+        labs(
+          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr)
+        ),
+    
+    # make the size
+    height = 8, width = 9
+    )
+    
+    ### south maybes ===========================================================
+    locs_temp_utm_s <- locs_temp_utm
+    locs_temp_utm_s[which(
+      locs_temp_utm_s$exposure_maybe == "north maybe"
+    ), "exposure"] <- "no"
+    locs_temp_utm_s$exposure
+    
+    ggplot2::ggsave(
+      
+      # output path
+      paste0(fig_output, "//south-maybes//", "map-by-year-", yr, ".png"),
+      # plot
+      ggplot2::ggplot() +
+        geom_sf(data = network %>%
+                  sfnetworks::activate("nodes") %>%
+                  slice(curr_nodes) %>% 
+                  sf::st_as_sf(), 
+                fill = "lightpink", colour = "lightpink") +
+        geom_sf(data = large_land, fill = "white", colour = "grey70") +
+        #geom_sf(data = utm_land_data_large, fill = "grey70") +
+        geom_sf(data = locs_temp_utm_s, aes(fill = exposure, shape = type,  
+                                            size = type)) +
+        scale_size_manual(values = c(2.5, 1.8)) +
+        scale_shape_manual("Location", values = c(21, 22)) +
+        scale_fill_manual("Exposure", values = c("red3", "gold2", "lightblue2",
+                                                 "purple")) +
+        ggrepel::geom_text_repel(data = locs_temp_utm_s,
+                                 aes(x = X, y = Y,
+                                     label = site, fontface = ff, size = type),
+                                 max.overlaps = 50) +        theme_base() +
+        coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
+                 expand = FALSE) +
+        theme(
+          plot.background = element_rect(fill = "white"),
+          axis.text.x = element_text(angle = 90)
+        ) +
+        guides(
+          size = "none",
+          fill = guide_legend(
+            override.aes = list(
+              shape = c(21,21,21,21),
+              size = c(3,3,3,3),
+              fill = c("red3", "gold2", "lightblue2",
+                       "white"),
+              colour = c("black", "black", "black", "white")
+            )
+          ),
+          shape = guide_legend(
+            override.aes = list(
+              size = c(3,3)
+            )
+          )
+        )+
+        labs(
+          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr)
+        ),
+      
       # make the size
       height = 8, width = 9
     )

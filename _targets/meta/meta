@@ -4,13 +4,13 @@ all_edges_nodes|stem|ad7cb96c62fb3a2c|72327a9b16af27af|c3b5fc02cdc369c1|17871793
 all_nodes_edges_to_keep|stem|783235cf0425cc15|c616c74a70085b3c|c3b5fc02cdc369c1|1662062916||t19511.2235430538s|b0efa4f1e05eee68|121|rds|local|vector|||0.001||
 all_power_sims|stem|76fb562a619dc9ab|70b6ea9230da49bc|c3b5fc02cdc369c1|-1612245627|C:/Users/brookson/Documents/Github/kx-sea-lice/./outputs/power-analysis/pink-all-power-analysis-runs.csv|t19494.1428241895s|ef158fccc4b82778|6701351|file|local|vector|||0||
 all_region_network|stem|ed34075f953eb33d|094b6bf22bad0f08|c3b5fc02cdc369c1|-1766210777||t19511.2235429612s|6556730b296d7213|119|rds|local|vector|||0.001||
-chum_exposure_df|stem|5cb6a864eac260d5|258f9a56bfe9e04b|c3b5fc02cdc369c1|1774230551|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/spawner-recruit/clean/chum-exposure-categorization-df.csv|t19649.6786005623s|948a5ab1e4a8dd07|15439|file|local|vector|||3.42|package readr was built under R version 4.2.3. package magrittr was built under R version 4.2.3. package dplyr was built under R version 4.2.3. package ggplot2 was built under R version 4.2.3. package ggthemes was built under R version 4.2.3. package wesanderson was built under R version 4.2.3. package lubridate was built under R version 4.2.3. package janitor was built under R version 4.2.3. package tibble was built under R version 4.2.3. package ggrepel was built under R version 4.2.3. package sp was built under R version 4.2.3. package glmmTMB was built under R version 4.2.3. Package version inconsistency detected.glmmTMB was built with TMB version 1.9.4Current TMB version is 1.9.6Please reinstall glmmTMB from source or restore original TMB package see reinstalling for more information. package sf was built under R version 4.2.3. package sfnetworks was built under R version 4.2.3. package qs was built under R version 4.2.3. package tidygraph was built under R version 4.2.3|
+chum_exposure_df|stem|5de4c3e32a6bdc3f|258f9a56bfe9e04b|c3b5fc02cdc369c1|1774230551|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/spawner-recruit/clean/chum-exposure-categorization-df.csv|t19688.1020167054s|b1f0ab7d55ea061b|20461|file|local|vector|||0||
 clean_chum_spawner_recruit_data|stem|dc92cd4ad69c276b|da8e3714eda89864|fab8e607b8127b1e|439968760||t19647.6623898836s|1cf6b5147fce5e2c|232074|rds|local|vector|||1.51||
 clean_chum_sr_data|function|a1318c10a981af9f|||||||||||||||
 clean_coho_spawner_recruit_data|stem|0a8a58f288d2b02b|db0557505fb0115d|2f07cc4ff52c29b4|-874499613||t19647.6623714039s|e60d5c6faacaa899|112978|rds|local|vector|||2.37||
 clean_coho_sr_data|function|bfcf27ec330178da|||||||||||||||
-clean_farm_lice|function|f9f281e3ac5c8fcb|||||||||||||||
-clean_farm_lice_data|stem|51bc5c783e1c2ab2|e790245b1908d9bb|84fcdd17008595dd|1445379850||t19647.6626734195s|c1b59600a5757d63|11098|rds|local|vector|||1.74|Expecting numeric in H1219  R1219C8 got no counts fish transfers. NAs introduced by coercion|
+clean_farm_lice|function|73a35b9873f2cc4c|||||||||||||||
+clean_farm_lice_data|stem|5a646afdf4c355fb|e790245b1908d9bb|afe2d40a8c92931a|1445379850||t19688.1122057218s|060c68a4fc487ab5|10986|rds|local|vector|||2.09|Expecting numeric in H1219  R1219C8 got no counts fish transfers. NAs introduced by coercion. 1m22mRemoved 4 rows containing missing values geom_point.|
 clean_farm_loc_data|function|0a5258107be7135b|||||||||||||||
 clean_farm_locations|function|46431a854a18bd08|||||||||||||||
 clean_farm_locs|stem|81cc6cb5cd2fa56b|7d5e7047a351c704|2c6442dc4b5db6cf|-801743663||t19647.6624183674s|9ea571d1cd313787|411|rds|local|vector|||0.09||
@@ -18,35 +18,36 @@ clean_kitasoo_sampling|function|2d712ed9aa26ba3b|||||||||||||||
 clean_pink_spawner_recruit_data|stem|76abd7388106f3c2|5ad58daa70f6986c|2005d396546d426c|1143075027||t19647.6624167742s|fc11015d73e31694|165851|rds|local|vector|||2.23||
 clean_pk_sr_data|function|e2dab52f656612c4|||||||||||||||
 clean_pop_sites|function|3716256b1153764a|||||||||||||||
-clean_wild_lice|function|cc33794849bdf0e1|||||||||||||||
-clean_wild_lice_data|stem|34485258c020d020|90a1d83c84ee4616|b5709530d00b94b8|-13439032||t19676.0111443613s|75a6fd7dd9b36c56|119683|rds|local|vector|||8.42|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat|
+clean_wild_lice|function|ead71563ece61bb3|||||||||||||||
+clean_wild_lice_data|stem|9e3af0ebf9daf878|90a1d83c84ee4616|36b4c0ba23eff809|-13439032||t19688.1122506853s|4b4807772de0bac0|120238|rds|local|vector|||3.72|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat|
 clean_wild_pop_location_data|stem|c60a263c945db72b|1ecf66814b7ad23d|0439c96a3b5e58c9|-4253491||t19647.6626529891s|3f795ab8f8d761fc|254550|rds|local|vector|||1.62||
 dates_to_join|stem|802a50bc26fe287f|ebd1dfe2658f8cc1|c3b5fc02cdc369c1|235570657|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/wild-lice/raw/unique_dates_manually_edited.csv|t19494.1427964719s|111627e7bed39b56|9884|file|local|vector|||0||
 exposure_df|stem|200dd89689dfb59f|52afabefb50abe53|c3b5fc02cdc369c1|159346632|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/spawner-recruit/clean/exposure-categorization-df.csv|t19528.9323949001s|dd881b81c7098a7e|21710|file|local|vector|||0||
+extrapolate_lice_years|function|e5a868e867a66f74|||||||||||||||
 farm_locations|stem|7c9aa8ec7801ab3a|0a5855a37f7f0433|c3b5fc02cdc369c1|-1884169169|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/farm-lice/raw/farm_location_metadata.csv|t19494.1427733546s|39911213ec660508|5486|file|local|vector|||0||
 geo_spatial|stem|6d1f11cf41d68186|9a8037910cf09df6|c3b5fc02cdc369c1|-868371640|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/geo-spatial/gadm36_CAN_1_sp.rds|t19494.1427762472s|22c665b2510b4b7b|19080844|file|local|vector|||0||
 get_data_csv|function|f55fbb93cbb1e4ef|||||||||||||||
 get_farms_per_year|function|c37c57c1c568fd31|||||||||||||||
 kx_sampling|stem|0b2767ae80dff6ba|89ac9ae29ece3593|c3b5fc02cdc369c1|-1690534363|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/wild-lice/raw/kitasoo_sampling_sites.csv|t19494.1427955315s|6780c20ed7ba8483|607|file|local|vector|||0||
 large_land|stem|b5e96b14b6844886|f6de36fd117857a1|c3b5fc02cdc369c1|-572025115||t19645.0668717723s|3703cb9bd2946119|140|rds|local|vector|||0||
-lice_regression|function|643cfd6090bf8151|||||||||||||||
+lice_regression|function|1a2b5cd910599cc4|||||||||||||||
 list_reassign|function|6b468980ce8503c5|||||||||||||||
 make_map_each_farm|function|784dff362af2662c|||||||||||||||
 make_nonexposure_yearly_maps|function|61379183f8b76d61|||||||||||||||
 make_sampling_map|function|d20031d4da571bac|||||||||||||||
-make_yearly_popn_maps|function|7545dc100fb0107e|||||||||||||||
+make_yearly_popn_maps|function|52bbb0137427361a|||||||||||||||
 network|stem|5da4371667f5fd28|e1db21ba49998361|c3b5fc02cdc369c1|-1312999359|C:/Users/brookson/Documents/Github/kx-sea-lice/./outputs/geo-objs/fresh/network.qs|t19528.8803849896s|94ba1cae8401e00e|6795920|file|local|vector|||0||
 new_farm_lice|stem|429ddc53ca8d4c53|64cdd37e6d0d0f8e|c3b5fc02cdc369c1|1896230505|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx|t19494.1427735348s|13cadd82fda31a7e|1394218|file|local|vector|||0||
 old_farm_lice|stem|230a0a0eeaa66b1e|8ddef53d1c163c9a|c3b5fc02cdc369c1|-860842241|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19494.1427738969s|e2b8c6da6272f3c0|6212096|file|local|vector|||0||
-pink_exposure_df|stem|200dd89689dfb59f|318db1a64f67e730|c3b5fc02cdc369c1|-852745541|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/spawner-recruit/clean/pink-exposure-categorization-df.csv|t19528.9323949001s|dd881b81c7098a7e|21710|file|local|vector|||7.93|package readr was built under R version 4.2.3. package magrittr was built under R version 4.2.3. package dplyr was built under R version 4.2.3. package ggplot2 was built under R version 4.2.3. package ggthemes was built under R version 4.2.3. package wesanderson was built under R version 4.2.3. package lubridate was built under R version 4.2.3. package janitor was built under R version 4.2.3. package tibble was built under R version 4.2.3. package ggrepel was built under R version 4.2.3. package sp was built under R version 4.2.3. package glmmTMB was built under R version 4.2.3. Package version inconsistency detected.glmmTMB was built with TMB version 1.9.4Current TMB version is 1.9.6Please reinstall glmmTMB from source or restore original TMB package see reinstalling for more information. package sf was built under R version 4.2.3. package sfnetworks was built under R version 4.2.3. package qs was built under R version 4.2.3. package tidygraph was built under R version 4.2.3|
+pink_exposure_df|stem|7ae6205c3355c7e5|318db1a64f67e730|c3b5fc02cdc369c1|-852745541|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/spawner-recruit/clean/pink-exposure-categorization-df.csv|t19688.1013348311s|493188ebf9918dad|25899|file|local|vector|||3.26|package readr was built under R version 4.2.3. package magrittr was built under R version 4.2.3. package dplyr was built under R version 4.2.3. package ggplot2 was built under R version 4.2.3. package ggthemes was built under R version 4.2.3. package wesanderson was built under R version 4.2.3. package lubridate was built under R version 4.2.3. package janitor was built under R version 4.2.3. package tibble was built under R version 4.2.3. package ggrepel was built under R version 4.2.3. package sp was built under R version 4.2.3. package glmmTMB was built under R version 4.2.3. Package version inconsistency detected.glmmTMB was built with TMB version 1.9.4Current TMB version is 1.9.6Please reinstall glmmTMB from source or restore original TMB package see reinstalling for more information. package sf was built under R version 4.2.3. package sfnetworks was built under R version 4.2.3. package qs was built under R version 4.2.3. package tidygraph was built under R version 4.2.3|
 plot_given_sites|function|70a21d210c415eff|||||||||||||||
 plot_power|function|5e55560ab01c601e|||||||||||||||
 plot_wild_lice_data|function|629373191331b595|||||||||||||||
 power_analysis|stem|143145f60fabf413|bfba2474a22e3c09|ce3817b81fe8b639|-947125214||t19647.6626895641s|f02b269bc80ae470|129|rds|local|vector|||1.37||
 power_analysis_prep_chum|stem||8fbda1515872c2b8|15a25d0ef5540eed|642852103||t19678.9067411782s||0|rds|local|vector|||5.94|Some predictor variables are on very different scales consider rescaling|names attribute 233 must be the same length as the vector 201
 power_analysis_prep_pink|stem|d4f468f5cad22a11|eba29d43e21f205f|40a69cd8b9fab6bd|1792301543||t19678.9066715338s|992f0b0f96686f49|183625|rds|local|vector|||11.26|Some predictor variables are on very different scales consider rescaling. 1m22mThe path argument of write_csv is deprecated as of readr 1.4.0.36mℹ39m Please use the file argument instead.|
-power_chum_mod|function|11e97ba467f425f3|||||||||||||||
-power_pink_mod|function|f4d384d9cf14a36c|||||||||||||||
+power_chum_mod|function|08c212af200589d2|||||||||||||||
+power_pink_mod|function|27cef98e522fc421|||||||||||||||
 power_prep_chum|function|be1e7f673aec6d9e|||||||||||||||
 power_prep_pink|function|4d4905c1e522b696|||||||||||||||
 power_wild_lice_data|function|02f4aee22b7f960b|||||||||||||||
@@ -65,10 +66,10 @@ theme_foundation|function|148d518bfb6d0e7b|||||||||||||||
 utm_geo_data|stem|87e2b0dee6376add|225827b440888ea4|c3b5fc02cdc369c1|-406271934||t19511.2235448131s|303de8fdb625d7f0|113|rds|local|vector|||0.001||
 utm_land_data|stem|b7b52b2344afe28e|9330a5ad77df3462|c3b5fc02cdc369c1|17272683||t19511.2235447205s|f21b4888ae8bdafc|118|rds|local|vector|||0.001||
 west_region_network|stem|2d23ffdf4d13e748|b4094f6f883ba798|c3b5fc02cdc369c1|1091338309||t19511.2235446742s|f21b4888ae8bdafc|118|rds|local|vector|||0||
-wild_farm_lice_regression|stem|7fc7cda1eb2ec335|1dedcaa68a43d59f|64150643d95bd359|-1129575649||t19678.8813298312s|7dead8e41ac4f62d|130|rds|local|vector|||13.94||
+wild_farm_lice_regression|stem|7fc7cda1eb2ec335|1dedcaa68a43d59f|5e1297f854622824|-1129575649||t19688.1123655437s|7dead8e41ac4f62d|130|rds|local|vector|||9.83||
 wild_lice_per_fish_plot|stem|b13ba3278842dc84|5b206de9c81e35e1|c3d6de4ecf771120|1285149232||t19647.6627311319s|63e5c65d6d1ce375|134|rds|local|vector|||3.53|1m22mUsing size aesthetic for lines was deprecated in ggplot2 3.4.0.36mℹ39m Please use linewidth instead.. 1m22mThe size argument of element_rect is deprecated as of ggplot2 3.4.0.36mℹ39m Please use the linewidth argument instead.|
-yearly_nonexposure_maps_chum|stem|a2715c92b6f24916|a38f953865dc0b1e|0b03722595733ddb|-358074478||t19649.2058090895s|dffaa6f9b5cd0615|7101|rds|local|vector|||40.71|agg could not write to the given file|
-yearly_nonexposure_maps_pink|stem|4408805cab3b0da9|9a559146cfc6f9d3|7170be96e22cc6d3|-340875375||t19649.2071428166s|d76c24168a75d63d|7271|rds|local|vector|||41.18||
+yearly_nonexposure_maps_chum|stem|a2715c92b6f24916|a38f953865dc0b1e|c738b1a3f7afd3ce|-358074478||t19688.1141936234s|dffaa6f9b5cd0615|7101|rds|local|vector|||36.8||
+yearly_nonexposure_maps_pink|stem|4408805cab3b0da9|9a559146cfc6f9d3|b5ac0c2ecbdf1569|-340875375||t19688.1160456553s|d76c24168a75d63d|7271|rds|local|vector|||40.2||
 yearly_popn_exposure_maps|stem|6f6c5b49f08ee810|871d6ad74cc0180f|7a6972da2fd84f01|1227065649||t19523.6143990292s|d76c24168a75d63d|7271|rds|local|vector|||33.971||
-yearly_popn_exposure_maps_chum|stem|15d7f6b08f6e9a66|03eab801596cd299|975a8f7519c9433e|-1493995460||t19649.6791242942s|a1c456b03adbfbf8|44|rds|local|vector|||34.78||
-yearly_popn_exposure_maps_pink|stem|15d7f6b08f6e9a66|9e24c2f13949e2b8|f54230d23e290400|-1924596653||t19649.6687868809s|a1c456b03adbfbf8|44|rds|local|vector|||42.22||
+yearly_popn_exposure_maps_chum|stem|15d7f6b08f6e9a66|5b647bb61af948a0|d59089a631c4039f|-1493995460||t19688.1155800355s|a1c456b03adbfbf8|44|rds|local|vector|||119.73||
+yearly_popn_exposure_maps_pink|stem|15d7f6b08f6e9a66|b546bf026019337c|83200984d5616010|-1924596653||t19688.1137665885s|a1c456b03adbfbf8|44|rds|local|vector|||120.95||

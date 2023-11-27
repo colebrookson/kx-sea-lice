@@ -296,7 +296,7 @@ list(
       farm_data = clean_farm_lice_data,
       farm_locs = clean_farm_locs,
       network = qs::qread(network),
-      exposure_df = read_csv(tar_read(pink_exposure_df)),
+      exposure_df = read_csv(pink_exposure_df),
       all_edges_nodes = readRDS(all_edges_nodes),
       species = "Pink",
       fig_output = here::here("./figs/maps/yearly-pop-maps/pink//"),
@@ -312,7 +312,7 @@ list(
       farm_data = clean_farm_lice_data,
       farm_locs = clean_farm_locs,
       network = qs::qread(network),
-      exposure_df = read_csv(tar_read(chum_exposure_df)),
+      exposure_df = read_csv(chum_exposure_df),
       all_edges_nodes = readRDS(all_edges_nodes),
       species = "Chum",
       fig_output = here::here("./figs/maps/yearly-pop-maps/chum//")
