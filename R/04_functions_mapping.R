@@ -679,7 +679,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
         ),
 
       # make the size
-      height = 8, width = 9
+      height = 8, width = 6
     )
     ### north maybes ===========================================================
     locs_temp_utm_n <- locs_temp_utm

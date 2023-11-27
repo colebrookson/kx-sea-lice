@@ -19,11 +19,11 @@ alt_5 <- rstanarm::stan_lmer(
   data = pink_sr,
   #family = gaussian(link = "identity"),
   #prior = normal(0, 5),
-  chains = 4,
-  adapt_delta = 0.999,
-  control = list(max_treedepth = 25),
-  cores = 4,
-  iter = 8000
+  chains = 3,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 3,
+  iter = 2000
 )
 alt_5$waic <- waic(alt_5, cores = 4)
 qs::qsave(alt_5,
