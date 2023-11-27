@@ -182,7 +182,7 @@ plot_given_sites(
 
 def_exposed_pinkgroup_2 <- c(
   1019,1018,1839,1840,1832,1017,1836,1016,1015,1009,1010,1011,1012,1837,
-  1825,1833,1834,1008,1816,1007,1006,1005,1829,1820,1817,1014,1013,195,701,
+  1825,1833,1834,1008,1816,1007,1006,1005,1829,1820,1014,1013,195,701,
   1799,2834
 )
 not_exposed_pinkgroup_2 <- c(
@@ -195,7 +195,7 @@ not_exposed_pinkgroup_2 <- c(
 )
 possibly_exposed_pinkgroup_2_all_maybe <- c(
  1838,1021,1020,1022,1023,1024,1025,1026,1027,1028,1905,1001,1813,2689,993,992,
- 991,990,989,1807,1871,999,998,1804,1809,1800,1801,1803,987,988,2687
+ 991,990,989,1807,1871,999,998,1804,1809,1800,1801,1803,987,988,2687,1817
 )
 possibly_exposed_pinkgroup_2_north_maybe <- c(
   1905,1028,1027,1026,1025,1024,1023,1022,1021,1020,1871
@@ -295,13 +295,13 @@ not_exposed_pinkgroup_3 <- c(
   1054,1077,1050,1046,1057,1068,512,1072,486,553,163,169,1080,1081,1045,1044,
   1042,1041,1040,1038,1029,1037,1030,1036,1035,1034,7990614,1083,1084,1086,
   1085,1910,1909,3553,1908,1907,1906,1090,1911,1903,1902,1901,1872,429,1870,
-  1869,1897,1890,1588,1709,1883,1817,1799,
+  1869,1897,1890,1588,1709,1883,1799,
   201,2615,899,439,1422,1474,1904,1087,1813
 )
 possibly_exposed_pinkgroup_3_all_maybe <- c(
   1833,1834,1008,1007,1816,1850,1852,1854,1843,1838,1020,1021,1022,1023,1024,
   1025,1026,1871,1027,1028,2687,1803,987,988,1807,1005,1001,999,998,993,
-  991,992,990,2689,989,1905
+  991,992,990,2689,989,1905,1817
 )
 possibly_exposed_pinkgroup_3_north_maybe <- c(
   1028,1905,1027,1025,1026,1024,1023,1022,1021,1020,1871,1838,1850,1852,1854,
@@ -393,23 +393,35 @@ pops_chumgroup_1 <- chum_site_name_combos %>%
   unique() 
 
 def_exposed_chumgroup_1 <- c(
-  1014,1009,1010,1011,1012,1013,1015,1015,1836,1825,1017,1832,1829,1820,1824,
+  1014,1009,1010,1011,1012,1013,1015,1836,1825,1017,1832,1829,1820,1824,
   1840,1839,1018,1019,1016,1837
 )
 not_exposed_chumgroup_1 <- c(
   512,1046,1045,1042,1083,1041,1040,1086,1085,1910,1906,1907,3553,1909,1087,
-  1905,1090,1903,1911,1902,1901,1900,1897,1869,429,1870,1869,1029,1030,1036,
-  1035,1034,1474,2687,2683,1809,1800,1801,987,988,1807,1813,1799,990,991,992,
-  993,998,2689,2690,1001,1817,1857,1843,1846,1854,1851,1850,2831,1709,1588,
-  1037,1080,486,553,1422,899,999,201,989,439,2691
+  1090,1903,1911,1902,1901,1900,1897,429,1869,1029,1030,1036,
+  1035,1034,1474,1799,990,
+  1857,1843,1846,1854,1851,1850,2831,1709,1588,
+  1037,1080,486,553,1422,899,201,439
   
 )
-possibly_exposed_chumgroup_1 <- c(
-  1020,1021,1023,1025,1833,1834,1835,1008,1007,1871
+possibly_exposed_chumgroup_1_all_maybe <- c(
+  1020,1021,1023,1025,1833,1834,1835,1008,1007, 1905, 1871, 1870,1001,999,1817,
+  998,2689,2690,1813,2691,1807,1809,2687,2683,1800,1801,987,989,993,992,991,988
 )
+possibly_exposed_chumgroup_1_north_maybe <- c(
+  1905,1871,1870,1025,1023,1020,1021
+)
+possibly_exposed_chumgroup_1_south_maybe <- 
+  possibly_exposed_chumgroup_1_all_maybe %notin%
+  possibly_exposed_chumgroup_1_north_maybe
 
 chumgroup_1_sites_cat <- c(def_exposed_chumgroup_1, not_exposed_chumgroup_1, 
-                       possibly_exposed_chumgroup_1)
+                           possibly_exposed_chumgroup_1_all_maybe)
+
+if(any(duplicated(chumgroup_1_sites_cat))) {
+  print(chumgroup_1_sites_cat[which(duplicated(chumgroup_1_sites_cat))])
+  stop("ERROR - Duplicates in the the chumgroup_1_sites_cat sites")
+}
 
 pops_missing_chumgroup_1 <- pops_chumgroup_1 %>% 
   dplyr::filter(site_num %notin% chumgroup_1_sites_cat)
@@ -436,6 +448,12 @@ plot_given_sites(
   site_df = chum_site_name_combos,
   large_land = readRDS(tar_read(large_land))
 )
+plot_given_sites(
+  site_nums_missing = possibly_exposed_chumgroup_1_all_maybe, 
+  yr = 2005, 
+  site_df = chum_site_name_combos,
+  large_land = readRDS(tar_read(large_land))
+)
 
 exposed_df_chumgroup_1 <- data.frame(
   sites = pops_chumgroup_1$site_num,
@@ -444,8 +462,13 @@ exposed_df_chumgroup_1 <- data.frame(
   dplyr::mutate(
     exposure = dplyr::case_when(
       sites %in% def_exposed_chumgroup_1                   ~ "yes",
-      sites %in% possibly_exposed_chumgroup_1              ~ "maybe",
+      sites %in% possibly_exposed_chumgroup_1_all_maybe    ~ "maybe",
       sites %in% not_exposed_chumgroup_1                   ~ "no"
+    ),
+    maybes = dplyr::case_when(
+      sites %in% possibly_exposed_chumgroup_1_north_maybe  ~ "north",
+      sites %in% possibly_exposed_chumgroup_1_south_maybe  ~ "south",
+      TRUE                                                    ~ NA
     )
   )
 
@@ -471,13 +494,13 @@ not_exposed_chumgroup_2 <- c(
   553,486,512,1046,1080,1045,1042,1041,1040,1039,1083,1084,1086,1906,1908,
   1905,1904,1090,1088,1909,1910,1911,1903,1902,1901,1900,1870,1588,1869,
   1897,1035,1034,1036,1037,1030,1029,1850,1851,1846,1852,1844,1854,2831,1843,
-  1842,1817,991,993,998,999,2689,2690,989,1799,1807,2691,1001,1813,1800,1801,
+  1842,991,993,998,999,2689,2690,989,1799,1807,2691,1001,1813,1800,1801,
   1809,2683,2687,1474,1422,201,996,992,990,988,987,1803,439,2708,1804,2834,
   1841,1855,1874,1875,1883,1887,1709,1890,429,1872,3553,1038,1907,1087,1085,
   1082,1077,1050,1057,1054,1068,1072,1076,163,169,1044,110,701,2615,899
 )
 possibly_exposed_chumgroup_2 <- c(
-  1025,1021,1838,1020,1022,1023,1024,1026,1028,1812,1871
+  1025,1021,1838,1020,1022,1023,1024,1026,1028,1812,1871,1817
 )
 
 chumgroup_2_sites_cat <- c(def_exposed_chumgroup_2, not_exposed_chumgroup_2, 
