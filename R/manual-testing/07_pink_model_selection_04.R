@@ -31,3 +31,43 @@ qs::qsave(alt_3,
 
 end_time <- Sys.time() 
 end_time - start_time
+
+start_time <- Sys.time()
+alt_4 <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_4:certainty_4  + (1|area_year) + (1|area) + 
+    (-1+con_unit|brood_year)  + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 3,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 3,
+  iter = 2000
+)
+alt_4$waic <- waic(alt_4, cores = 4)
+qs::qsave(alt_4,
+          here("./outputs/model-outputs/TEMP-MANUAL/alt-4.qs"))
+
+end_time <- Sys.time() 
+end_time - start_time
+
+start_time <- Sys.time()
+alt_5 <- rstanarm::stan_lmer(
+  survival ~ spawners:river + lice_5:certainty_5  + (1|area_year) + (1|area) + 
+    (-1+con_unit|brood_year)  + (1|river),
+  data = pink_sr,
+  #family = gaussian(link = "identity"),
+  #prior = normal(0, 5),
+  chains = 3,
+  adapt_delta = 0.99,
+  control = list(max_treedepth = 15),
+  cores = 3,
+  iter = 2000
+)
+alt_5$waic <- waic(alt_5, cores = 4)
+qs::qsave(alt_5,
+          here("./outputs/model-outputs/TEMP-MANUAL/alt-5.qs"))
+
+end_time <- Sys.time() 
+end_time - start_time
