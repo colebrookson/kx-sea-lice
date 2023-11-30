@@ -62,6 +62,17 @@ bc_cropped <- sf::st_crop(bc_utm, xmin = 450000,
 saveRDS(bc_cropped, 
         here("./outputs/geo-objs/fresh/large-land-for-plotting.rds"))
 
+bc_cropped_large <- sf::st_crop(bc_utm, xmin = 450000,
+                          xmax = 660000, ymin = 5700000, 
+                          ymax = 6000000)
+
+ggplot() + 
+  geom_sf(data = bc_cropped_large) +
+  coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")
+
+saveRDS(bc_cropped_large, 
+        here("./outputs/geo-objs/fresh/even-large-land-for-plotting.rds"))
+
 ggplot() + 
   geom_sf(data = bc_cropped) +
   coord_sf(datum = "+proj=utm +zone=9 +datum=NAD83 +unit=m")

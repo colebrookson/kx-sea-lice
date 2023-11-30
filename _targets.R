@@ -25,6 +25,8 @@ tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2",
                             "ggthemes", "wesanderson", "lubridate", "janitor",
                             "tibble", "ggrepel", "sp", "glmmTMB", "sf", 
                             "sfnetworks", "qs", "tidygraph"))
+#tar_option_set(repository_meta = "local")
+
 options(dplyr.summarise.inform = FALSE)
 
 list(
@@ -114,6 +116,9 @@ list(
   #            here::here("./outputs/geo-objs/utm-geo-data.rds")),
   tar_target(large_land,
              here::here("./outputs/geo-objs/fresh/large-land-for-plotting.rds")),
+  tar_target(larger_land,
+             here::here(
+               "./outputs/geo-objs/fresh/even-large-land-for-plotting.rds")),
   ## data cleaning =============================================================
   tar_target(
     clean_wild_lice_data,
@@ -316,6 +321,38 @@ list(
       all_edges_nodes = readRDS(all_edges_nodes),
       species = "Chum",
       fig_output = here::here("./figs/maps/yearly-pop-maps/chum//")
+    )
+  ),
+  tar_target(
+    yearly_popn_exposure_large_maps_pink,
+    make_yearly_popn_maps(
+      sr_pop_data = clean_pink_spawner_recruit_data,
+      sr_pop_sites = clean_wild_pop_location_data,
+      large_land = readRDS(larger_land),
+      farm_data = clean_farm_lice_data,
+      farm_locs = clean_farm_locs,
+      network = qs::qread(network),
+      exposure_df = read_csv(pink_exposure_df),
+      all_edges_nodes = readRDS(all_edges_nodes),
+      species = "Pink",
+      fig_output = here::here("./figs/maps/yearly-pop-maps/pink/larger//"),
+      data_output = here::here("./data/spawner-recruit/clean//")
+    )
+  ),
+  tar_target(
+    yearly_popn_exposure_large_maps_chum,
+    make_yearly_popn_maps(
+      sr_pop_data = clean_chum_spawner_recruit_data,
+      sr_pop_sites = clean_wild_pop_location_data,
+      large_land = readRDS(larger_land),
+      farm_data = clean_farm_lice_data,
+      farm_locs = clean_farm_locs,
+      network = qs::qread(network),
+      exposure_df = read_csv(chum_exposure_df),
+      all_edges_nodes = readRDS(all_edges_nodes),
+      species = "Chum",
+      fig_output = here::here("./figs/maps/yearly-pop-maps/chum/larger//"),
+      #data_output = here::here("./data/spawner-recruit/clean//")
     )
   )
   ## model fitting =============================================================

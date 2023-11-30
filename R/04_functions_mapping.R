@@ -481,7 +481,8 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
   # TESTING
   # sr_pop_data = tar_read(clean_pink_spawner_recruit_data)
   # sr_pop_sites = tar_read(clean_wild_pop_location_data)
-  # large_land = readRDS(tar_read(large_land))
+  # #large_land = readRDS(tar_read(large_land))
+  # large_land = readRDS(here::here("./outputs/geo-objs/fresh/even-large-land-for-plotting.rds"))
   # farm_data = tar_read(clean_farm_lice_data)
   # farm_locs = tar_read(clean_farm_locs)
   # network = qs::qread(tar_read(network))
@@ -492,8 +493,8 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
   # data_output = here::here("./data/spawner-recruit/clean//")
   
   # filter the sites to just the ones in our data
-  sr_pop_data_area67 <- sr_pop_data %>% 
-    dplyr::filter(area %in% c(6, 7))
+  # sr_pop_data_area67 <- sr_pop_data %>% 
+  #   dplyr::filter(area %in% c(6, 7))
   
   # clean the farm data names so they match up between the dataframe
   farm_data <- farm_data %>% 
@@ -534,10 +535,10 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
       dplyr::select(site, lat, long)
     
     sr_pop_sites_filter <- sr_pop_sites %>% 
-      dplyr::filter(system_site %in% unique(sr_pop_data_area67$river)) 
+      dplyr::filter(system_site %in% unique(sr_pop_data$river)) 
     
     # get the populations in that year
-    sr_pop_temp <- sr_pop_data_area67 %>% 
+    sr_pop_temp <- sr_pop_data %>% 
       # brood year of yr will pass fish farms in year + 1
       dplyr::filter(brood_year == (yr - 1))
     
@@ -651,7 +652,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
                                  aes(x = X, y = Y,
                                      label = site, fontface = ff, size = type),
                                  max.overlaps = 50) +        theme_base() +
-        coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
+        coord_sf(xlim = c(465674.8, 650000), ylim = c(5691156, 5983932),
                  expand = FALSE) +
         theme(
           plot.background = element_rect(fill = "white"),
@@ -855,7 +856,7 @@ plot_given_sites <- function(site_nums_missing, yr, site_df, large_land) {
                              aes(x = X, y = Y,label = site_num),
                              max.overlaps = 50) +
     theme_base() +
-    coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
+    coord_sf(xlim = c(465674.8, 650000), ylim = c(5691156, 5983932),
              expand = FALSE) +
     theme(
       plot.background = element_rect(fill = "white"),
