@@ -336,7 +336,8 @@ list(
       all_edges_nodes = readRDS(all_edges_nodes),
       species = "Pink",
       fig_output = here::here("./figs/maps/yearly-pop-maps/pink/larger//"),
-      data_output = here::here("./data/spawner-recruit/clean//")
+      data_output = here::here("./data/spawner-recruit/clean//"),
+      size = "large"
     )
   ),
   tar_target(
@@ -352,7 +353,8 @@ list(
       all_edges_nodes = readRDS(all_edges_nodes),
       species = "Chum",
       fig_output = here::here("./figs/maps/yearly-pop-maps/chum/larger//"),
-      #data_output = here::here("./data/spawner-recruit/clean//")
+      #data_output = here::here("./data/spawner-recruit/clean//"),
+      size = "large"
     )
   )
   ## model fitting =============================================================

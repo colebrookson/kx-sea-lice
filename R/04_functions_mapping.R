@@ -453,7 +453,7 @@ make_nonexposure_yearly_maps <- function(sr_pop_data, sr_pop_sites, large_land,
 make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
                                   farm_data, farm_locs, network, exposure_df,
                                   all_edges_nodes, fig_output, species,
-                                  data_output) {
+                                  data_output, size = "small") {
   #' Maps of each year's population and farm co-occurrence
   #' 
   #' @description To determine which farms are high, medium, or low risk, we
@@ -538,18 +538,13 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
       dplyr::filter(system_site %in% unique(sr_pop_data$river)) 
     
     # get the populations in that year
-    sr_pop_temp <- sr_pop_data %>% 
+    site_year_temp <- sr_pop_data %>% 
       # brood year of yr will pass fish farms in year + 1
-      dplyr::filter(brood_year == (yr - 1))
-    
-    # subset to just the locations that were shown to be present in that year
-    site_year_temp <- sr_pop_sites_filter %>% 
-      dplyr::filter(system_site %in% unique(sr_pop_temp$river)) %>% 
-      dplyr::select(system_site, y_lat, x_longt, gfe_id, unique_id) %>% 
-      unique() %>% 
-      dplyr::rename(site_name = system_site, lat = y_lat, long = x_longt) %>% 
-      dplyr::mutate(site_num = gfe_id,
-                    brood_year = unique(sr_pop_temp$brood_year)) %>% 
+      dplyr::filter(brood_year == (yr - 1)) %>% 
+      dplyr::select(river, lat, long, gfe_id, brood_year) %>% 
+      unique() %>%
+      dplyr::rename(site_name = river, lat = long, long = lat, 
+                    site_num = gfe_id) %>% 
       dplyr::select(site_name, brood_year, lat, long, site_num)
     
     # put the farm locations and the population locations together
@@ -627,6 +622,11 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
     
     
     ### all maybes ============================================================
+    if(size == "small") {
+      xmin = 465674.8; xmax = 585488; ymin = 5761156; ymax = 5983932
+    } else if(size == "large") {
+      xmin = 465674.8; xmax = 650000; ymin = 5691156; ymax = 5983932
+    }
     
     # make and save the dataframe
     ggplot2::ggsave(
@@ -652,7 +652,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
                                  aes(x = X, y = Y,
                                      label = site, fontface = ff, size = type),
                                  max.overlaps = 50) +        theme_base() +
-        coord_sf(xlim = c(465674.8, 650000), ylim = c(5691156, 5983932),
+        coord_sf(xlim = c(xmin, xmax), ylim = c(ymin, ymax),
                  expand = FALSE) +
         theme(
           plot.background = element_rect(fill = "white"),
