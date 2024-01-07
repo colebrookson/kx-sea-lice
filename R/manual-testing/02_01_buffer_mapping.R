@@ -43,9 +43,7 @@ farms_utm <- st_transform(clean_farm_locs,
 
 ## geo data ====================================================================
 
-# the data is downlaoded from the raster package and can be pulled with:
-# canada <- raster::getData("GADM",country="CAN",level=1)
-# canada_prov = canada[canada$NAME_1 == "British Columbia"] # subset to just BC
+# the data is courtesy of the KX nation
 
 geo_data <- readRDS(here("./data/geo-spatial/gadm36_CAN_1_sp.rds"))
 # make into sf object
