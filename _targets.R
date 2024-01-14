@@ -24,7 +24,7 @@ source(here::here("./R/05_functions_power_analysis.R"))
 tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2", 
                             "ggthemes", "wesanderson", "lubridate", "janitor",
                             "tibble", "ggrepel", "sp", "glmmTMB", "sf", 
-                            "sfnetworks", "qs", "tidygraph"))
+                            "sfnetworks", "qs", "tidygraph", "patchwork"))
 #tar_option_set(repository_meta = "local")
 
 options(dplyr.summarise.inform = FALSE)

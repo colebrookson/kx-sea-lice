@@ -128,7 +128,7 @@ def_exposed_pinkgroup_1 <- c(
 )
 
 possibly_exposed_pinkgroup_1_all_maybe <- c(
-  1838,1020,1021,1022,1023,1025,1905,1007,1008,1834,1833,1871,2687,1801,1800,
+  1838,1020,1021,1022,1023,1025,1007,1008,1834,1833,2687,1801,1800,
   987,989,2689,1813,999,998,1807
 )
 
@@ -137,7 +137,7 @@ not_exposed_pinkgroup_1 <- pops_pinkgroup_1$site_num[which(
     c(def_exposed_pinkgroup_1, possibly_exposed_pinkgroup_1_all_maybe))]
 
 possibly_exposed_pinkgroup_1_north_maybe <- c(
-  1905,1025,1871,1023,1020,1022,1838,1021
+  1025,1023,1020,1022,1838,1021,1008,1834,1007,1833,1837
 )
 possibly_exposed_pinkgroup_1_south_maybe <- 
   possibly_exposed_pinkgroup_1_all_maybe[which(
@@ -230,8 +230,8 @@ def_exposed_pinkgroup_2 <- c(
 )
 
 possibly_exposed_pinkgroup_2_all_maybe <- c(
- 1838,1021,1020,1022,1023,1024,1025,1026,1027,1028,1905,1001,1813,2689,993,992,
- 991,990,989,1807,1871,999,998,1804,1809,1800,1801,1803,987,988,2687,1817
+ 1838,1021,1020,1022,1023,1024,1025,1026,1027,1028,1001,1813,2689,993,992,
+ 991,990,989,1807,999,998,1804,1809,1800,1801,1803,987,988,2687,1817
 )
 
 not_exposed_pinkgroup_2 <- pops_pinkgroup_2$site_num[which(
@@ -239,7 +239,7 @@ not_exposed_pinkgroup_2 <- pops_pinkgroup_2$site_num[which(
     c(def_exposed_pinkgroup_2, possibly_exposed_pinkgroup_2_all_maybe))]
 
 possibly_exposed_pinkgroup_2_north_maybe <- c(
-  1905,1028,1027,1026,1025,1024,1023,1022,1021,1020,1871,1838
+  1028,1027,1026,1025,1024,1023,1022,1021,1020,1838
 )
 
 possibly_exposed_pinkgroup_2_south_maybe <- 
@@ -336,8 +336,8 @@ def_exposed_pinkgroup_3 <- c(
 
 possibly_exposed_pinkgroup_3_all_maybe <- c(
   1833,1007,1816,1850,1852,1854,1843,1838,1020,1021,1022,1023,1024,
-  1025,1026,1871,1027,1028,2687,1803,987,988,1807,1005,1001,999,998,993,
-  991,992,990,2689,989,1905,1813
+  1025,1026,1027,1028,2687,1803,987,988,1807,1005,1001,999,998,993,
+  991,992,990,2689,989,1813
 )
 
 not_exposed_pinkgroup_3 <- pops_pinkgroup_3$site_num[which(
@@ -345,8 +345,8 @@ not_exposed_pinkgroup_3 <- pops_pinkgroup_3$site_num[which(
     c(def_exposed_pinkgroup_3, possibly_exposed_pinkgroup_3_all_maybe))]
 
 possibly_exposed_pinkgroup_3_north_maybe <- c(
-  1028,1905,1027,1025,1026,1024,1023,1022,1021,1020,1871,1838,1850,1852,1854,
-  1843
+  1028,1027,1025,1026,1024,1023,1022,1021,1020,1838,1850,1852,1854,
+  1843,1007,1833
 )
 possibly_exposed_pinkgroup_3_south_maybe <-
   possibly_exposed_pinkgroup_3_all_maybe[which(
@@ -416,7 +416,6 @@ exposed_df_3_large <- exposed_df_3_large %>%
   )
 
 ## pinkgroup 4 =================================================================
-## pinkgroup_3 =================================================================
 pops_pinkgroup_4 <- pink_site_name_combos %>% 
   dplyr::filter(out_mig_year %in% c(2020)) %>% 
   dplyr::select(site_num, site_name) %>% 
@@ -436,8 +435,8 @@ def_exposed_pinkgroup_4 <- c(
 
 possibly_exposed_pinkgroup_4_all_maybe <- c(
   1007,1816,1850,1852,1854,1020,1021,1022,1023,
-  1025,1026,1871,1803,987,988,1807,1005,999,998,993,
-  991,992,990,2689,989,1905,1813
+  1025,1026,1803,987,988,1807,1005,999,998,993,
+  991,992,990,2689,989,1813
 )
 
 not_exposed_pinkgroup_4 <- pops_pinkgroup_4$site_num[which(
@@ -445,8 +444,8 @@ not_exposed_pinkgroup_4 <- pops_pinkgroup_4$site_num[which(
     c(def_exposed_pinkgroup_4, possibly_exposed_pinkgroup_4_all_maybe))]
 
 possibly_exposed_pinkgroup_4_north_maybe <- c(
-  1905,1025,1026,1023,1022,1021,1020,1871,1850,1852,1854,
-  1843
+  1025,1026,1023,1022,1021,1020,1850,1852,1854,
+  1843,1007
 )
 possibly_exposed_pinkgroup_4_south_maybe <-
   possibly_exposed_pinkgroup_4_all_maybe[which(
@@ -539,7 +538,7 @@ def_exposed_chumgroup_1 <- c(
   1840,1839,1018,1019,1016,1837,1835
 )
 possibly_exposed_chumgroup_1_all_maybe <- c(
-  1020,1021,1023,1025,1833,1834,1008,1007, 1905, 1871,1001,999,1817,
+  1020,1021,1023,1025,1833,1834,1008,1007,1001,999,1817,
   998,2689,2690,1813,2691,1807,1809,2687,2683,1800,1801,987,989,993,992,991,988
 )
 
@@ -548,7 +547,7 @@ not_exposed_chumgroup_1 <- pops_chumgroup_1$site_num[which(
     c(def_exposed_chumgroup_1, possibly_exposed_chumgroup_1_all_maybe))]
 
 possibly_exposed_chumgroup_1_north_maybe <- c(
-  1905,1871,1025,1023,1020,1021
+  1025,1023,1020,1021,1008,1834,1833,1007
 )
 possibly_exposed_chumgroup_1_south_maybe <- 
   possibly_exposed_chumgroup_1_all_maybe[which(
@@ -633,10 +632,10 @@ def_exposed_chumgroup_2 <- c(
 )
 
 possibly_exposed_chumgroup_2_all_maybe <- c(
-  1025,1021,1838,1020,1022,1023,1024,1026,1028,1812,1871,
+  1025,1021,1838,1020,1022,1023,1024,1026,1028,1812,
   1817,991,993,998,999,2689,2690,989,1807,2691,996,992,990,988,987,1803,
   2683,2687,1001,1813,1800,1801,
-  1809,1804,2708,1905
+  1809,1804,2708
 )
 
 not_exposed_chumgroup_2 <- pops_chumgroup_2$site_num[which(
@@ -644,7 +643,7 @@ not_exposed_chumgroup_2 <- pops_chumgroup_2$site_num[which(
     c(def_exposed_chumgroup_2, possibly_exposed_chumgroup_2_all_maybe))]
 
 possibly_exposed_chumgroup_2_north_maybe <- c(
-  1905,1871,1026,1025,1024,1023,1022,1838,1021,1020,1028
+  1026,1025,1024,1023,1022,1838,1021,1020,1028
 )
 possibly_exposed_chumgroup_2_south_maybe <- 
   possibly_exposed_chumgroup_2_all_maybe[which(
@@ -748,7 +747,7 @@ def_exposed_chumgroup_3 <- c(
 
 possibly_exposed_chumgroup_3_all_maybes <- c(
   7990591,1850,1852,1853,1855,1854,1843,1018,1020,1021,1022,1023,1024,1025,1026,
-  1871,1027,1028,989,1807,1813,990,991,992,993,998,999,
+  1027,1028,989,1807,1813,990,991,992,993,998,999,
   1007,1005,1809,987
 )
 
@@ -757,7 +756,8 @@ not_exposed_chumgroup_3 <- pops_chumgroup_3$site_num[which(
     c(def_exposed_chumgroup_3, possibly_exposed_chumgroup_3_all_maybes))]
 
 possibly_exposed_chumgroup_3_north_maybes <- c(
-  1028,1027,1871,1026,1025,1023,1022,1018,1850,1852,1855,1854,1843,1021,1020
+  1028,1027,1026,1025,1023,1022,1018,1850,1852,1855,1854,1843,1021,1020,
+  7990591,1007
 )
 possibly_exposed_chumgroup_3_south_maybes <- 
   possibly_exposed_chumgroup_3_all_maybes[which(

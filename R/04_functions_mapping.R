@@ -513,6 +513,7 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
   
   # set the coordinates for WGS84
   sf::st_crs(farms_sf) <- 4326 
+  
   # transform to utm 
   farms_utm <- sf::st_transform(farms_sf,  
                             crs="+proj=utm +zone=9 +datum=NAD83 +unit=m")
@@ -628,58 +629,58 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
       xmin = 465674.8; xmax = 650000; ymin = 5691156; ymax = 5983932
     }
     
+    all <- ggplot2::ggplot() +
+      geom_sf(data = network %>%
+                sfnetworks::activate("nodes") %>%
+                slice(curr_nodes) %>% 
+                sf::st_as_sf(), 
+              fill = "lightpink", colour = "lightpink") +
+      geom_sf(data = large_land, fill = "white", colour = "grey70") +
+      #geom_sf(data = utm_land_data_large, fill = "grey70") +
+      geom_sf(data = locs_temp_utm, aes(fill = exposure, shape = type,  
+                                        size = type)) +
+      scale_size_manual(values = c(2.5, 1.8)) +
+      scale_shape_manual("Location", values = c(21, 22)) +
+      scale_fill_manual("Exposure", values = c("red3", "gold2", "lightblue2",
+                                               "purple")) +
+      ggrepel::geom_text_repel(data = locs_temp_utm,
+                               aes(x = X, y = Y,
+                                   label = site, fontface = ff, size = type),
+                               max.overlaps = 50) +        theme_base() +
+      coord_sf(xlim = c(xmin, xmax), ylim = c(ymin, ymax),
+               expand = FALSE) +
+      theme(
+        plot.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90)
+      ) +
+      guides(
+        size = "none",
+        fill = guide_legend(
+          override.aes = list(
+            shape = c(21,21,21,21),
+            size = c(3,3,3,3),
+            fill = c("red3", "gold2", "lightblue2",
+                     "white"),
+            colour = c("black", "black", "black", "white")
+          )
+        ),
+        shape = guide_legend(
+          override.aes = list(
+            size = c(3,3)
+          )
+        )
+      )+
+      labs(
+        x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr,
+                                                        " all maybes")
+      )
+    
     # make and save the dataframe
     ggplot2::ggsave(
-
       # output path
       paste0(fig_output, "//all-maybes//", "map-by-year-", yr, ".png"),
-
-      ggplot2::ggplot() +
-        geom_sf(data = network %>%
-                  sfnetworks::activate("nodes") %>%
-                  slice(curr_nodes) %>% 
-                  sf::st_as_sf(), 
-                fill = "lightpink", colour = "lightpink") +
-        geom_sf(data = large_land, fill = "white", colour = "grey70") +
-        #geom_sf(data = utm_land_data_large, fill = "grey70") +
-        geom_sf(data = locs_temp_utm, aes(fill = exposure, shape = type,  
-                                          size = type)) +
-        scale_size_manual(values = c(2.5, 1.8)) +
-        scale_shape_manual("Location", values = c(21, 22)) +
-        scale_fill_manual("Exposure", values = c("red3", "gold2", "lightblue2",
-                                                 "purple")) +
-        ggrepel::geom_text_repel(data = locs_temp_utm,
-                                 aes(x = X, y = Y,
-                                     label = site, fontface = ff, size = type),
-                                 max.overlaps = 50) +        theme_base() +
-        coord_sf(xlim = c(xmin, xmax), ylim = c(ymin, ymax),
-                 expand = FALSE) +
-        theme(
-          plot.background = element_rect(fill = "white"),
-          axis.text.x = element_text(angle = 90)
-        ) +
-        guides(
-          size = "none",
-          fill = guide_legend(
-            override.aes = list(
-              shape = c(21,21,21,21),
-              size = c(3,3,3,3),
-              fill = c("red3", "gold2", "lightblue2",
-                       "white"),
-              colour = c("black", "black", "black", "white")
-            )
-          ),
-          shape = guide_legend(
-            override.aes = list(
-              size = c(3,3)
-            )
-          )
-        )+
-        labs(
-          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr,
-                                                          "all maybes")
-        ),
-
+      # the plot
+      all,
       # make the size
       height = 8, width = 6
     )
@@ -689,57 +690,59 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
       locs_temp_utm_n$exposure_maybe == "south maybe"
     ), "exposure"] <- "no"
     locs_temp_utm_n$exposure
+    
+    north <- ggplot2::ggplot() +
+      geom_sf(data = network %>%
+                sfnetworks::activate("nodes") %>%
+                slice(curr_nodes) %>% 
+                sf::st_as_sf(), 
+              fill = "lightpink", colour = "lightpink") +
+      geom_sf(data = large_land, fill = "white", colour = "grey70") +
+      #geom_sf(data = utm_land_data_large, fill = "grey70") +
+      geom_sf(data = locs_temp_utm_n, aes(fill = exposure, shape = type,  
+                                          size = type)) +
+      scale_size_manual(values = c(2.5, 1.8)) +
+      scale_shape_manual("Location", values = c(21, 22)) +
+      scale_fill_manual("Exposure", values = c("red3", "gold2", "lightblue2",
+                                               "purple")) +
+      ggrepel::geom_text_repel(data = locs_temp_utm_n,
+                               aes(x = X, y = Y,
+                                   label = site, fontface = ff, size = type),
+                               max.overlaps = 50) +        theme_base() +
+      coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
+               expand = FALSE) +
+      theme(
+        plot.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90)
+      ) +
+      guides(
+        size = "none",
+        fill = guide_legend(
+          override.aes = list(
+            shape = c(21,21,21,21),
+            size = c(3,3,3,3),
+            fill = c("red3", "gold2", "lightblue2",
+                     "white"),
+            colour = c("black", "black", "black", "white")
+          )
+        ),
+        shape = guide_legend(
+          override.aes = list(
+            size = c(3,3)
+          )
+        )
+      )+
+      labs(
+        x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr,
+                                                        " north maybes")
+      )
       
     ggplot2::ggsave(
       
       # output path
       paste0(fig_output, "//north-maybes//", "map-by-year-", yr, ".png"),
       # plot
-      ggplot2::ggplot() +
-        geom_sf(data = network %>%
-                  sfnetworks::activate("nodes") %>%
-                  slice(curr_nodes) %>% 
-                  sf::st_as_sf(), 
-                fill = "lightpink", colour = "lightpink") +
-        geom_sf(data = large_land, fill = "white", colour = "grey70") +
-        #geom_sf(data = utm_land_data_large, fill = "grey70") +
-        geom_sf(data = locs_temp_utm_n, aes(fill = exposure, shape = type,  
-                                          size = type)) +
-        scale_size_manual(values = c(2.5, 1.8)) +
-        scale_shape_manual("Location", values = c(21, 22)) +
-        scale_fill_manual("Exposure", values = c("red3", "gold2", "lightblue2",
-                                                 "purple")) +
-        ggrepel::geom_text_repel(data = locs_temp_utm_n,
-                                 aes(x = X, y = Y,
-                                     label = site, fontface = ff, size = type),
-                                 max.overlaps = 50) +        theme_base() +
-        coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
-                 expand = FALSE) +
-        theme(
-          plot.background = element_rect(fill = "white"),
-          axis.text.x = element_text(angle = 90)
-        ) +
-        guides(
-          size = "none",
-          fill = guide_legend(
-            override.aes = list(
-              shape = c(21,21,21,21),
-              size = c(3,3,3,3),
-              fill = c("red3", "gold2", "lightblue2",
-                       "white"),
-              colour = c("black", "black", "black", "white")
-            )
-          ),
-          shape = guide_legend(
-            override.aes = list(
-              size = c(3,3)
-            )
-          )
-        )+
-        labs(
-          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr,
-                                                          "north maybes")
-        ),
+      north,
     
     # make the size
     height = 8, width = 6
@@ -752,59 +755,80 @@ make_yearly_popn_maps <- function(sr_pop_data, sr_pop_sites, large_land,
     ), "exposure"] <- "no"
     locs_temp_utm_s$exposure
     
+    south <- ggplot2::ggplot() +
+      geom_sf(data = network %>%
+                sfnetworks::activate("nodes") %>%
+                slice(curr_nodes) %>% 
+                sf::st_as_sf(), 
+              fill = "lightpink", colour = "lightpink") +
+      geom_sf(data = large_land, fill = "white", colour = "grey70") +
+      #geom_sf(data = utm_land_data_large, fill = "grey70") +
+      geom_sf(data = locs_temp_utm_s, aes(fill = exposure, shape = type,  
+                                          size = type)) +
+      scale_size_manual(values = c(2.5, 1.8)) +
+      scale_shape_manual("Location", values = c(21, 22)) +
+      scale_fill_manual("Exposure", values = c("red3", "gold2", "lightblue2",
+                                               "purple")) +
+      ggrepel::geom_text_repel(data = locs_temp_utm_s,
+                               aes(x = X, y = Y,
+                                   label = site, fontface = ff, size = type),
+                               max.overlaps = 50) +        theme_base() +
+      coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
+               expand = FALSE) +
+      theme(
+        plot.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90)
+      ) +
+      guides(
+        size = "none",
+        fill = guide_legend(
+          override.aes = list(
+            shape = c(21,21,21,21),
+            size = c(3,3,3,3),
+            fill = c("red3", "gold2", "lightblue2",
+                     "white"),
+            colour = c("black", "black", "black", "white")
+          )
+        ),
+        shape = guide_legend(
+          override.aes = list(
+            size = c(3,3)
+          )
+        )
+      )+
+      labs(
+        x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr,
+                                                        " south maybes")
+      )
+    
     ggplot2::ggsave(
-      
       # output path
       paste0(fig_output, "//south-maybes//", "map-by-year-", yr, ".png"),
       # plot
-      ggplot2::ggplot() +
-        geom_sf(data = network %>%
-                  sfnetworks::activate("nodes") %>%
-                  slice(curr_nodes) %>% 
-                  sf::st_as_sf(), 
-                fill = "lightpink", colour = "lightpink") +
-        geom_sf(data = large_land, fill = "white", colour = "grey70") +
-        #geom_sf(data = utm_land_data_large, fill = "grey70") +
-        geom_sf(data = locs_temp_utm_s, aes(fill = exposure, shape = type,  
-                                            size = type)) +
-        scale_size_manual(values = c(2.5, 1.8)) +
-        scale_shape_manual("Location", values = c(21, 22)) +
-        scale_fill_manual("Exposure", values = c("red3", "gold2", "lightblue2",
-                                                 "purple")) +
-        ggrepel::geom_text_repel(data = locs_temp_utm_s,
-                                 aes(x = X, y = Y,
-                                     label = site, fontface = ff, size = type),
-                                 max.overlaps = 50) +        theme_base() +
-        coord_sf(xlim = c(465674.8, 585488), ylim = c(5761156, 5983932),
-                 expand = FALSE) +
-        theme(
-          plot.background = element_rect(fill = "white"),
-          axis.text.x = element_text(angle = 90)
-        ) +
-        guides(
-          size = "none",
-          fill = guide_legend(
-            override.aes = list(
-              shape = c(21,21,21,21),
-              size = c(3,3,3,3),
-              fill = c("red3", "gold2", "lightblue2",
-                       "white"),
-              colour = c("black", "black", "black", "white")
-            )
-          ),
-          shape = guide_legend(
-            override.aes = list(
-              size = c(3,3)
-            )
-          )
-        )+
-        labs(
-          x = "Longitude", y = "Latitude", title = paste0(species, ", ", yr,
-                                                          "south maybes")
-        ),
-      
+      south,
       # make the size
       height = 8, width = 6
+    )
+    
+    # stitch the maps together =================================================
+    all_noleg <- all + 
+      theme(
+        legend.position = "none"
+      )
+    north_noleg <- north + 
+      theme(
+        legend.position = "none"
+      )
+    
+    all_maps <- all_noleg + north_noleg + south
+    ggplot2::ggsave(
+      # output path
+      paste0(fig_output, "//all-north-south-options//", 
+             "map-by-year-", yr, ".png"),
+      # plot 
+      all_maps,
+      # size
+      height = 8, width = 14.5
     )
   }
 }

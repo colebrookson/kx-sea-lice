@@ -1,6 +1,6 @@
 sites,year,exposure,maybes
-1007,2005,maybe,south
-1008,2005,maybe,south
+1007,2005,maybe,north
+1008,2005,maybe,north
 1009,2005,yes,NA
 1010,2005,yes,NA
 1011,2005,yes,NA
@@ -47,10 +47,10 @@ sites,year,exposure,maybes
 1825,2005,yes,NA
 1829,2005,yes,NA
 1832,2005,yes,NA
-1833,2005,maybe,south
-1834,2005,maybe,south
+1833,2005,maybe,north
+1834,2005,maybe,north
 1836,2005,yes,NA
-1837,2005,yes,NA
+1837,2005,yes,north
 1838,2005,maybe,north
 1839,2005,yes,NA
 1840,2005,yes,NA
@@ -66,7 +66,7 @@ sites,year,exposure,maybes
 1859,2005,no,NA
 1869,2005,no,NA
 1870,2005,no,NA
-1871,2005,maybe,north
+1871,2005,no,NA
 1875,2005,no,NA
 1897,2005,no,NA
 1900,2005,no,NA
@@ -273,7 +273,7 @@ sites,year,exposure,maybes
 1854,2007,no,NA
 1869,2007,no,NA
 1870,2007,no,NA
-1871,2007,maybe,north
+1871,2007,no,NA
 1872,2007,no,NA
 1874,2007,no,NA
 1875,2007,no,NA
@@ -383,7 +383,7 @@ sites,year,exposure,maybes
 1855,2008,no,NA
 1869,2008,no,NA
 1870,2008,no,NA
-1871,2008,maybe,north
+1871,2008,no,NA
 1872,2008,no,NA
 1887,2008,no,NA
 1890,2008,no,NA
@@ -484,7 +484,7 @@ sites,year,exposure,maybes
 1854,2009,no,NA
 1869,2009,no,NA
 1870,2009,no,NA
-1871,2009,maybe,north
+1871,2009,no,NA
 1872,2009,no,NA
 1874,2009,no,NA
 1887,2009,no,NA
@@ -591,7 +591,7 @@ sites,year,exposure,maybes
 1846,2010,no,NA
 1852,2010,no,NA
 1869,2010,no,NA
-1871,2010,maybe,north
+1871,2010,no,NA
 1872,2010,no,NA
 1883,2010,no,NA
 1887,2010,no,NA
@@ -714,7 +714,7 @@ sites,year,exposure,maybes
 1855,2011,no,NA
 1869,2011,no,NA
 1870,2011,no,NA
-1871,2011,maybe,north
+1871,2011,no,NA
 1872,2011,no,NA
 1890,2011,no,NA
 1897,2011,no,NA
@@ -810,7 +810,7 @@ sites,year,exposure,maybes
 1855,2012,no,NA
 1869,2012,no,NA
 1870,2012,no,NA
-1871,2012,maybe,north
+1871,2012,no,NA
 1872,2012,no,NA
 1897,2012,no,NA
 1901,2012,no,NA
@@ -909,7 +909,7 @@ sites,year,exposure,maybes
 1855,2013,no,NA
 1869,2013,no,NA
 1870,2013,no,NA
-1871,2013,maybe,north
+1871,2013,no,NA
 1872,2013,no,NA
 1874,2013,no,NA
 1875,2013,no,NA
@@ -1022,7 +1022,7 @@ sites,year,exposure,maybes
 1867,2014,no,NA
 1869,2014,no,NA
 1870,2014,no,NA
-1871,2014,maybe,north
+1871,2014,no,NA
 1872,2014,no,NA
 1890,2014,no,NA
 1897,2014,no,NA
@@ -1122,7 +1122,7 @@ sites,year,exposure,maybes
 1855,2015,no,NA
 1869,2015,no,NA
 1870,2015,no,NA
-1871,2015,maybe,north
+1871,2015,no,NA
 1872,2015,no,NA
 1897,2015,no,NA
 1901,2015,no,NA
@@ -1209,7 +1209,7 @@ sites,year,exposure,maybes
 1855,2016,no,NA
 1869,2016,no,NA
 1870,2016,no,NA
-1871,2016,maybe,north
+1871,2016,no,NA
 1872,2016,no,NA
 1897,2016,no,NA
 1901,2016,no,NA
@@ -1237,7 +1237,7 @@ sites,year,exposure,maybes
 998,2016,maybe,south
 999,2016,maybe,south
 1005,2017,maybe,south
-1007,2017,maybe,south
+1007,2017,maybe,north
 1009,2017,yes,NA
 1010,2017,yes,NA
 1011,2017,yes,NA
@@ -1293,7 +1293,7 @@ sites,year,exposure,maybes
 1854,2017,maybe,north
 1869,2017,no,NA
 1870,2017,no,NA
-1871,2017,maybe,north
+1871,2017,no,NA
 1872,2017,no,NA
 1890,2017,no,NA
 1897,2017,no,NA
@@ -1368,7 +1368,7 @@ sites,year,exposure,maybes
 1840,2018,yes,NA
 1843,2018,maybe,north
 1870,2018,no,NA
-1871,2018,maybe,north
+1871,2018,no,NA
 1872,2018,no,NA
 1897,2018,no,NA
 1901,2018,no,NA
@@ -1408,7 +1408,7 @@ sites,year,exposure,maybes
 993,2018,maybe,south
 998,2018,maybe,south
 999,2018,maybe,south
-1007,2019,maybe,south
+1007,2019,maybe,north
 1009,2019,yes,NA
 1010,2019,yes,NA
 1011,2019,yes,NA
@@ -1452,7 +1452,7 @@ sites,year,exposure,maybes
 1813,2019,maybe,south
 1816,2019,maybe,south
 1825,2019,yes,NA
-1833,2019,maybe,south
+1833,2019,maybe,north
 1837,2019,yes,NA
 1838,2019,maybe,north
 1839,2019,yes,NA
@@ -1460,7 +1460,7 @@ sites,year,exposure,maybes
 1854,2019,maybe,north
 1869,2019,no,NA
 1870,2019,no,NA
-1871,2019,maybe,north
+1871,2019,no,NA
 1872,2019,no,NA
 1883,2019,no,NA
 1897,2019,no,NA
@@ -1494,7 +1494,7 @@ sites,year,exposure,maybes
 998,2019,maybe,south
 999,2019,maybe,south
 1005,2020,maybe,south
-1007,2020,maybe,south
+1007,2020,maybe,north
 1008,2020,yes,NA
 1009,2020,yes,NA
 1010,2020,yes,NA
@@ -1549,7 +1549,7 @@ sites,year,exposure,maybes
 1854,2020,maybe,north
 1869,2020,no,NA
 1870,2020,no,NA
-1871,2020,maybe,north
+1871,2020,no,NA
 1872,2020,no,NA
 1883,2020,no,NA
 1897,2020,no,NA
