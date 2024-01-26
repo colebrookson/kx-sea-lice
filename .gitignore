@@ -1,3 +1,6 @@
+# DS store file - don't want this
+**/.DS_Store
+
 .Rproj.user
 .Rhistory
 .RData
