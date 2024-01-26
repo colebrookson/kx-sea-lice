@@ -14,13 +14,6 @@ library(targets)
 library(tarchetypes)
 library(here)
 
-source(here::here("./R/00_functions_global.R"))
-source(here::here("./R/01_functions_clean_data.R"))
-source(here::here("./R/02_functions_lice_v_lice_regression.R"))
-source(here::here("./R/03_functions_wild_lice_regression.R"))
-source(here::here("./R/04_functions_mapping.R"))
-source(here::here("./R/05_functions_power_analysis.R"))
-
 tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2", 
                             "ggthemes", "wesanderson", "lubridate", "janitor",
                             "tibble", "ggrepel", "sp", "glmmTMB", "sf", 
@@ -28,6 +21,10 @@ tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2",
 #tar_option_set(repository_meta = "local")
 
 options(dplyr.summarise.inform = FALSE)
+
+tar_source(
+  files = here::here("./R")
+)
 
 list(
   ## files =====================================================================
@@ -363,6 +360,6 @@ list(
   #' was also fit, but is not included in it's pipeline since they're 
   #' computationally intensive and run in parallel over a long period of time. 
   #' The code for these model fitting procedures can be found in the 
-  #' `R/manual-testing` folder
+  #' R/manual-testing folder
   
 )
