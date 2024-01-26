@@ -23,7 +23,7 @@ tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2",
 options(dplyr.summarise.inform = FALSE)
 
 tar_source(
-  files = here::here("./R")
+  files = here::here("./src/R")
 )
 
 list(
