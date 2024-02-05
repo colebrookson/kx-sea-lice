@@ -27,6 +27,27 @@ tar_option_set(packages = c("here", "readr", "magrittr", "dplyr", "ggplot2",
                             "ggthemes", "wesanderson", "lubridate", "janitor",
                             "tibble", "ggrepel", "sp", "glmmTMB", "sf", 
                             "sfnetworks", "qs", "tidygraph", "patchwork"))
+controller_general <- crew_controller_local(
+  name = "general_controller",
+  workers = 1,
+  seconds_idle = 10
+)
+controller_big_slurm <- crew_controller_sge(
+  name = "mcmc_controller",
+  workers = 6,
+  seconds_idle = 100,
+  script_lines = "module load R",
+  sge_log_output = "log_folder/",
+  sge_memory_gigabytes_required = 64,
+  sge_gpu = 1
+)
+
+tar_option_set(
+  controller = crew_controller_group(controller_local, controller_sge),
+  resources = tar_resources(
+    crew = tar_resources_crew(controller = "my_local_controller")
+  )
+)
 
 options(dplyr.summarise.inform = FALSE)
 
