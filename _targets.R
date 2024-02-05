@@ -32,14 +32,10 @@ controller_general <- crew_controller_local(
   workers = 1,
   seconds_idle = 10
 )
-controller_big_slurm <- crew_controller_sge(
+controller_big_slurm <- crew_controller_local( 
   name = "mcmc_controller",
   workers = 6,
   seconds_idle = 100,
-  script_lines = "module load R",
-  sge_log_output = "log_folder/",
-  sge_memory_gigabytes_required = 64,
-  sge_gpu = 1
 )
 
 tar_option_set(
@@ -133,7 +129,19 @@ list(
                "./outputs/geo-objs/fresh/even-large-land-for-plotting.rds")),
   ## data cleaning =============================================================
   tar_target(
-    clean_wild_lice_data,
+    clean_wild_lice_data_2005,
+    # version of the data that includes 2005
+    clean_wild_lice(
+      raw_wild_lice = get_data_csv(raw_wild_lice_data),
+      dates_to_join = get_data_csv(dates_to_join),
+      raw_output_path = here::here("./data/wild-lice/raw//"),
+      clean_output_path = here::here("./data/wild-lice/clean//"),
+      fig_output_path = here::here("./figs/wild-lice//")
+    )
+  ),
+  tar_target(
+    clean_wild_lice_data_2006
+    # the version of the data that EXcludes 2005
     clean_wild_lice(
       raw_wild_lice = get_data_csv(raw_wild_lice_data),
       dates_to_join = get_data_csv(dates_to_join),

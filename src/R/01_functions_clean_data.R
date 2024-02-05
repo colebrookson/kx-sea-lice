@@ -9,8 +9,9 @@
 #'
 
 # clean_wild_lice ==============================================================
-clean_wild_lice <- function(raw_wild_lice, dates_to_join, raw_output_path, 
-                            clean_output_path, fig_output_path) {
+clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005, 
+                            raw_output_path, clean_output_path,
+                            fig_output_path) {
   #' Clean up wild lice data from the manually edited .csv file
   #' 
   #' @description Take the csv file that was manually edited, make some cleaning
@@ -20,6 +21,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, raw_output_path,
   #' @param raw_wild_lice file. The raw data file
   #' @param dates_to_join file. The previously (manually) edited file with all
   #' the info of the seine_date cleaning stuff
+  #' @param include_2005 logical. Whether or not to include the 2005 data
   #' @param raw_output_path character. Path to where to save the dataframe with 
   #' the unique values to do the manual cleaning 
   #' @param clean_output_path character. Where to save the clean dataframe
@@ -29,6 +31,12 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, raw_output_path,
   #' @return clean df of the wild lice info
   #'
   
+  # Testing
+  raw_wild_lice <- targets::tar_read(raw_wild_lice)
+  dates_to_join <- targets::tar_read(dates_to_join)
+  include_2005 <- TRUE
+  raw_output_path <- here::here("./data/wild-lice/")
+
   wild_lice_clean <- raw_wild_lice %>% 
     dplyr::mutate(seine_date = as.factor(seine_date)) %>% 
     dplyr::select(
