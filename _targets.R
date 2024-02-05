@@ -38,12 +38,12 @@ controller_big_slurm <- crew_controller_local(
   seconds_idle = 100,
 )
 
-tar_option_set(
-  controller = crew_controller_group(controller_local, controller_sge),
-  resources = tar_resources(
-    crew = tar_resources_crew(controller = "my_local_controller")
-  )
-)
+# tar_option_set(
+#   controller = crew_controller_group(controller_local, controller_sge),
+#   resources = tar_resources(
+#     crew = tar_resources_crew(controller = "my_local_controller")
+#   )
+# )
 
 options(dplyr.summarise.inform = FALSE)
 
@@ -134,17 +134,19 @@ list(
     clean_wild_lice(
       raw_wild_lice = get_data_csv(raw_wild_lice_data),
       dates_to_join = get_data_csv(dates_to_join),
+      include_2005 = TRUE,
       raw_output_path = here::here("./data/wild-lice/raw//"),
       clean_output_path = here::here("./data/wild-lice/clean//"),
       fig_output_path = here::here("./figs/wild-lice//")
     )
   ),
   tar_target(
-    clean_wild_lice_data_2006
+    clean_wild_lice_data_2006,
     # the version of the data that EXcludes 2005
     clean_wild_lice(
       raw_wild_lice = get_data_csv(raw_wild_lice_data),
       dates_to_join = get_data_csv(dates_to_join),
+      include_2005 = FALSE,
       raw_output_path = here::here("./data/wild-lice/raw//"),
       clean_output_path = here::here("./data/wild-lice/clean//"),
       fig_output_path = here::here("./figs/wild-lice//")

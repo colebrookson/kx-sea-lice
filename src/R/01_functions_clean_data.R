@@ -32,10 +32,12 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
   #'
   
   # Testing
-  raw_wild_lice <- targets::tar_read(raw_wild_lice)
-  dates_to_join <- targets::tar_read(dates_to_join)
+  raw_wild_lice <- get_data_csv(targets::tar_read(raw_wild_lice_data))
+  dates_to_join <- get_data_csv(targets::tar_read(dates_to_join))
   include_2005 <- TRUE
-  raw_output_path <- here::here("./data/wild-lice/")
+  raw_output_path = here::here("./data/wild-lice/raw//")
+  clean_output_path = here::here("./data/wild-lice/clean//")
+  fig_output_path = here::here("./figs/wild-lice//")
 
   wild_lice_clean <- raw_wild_lice %>% 
     dplyr::mutate(seine_date = as.factor(seine_date)) %>% 
@@ -43,6 +45,12 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
       year, seine_date, site, zone, fish_spp, lep_co, lep_c1, lep_c2, lep_c3, 
       lep_c4, lep_pam, lep_paf, lep_am, lep_af,lep_total, cal_total, lat, long
     ) 
+
+  # decide to exclude 2005 data
+  if(!include_2005) {
+    wild_lice_clean <- wild_lice_clean %>% 
+      dplyr::filter(year != 2005)
+  }
   
   # figure out the seine_date situation by year 
   wild_lice_dates <- wild_lice_clean %>% 
@@ -50,7 +58,11 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
     unique()
   readr::write_csv(
     wild_lice_dates,
-    paste0(raw_output_path, "unique_dates_for_manual_edit.csv")
+    if(include_2005) {
+      paste0(raw_output_path, "unique_dates_for_manual_edit_2005.csv")
+    } else {
+      paste0(raw_output_path, "unique_dates_for_manual_edit_2006.csv")
+    }
   )
   
   # important check to make sure no additional manual cleaning needs to happen
