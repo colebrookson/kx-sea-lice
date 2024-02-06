@@ -109,7 +109,11 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
   # sampling per year plot 
   ggplot2::ggsave(
     # output path 
-    paste0(fig_output_path, "number-of-obs-per-year.png"),
+    if(include_2005) {
+      paste0(fig_output_path, "number-of-obs-per-year-2005.png")
+    } else {
+      paste0(fig_output_path, "number-of-obs-per-year-2006.png")
+    },
     # plot
     ggplot(data = obs_per_year) + 
       geom_col(aes(x = year, y = n, fill = n),
@@ -141,7 +145,11 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
   
   ggplot2::ggsave(
     # output path 
-    paste0(fig_output_path, "number-of-obs-per-month.png"),
+    if(include_2005) {
+      paste0(fig_output_path, "number-of-obs-per-month-2005.png")
+    } else {
+      paste0(fig_output_path, "number-of-obs-per-month-2006.png")
+    },
     # plot
     ggplot(data = per_month_sampling) + 
       geom_col(aes(x = month_char, y = n, fill = n),
@@ -161,9 +169,15 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
   # write out clean data
   readr::write_csv(
     wild_lice_to_save,
-    paste0(
-      clean_output_path, "clean-wild-lice-df.csv"
-    )
+    if(include_2005) {
+      paste0(
+        clean_output_path, "clean-wild-lice-df-2005.csv"
+      )
+    } else {
+      paste0(
+        clean_output_path, "clean-wild-lice-df-2006.csv"
+      )
+    }
   )
   
   # return the clean dataframe of wild lice
