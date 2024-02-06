@@ -32,12 +32,12 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
   #'
   
   # Testing
-  raw_wild_lice <- get_data_csv(targets::tar_read(raw_wild_lice_data))
-  dates_to_join <- get_data_csv(targets::tar_read(dates_to_join))
-  include_2005 <- TRUE
-  raw_output_path = here::here("./data/wild-lice/raw//")
-  clean_output_path = here::here("./data/wild-lice/clean//")
-  fig_output_path = here::here("./figs/wild-lice//")
+  # raw_wild_lice <- get_data_csv(targets::tar_read(raw_wild_lice_data))
+  # dates_to_join <- get_data_csv(targets::tar_read(dates_to_join))
+  # include_2005 <- TRUE
+  # raw_output_path = here::here("./data/wild-lice/raw//")
+  # clean_output_path = here::here("./data/wild-lice/clean//")
+  # fig_output_path = here::here("./figs/wild-lice//")
 
   wild_lice_clean <- raw_wild_lice %>% 
     dplyr::mutate(seine_date = as.factor(seine_date)) %>% 
@@ -48,8 +48,12 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
 
   # decide to exclude 2005 data
   if(!include_2005) {
-    wild_lice_clean <- wild_lice_clean %>% 
-      dplyr::filter(year != 2005)
+    wild_lice_clean[which(wild_lice_clean$year = 2005), c("lep_co", "lep_c1", 
+                                                          "lep_c2", "lep_c3", 
+                                                          "lep_c4", "lep_pam", 
+                                                          "lep_paf", "lep_am", 
+                                                          "lep_af", "lep_total", 
+                                                          "cal_total")] <- NA
   }
   
   # figure out the seine_date situation by year 
