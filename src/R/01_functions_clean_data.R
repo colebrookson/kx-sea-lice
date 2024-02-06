@@ -9,7 +9,7 @@
 #'
 
 # clean_wild_lice ==============================================================
-clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005, 
+clean_wild_lice <- function(raw_wild_lice, dates_to_join, 
                             raw_output_path, clean_output_path,
                             fig_output_path) {
   #' Clean up wild lice data from the manually edited .csv file
@@ -21,7 +21,6 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
   #' @param raw_wild_lice file. The raw data file
   #' @param dates_to_join file. The previously (manually) edited file with all
   #' the info of the seine_date cleaning stuff
-  #' @param include_2005 logical. Whether or not to include the 2005 data
   #' @param raw_output_path character. Path to where to save the dataframe with 
   #' the unique values to do the manual cleaning 
   #' @param clean_output_path character. Where to save the clean dataframe
@@ -45,16 +44,6 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
       year, seine_date, site, zone, fish_spp, lep_co, lep_c1, lep_c2, lep_c3, 
       lep_c4, lep_pam, lep_paf, lep_am, lep_af,lep_total, cal_total, lat, long
     ) 
-
-  # decide to exclude 2005 data
-  if(!include_2005) {
-    wild_lice_clean[which(wild_lice_clean$year = 2005), c("lep_co", "lep_c1", 
-                                                          "lep_c2", "lep_c3", 
-                                                          "lep_c4", "lep_pam", 
-                                                          "lep_paf", "lep_am", 
-                                                          "lep_af", "lep_total", 
-                                                          "cal_total")] <- NA
-  }
   
   # figure out the seine_date situation by year 
   wild_lice_dates <- wild_lice_clean %>% 
@@ -62,11 +51,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
     unique()
   readr::write_csv(
     wild_lice_dates,
-    if(include_2005) {
-      paste0(raw_output_path, "unique_dates_for_manual_edit_2005.csv")
-    } else {
-      paste0(raw_output_path, "unique_dates_for_manual_edit_2006.csv")
-    }
+    paste0(raw_output_path, "unique_dates_for_manual_edit.csv")
   )
   
   # important check to make sure no additional manual cleaning needs to happen
@@ -113,11 +98,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
   # sampling per year plot 
   ggplot2::ggsave(
     # output path 
-    if(include_2005) {
-      paste0(fig_output_path, "number-of-obs-per-year-2005.png")
-    } else {
-      paste0(fig_output_path, "number-of-obs-per-year-2006.png")
-    },
+    paste0(fig_output_path, "number-of-obs-per-year.png"),
     # plot
     ggplot(data = obs_per_year) + 
       geom_col(aes(x = year, y = n, fill = n),
@@ -149,11 +130,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
   
   ggplot2::ggsave(
     # output path 
-    if(include_2005) {
-      paste0(fig_output_path, "number-of-obs-per-month-2005.png")
-    } else {
-      paste0(fig_output_path, "number-of-obs-per-month-2006.png")
-    },
+      paste0(fig_output_path, "number-of-obs-per-month.png"),
     # plot
     ggplot(data = per_month_sampling) + 
       geom_col(aes(x = month_char, y = n, fill = n),
@@ -167,25 +144,33 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
         legend.position = "none"
       )
   )
-  # remove the 2005 years 
-  #wild_lice_to_save <- wild_lice_to_save[which(wild_lice_to_save$year != 2005),]
+  # decide to exclude 2005 data
+  wild_lice_to_save_2006 <- wild_lice_to_save
+  wild_lice_to_save_2006[which(wild_lice_to_save_2006$year = 2005), 
+                                  c("lep_co", "lep_c1", 
+                                   "lep_c2", "lep_c3", 
+                                   "lep_c4", "lep_pam", 
+                                   "lep_paf", "lep_am", 
+                                   "lep_af", "lep_total", 
+                                   "cal_total")] <- NA
   
   # write out clean data
   readr::write_csv(
     wild_lice_to_save,
-    if(include_2005) {
-      paste0(
+    paste0(
         clean_output_path, "clean-wild-lice-df-2005.csv"
       )
-    } else {
-      paste0(
+  )
+  readr::write_csv(
+    wild_lice_to_save_2006,
+    paste0(
         clean_output_path, "clean-wild-lice-df-2006.csv"
       )
-    }
   )
   
   # return the clean dataframe of wild lice
-  return(wild_lice_to_save)
+  return(list("wild_lice_2005" = wild_lice_to_save, 
+              "wild_lice_2006" = wild_lice_to_save_2006))
 }
 
 # plot_wild_lice ===============================================================
