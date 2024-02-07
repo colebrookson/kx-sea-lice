@@ -47,66 +47,52 @@ controller_big_slurm <- crew_controller_local(
 
 options(dplyr.summarise.inform = FALSE)
 
-list(
+file_targets <- list(
   ## files =====================================================================
-  tar_target(
-    raw_wild_lice_data,
+  tar_target(raw_wild_lice_data,
     here::here("./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv"),
     format = "file"
   ),
-  tar_target(
-    dates_to_join,
+  tar_target(dates_to_join,
     here::here("./data/wild-lice/raw/unique_dates_manually_edited.csv"),
     format = "file"
   ),
-  tar_target(
-    sr_data,
-    here::here(
-      paste0(
-        "./data/spawner-recruit/raw/river-level-sr/",
-        "NCC_streams_river-level_SR_data_2023-04-19.csv"
-      )
-      ),
+  tar_target(sr_data,
+    here::here(paste0(
+      "./data/spawner-recruit/raw/river-level-sr/",
+      "NCC_streams_river-level_SR_data_2023-04-19.csv")),
     format = "file"
   ),
-  tar_target(
-    farm_locations,
+  tar_target(farm_locations,
     here::here("./data/farm-lice/raw/farm_location_metadata.csv"),
     format = "file"
   ),
-  tar_target(
-    kx_sampling,
+  tar_target(kx_sampling,
     here::here("./data/wild-lice/raw/kitasoo_sampling_sites.csv"),
     format = "file"
   ),
-  tar_target(
-    geo_spatial,
+  tar_target(geo_spatial,
     here::here("./data/geo-spatial/gadm36_CAN_1_sp.rds"),
     format = "file"
   ),
-  tar_target(
-    old_farm_lice,
+  tar_target(old_farm_lice,
     here::here("./data/farm-lice/raw/klemtu_farm_lice_data_old.xls"),
     format = "file"
   ),
-  tar_target(
-    new_farm_lice,
+  tar_target(new_farm_lice,
     here::here("./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx"),
     format = "file"
   ),
-  tar_target(
-    sr_pop_sites_raw,
+  tar_target(sr_pop_sites_raw,
     here::here("./data/spawner-recruit/raw/conservation_unit_system_site.csv"),
     format = "file"
   ),
-  tar_target(
-    pink_exposure_df,
+  tar_target(pink_exposure_df,
     here::here(
       "./data/spawner-recruit/clean/pink-exposure-categorization-df.csv"),
     format = "file"
   ),
-  tar_target(
-    chum_exposure_df,
+  tar_target(chum_exposure_df,
     here::here(
       "./data/spawner-recruit/clean/chum-exposure-categorization-df.csv"),
     format = "file"
@@ -126,8 +112,17 @@ list(
             here::here("./outputs/geo-objs/fresh/large-land-for-plotting.rds")),
   tar_target(larger_land,
              here::here(
-               "./outputs/geo-objs/fresh/even-large-land-for-plotting.rds")),
-  ## data cleaning =============================================================
+               "./outputs/geo-objs/fresh/even-large-land-for-plotting.rds"))
+)
+
+## data cleaning ===============================================================
+data_options <- tibble::tibble(
+  include_2005 = c(TRUE, FALSE),
+  include_2015 = c(TRUE, FALSE)
+)
+  ## wild lice data ============================================================
+
+data_cleaning_targets <- list(
   tar_target(
     clean_wild_lice_data_2005,
     # version of the data that includes 2005
@@ -203,8 +198,10 @@ list(
       farm_locations = get_data_csv(farm_locations),
       output_path = here::here("./data/farm-lice/clean//")
     )
-  ),
+  )
+)
   ## lice regression ===========================================================
+lice_regression_targets <- list(
   tar_target(
     wild_farm_lice_regression,
     lice_regression(
@@ -213,120 +210,121 @@ list(
       mod_output_path = here::here("./outputs/lice-regression//"),
       plot_output_path = here::here("./figs/regression//")
     )
-  ),
-  ## useful plots/extra content ================================================
-  tar_target(
-    wild_lice_per_fish_plot,
-    plot_wild_lice_data(
-      wild_lice = clean_wild_lice_data,
-      output_path = here::here("./figs/wild-lice//")
-    )
-  ),
-  tar_target(
-    study_map,
-    make_sampling_map(
-      farm_locations = get_data_csv(farm_locations),
-      kx_sampling = get_data_csv(kx_sampling),
-      geo_data = readRDS(geo_spatial),
-      output_path = here::here("./figs/maps//"),
-      farm_path = here::here("./data/farm-lice/clean//")
-    )
-  ),
-  tar_target(
-    yearly_nonexposure_maps_pink,
-    make_nonexposure_yearly_maps(
-      sr_pop_data = clean_pink_spawner_recruit_data,
-      sr_pop_sites = clean_wild_pop_location_data,
-      large_land = readRDS(large_land),
-      farm_data = clean_farm_lice_data,
-      farm_locs = clean_farm_locs,
-      network = qs::qread(network),
-      all_edges_nodes = readRDS(all_edges_nodes),
-      species = "Pink",
-      fig_output = here::here("./figs/maps/yearly-pop-maps/pink/no-exposure//"),
-      data_output = here::here("./data/spawner-recruit/clean//")
-    )
-  ),
-  tar_target(
-    yearly_nonexposure_maps_chum,
-    make_nonexposure_yearly_maps(
-      sr_pop_data = clean_chum_spawner_recruit_data,
-      sr_pop_sites = clean_wild_pop_location_data,
-      large_land = readRDS(large_land),
-      farm_data = clean_farm_lice_data,
-      farm_locs = clean_farm_locs,
-      network = qs::qread(network),
-      all_edges_nodes = readRDS(all_edges_nodes),
-      species = "Chum",
-      fig_output = here::here("./figs/maps/yearly-pop-maps/chum/no-exposure//"),
-      data_output = here::here("./data/spawner-recruit/clean//")
-    )
-  ),
-  tar_target(
-    yearly_popn_exposure_maps_pink,
-    make_yearly_popn_maps(
-      sr_pop_data = clean_pink_spawner_recruit_data,
-      sr_pop_sites = clean_wild_pop_location_data,
-      large_land = readRDS(large_land),
-      farm_data = clean_farm_lice_data,
-      farm_locs = clean_farm_locs,
-      network = qs::qread(network),
-      exposure_df = read_csv(pink_exposure_df),
-      all_edges_nodes = readRDS(all_edges_nodes),
-      species = "Pink",
-      fig_output = here::here("./figs/maps/yearly-pop-maps/pink//"),
-      data_output = here::here("./data/spawner-recruit/clean//")
-    )
-  ),
-  tar_target(
-    yearly_popn_exposure_maps_chum,
-    make_yearly_popn_maps(
-      sr_pop_data = clean_chum_spawner_recruit_data,
-      sr_pop_sites = clean_wild_pop_location_data,
-      large_land = readRDS(large_land),
-      farm_data = clean_farm_lice_data,
-      farm_locs = clean_farm_locs,
-      network = qs::qread(network),
-      exposure_df = read_csv(chum_exposure_df),
-      all_edges_nodes = readRDS(all_edges_nodes),
-      species = "Chum",
-      fig_output = here::here("./figs/maps/yearly-pop-maps/chum//")
-    )
-  ),
-  tar_target(
-    yearly_popn_exposure_large_maps_pink,
-    make_yearly_popn_maps(
-      sr_pop_data = clean_pink_spawner_recruit_data,
-      sr_pop_sites = clean_wild_pop_location_data,
-      large_land = readRDS(larger_land),
-      farm_data = clean_farm_lice_data,
-      farm_locs = clean_farm_locs,
-      network = qs::qread(network),
-      exposure_df = read_csv(pink_exposure_df),
-      all_edges_nodes = readRDS(all_edges_nodes),
-      species = "Pink",
-      fig_output = here::here("./figs/maps/yearly-pop-maps/pink/larger//"),
-      data_output = here::here("./data/spawner-recruit/clean//"),
-      size = "large"
-    )
-  ),
-  tar_target(
-    yearly_popn_exposure_large_maps_chum,
-    make_yearly_popn_maps(
-      sr_pop_data = clean_chum_spawner_recruit_data,
-      sr_pop_sites = clean_wild_pop_location_data,
-      large_land = readRDS(larger_land),
-      farm_data = clean_farm_lice_data,
-      farm_locs = clean_farm_locs,
-      network = qs::qread(network),
-      exposure_df = read_csv(chum_exposure_df),
-      all_edges_nodes = readRDS(all_edges_nodes),
-      species = "Chum",
-      fig_output = here::here("./figs/maps/yearly-pop-maps/chum/larger//"),
-      #data_output = here::here("./data/spawner-recruit/clean//"),
-      size = "large"
-    )
   )
+)
+  ## useful plots/extra content ================================================
+  # tar_target(
+  #   wild_lice_per_fish_plot,
+  #   plot_wild_lice_data(
+  #     wild_lice = clean_wild_lice_data,
+  #     output_path = here::here("./figs/wild-lice//")
+  #   )
+  # ),
+  # tar_target(
+  #   study_map,
+  #   make_sampling_map(
+  #     farm_locations = get_data_csv(farm_locations),
+  #     kx_sampling = get_data_csv(kx_sampling),
+  #     geo_data = readRDS(geo_spatial),
+  #     output_path = here::here("./figs/maps//"),
+  #     farm_path = here::here("./data/farm-lice/clean//")
+  #   )
+  # ),
+  # tar_target(
+  #   yearly_nonexposure_maps_pink,
+  #   make_nonexposure_yearly_maps(
+  #     sr_pop_data = clean_pink_spawner_recruit_data,
+  #     sr_pop_sites = clean_wild_pop_location_data,
+  #     large_land = readRDS(large_land),
+  #     farm_data = clean_farm_lice_data,
+  #     farm_locs = clean_farm_locs,
+  #     network = qs::qread(network),
+  #     all_edges_nodes = readRDS(all_edges_nodes),
+  #     species = "Pink",
+  #     fig_output = here::here("./figs/maps/yearly-pop-maps/pink/no-exposure//"),
+  #     data_output = here::here("./data/spawner-recruit/clean//")
+  #   )
+  # ),
+  # tar_target(
+  #   yearly_nonexposure_maps_chum,
+  #   make_nonexposure_yearly_maps(
+  #     sr_pop_data = clean_chum_spawner_recruit_data,
+  #     sr_pop_sites = clean_wild_pop_location_data,
+  #     large_land = readRDS(large_land),
+  #     farm_data = clean_farm_lice_data,
+  #     farm_locs = clean_farm_locs,
+  #     network = qs::qread(network),
+  #     all_edges_nodes = readRDS(all_edges_nodes),
+  #     species = "Chum",
+  #     fig_output = here::here("./figs/maps/yearly-pop-maps/chum/no-exposure//"),
+  #     data_output = here::here("./data/spawner-recruit/clean//")
+  #   )
+  # ),
+  # tar_target(
+  #   yearly_popn_exposure_maps_pink,
+  #   make_yearly_popn_maps(
+  #     sr_pop_data = clean_pink_spawner_recruit_data,
+  #     sr_pop_sites = clean_wild_pop_location_data,
+  #     large_land = readRDS(large_land),
+  #     farm_data = clean_farm_lice_data,
+  #     farm_locs = clean_farm_locs,
+  #     network = qs::qread(network),
+  #     exposure_df = read_csv(pink_exposure_df),
+  #     all_edges_nodes = readRDS(all_edges_nodes),
+  #     species = "Pink",
+  #     fig_output = here::here("./figs/maps/yearly-pop-maps/pink//"),
+  #     data_output = here::here("./data/spawner-recruit/clean//")
+  #   )
+  # ),
+  # tar_target(
+  #   yearly_popn_exposure_maps_chum,
+  #   make_yearly_popn_maps(
+  #     sr_pop_data = clean_chum_spawner_recruit_data,
+  #     sr_pop_sites = clean_wild_pop_location_data,
+  #     large_land = readRDS(large_land),
+  #     farm_data = clean_farm_lice_data,
+  #     farm_locs = clean_farm_locs,
+  #     network = qs::qread(network),
+  #     exposure_df = read_csv(chum_exposure_df),
+  #     all_edges_nodes = readRDS(all_edges_nodes),
+  #     species = "Chum",
+  #     fig_output = here::here("./figs/maps/yearly-pop-maps/chum//")
+  #   )
+  # ),
+  # tar_target(
+  #   yearly_popn_exposure_large_maps_pink,
+  #   make_yearly_popn_maps(
+  #     sr_pop_data = clean_pink_spawner_recruit_data,
+  #     sr_pop_sites = clean_wild_pop_location_data,
+  #     large_land = readRDS(larger_land),
+  #     farm_data = clean_farm_lice_data,
+  #     farm_locs = clean_farm_locs,
+  #     network = qs::qread(network),
+  #     exposure_df = read_csv(pink_exposure_df),
+  #     all_edges_nodes = readRDS(all_edges_nodes),
+  #     species = "Pink",
+  #     fig_output = here::here("./figs/maps/yearly-pop-maps/pink/larger//"),
+  #     data_output = here::here("./data/spawner-recruit/clean//"),
+  #     size = "large"
+  #   )
+  # ),
+  # tar_target(
+  #   yearly_popn_exposure_large_maps_chum,
+  #   make_yearly_popn_maps(
+  #     sr_pop_data = clean_chum_spawner_recruit_data,
+  #     sr_pop_sites = clean_wild_pop_location_data,
+  #     large_land = readRDS(larger_land),
+  #     farm_data = clean_farm_lice_data,
+  #     farm_locs = clean_farm_locs,
+  #     network = qs::qread(network),
+  #     exposure_df = read_csv(chum_exposure_df),
+  #     all_edges_nodes = readRDS(all_edges_nodes),
+  #     species = "Chum",
+  #     fig_output = here::here("./figs/maps/yearly-pop-maps/chum/larger//"),
+  #     #data_output = here::here("./data/spawner-recruit/clean//"),
+  #     size = "large"
+  #   )
+  # )
   ## model fitting =============================================================
   #' NOTE: 
   #' Here are represented only the final models for each species. Each sub-model
@@ -334,5 +332,8 @@ list(
   #' computationally intensive and run in parallel over a long period of time. 
   #' The code for these model fitting procedures can be found in the 
   #' R/manual-testing folder
-  
-)
+
+list(
+  file_targets,
+  data_cleaning_targets
+) 

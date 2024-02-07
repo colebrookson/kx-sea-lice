@@ -8,27 +8,27 @@
 #'library
 #'
 
-# clean_wild_lice ==============================================================
-clean_wild_lice <- function(raw_wild_lice, dates_to_join, 
+#' Clean up wild lice data from the manually edited .csv file
+#' 
+#' @description Take the csv file that was manually edited, make some cleaning
+#' actions, make a plot of the number of observations in a given year, and
+#' save both the new dataframe and also the plot 
+#' 
+#' @param raw_wild_lice file. The raw data file
+#' @param dates_to_join file. The previously (manually) edited file with all
+#' the info of the seine_date cleaning stuff
+#' @param include_2005 logical. Whether or not to include the 2005 data
+#' @param raw_output_path character. Path to where to save the dataframe with 
+#' the unique values to do the manual cleaning 
+#' @param clean_output_path character. Where to save the clean dataframe
+#' @param fig_output_path character. Path to where to save the figure
+#'  
+#' @usage clean_wild_lice(raw_wild_lice, output_path, fig_output_path)
+#' @return clean df of the wild lice info
+#'
+clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005, 
                             raw_output_path, clean_output_path,
                             fig_output_path) {
-  #' Clean up wild lice data from the manually edited .csv file
-  #' 
-  #' @description Take the csv file that was manually edited, make some cleaning
-  #' actions, make a plot of the number of observations in a given year, and
-  #' save both the new dataframe and also the plot 
-  #' 
-  #' @param raw_wild_lice file. The raw data file
-  #' @param dates_to_join file. The previously (manually) edited file with all
-  #' the info of the seine_date cleaning stuff
-  #' @param raw_output_path character. Path to where to save the dataframe with 
-  #' the unique values to do the manual cleaning 
-  #' @param clean_output_path character. Where to save the clean dataframe
-  #' @param fig_output_path character. Path to where to save the figure
-  #'  
-  #' @usage clean_wild_lice(raw_wild_lice, output_path, fig_output_path)
-  #' @return clean df of the wild lice info
-  #'
   
   # Testing
   # raw_wild_lice <- get_data_csv(targets::tar_read(raw_wild_lice_data))
@@ -44,6 +44,16 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
       year, seine_date, site, zone, fish_spp, lep_co, lep_c1, lep_c2, lep_c3, 
       lep_c4, lep_pam, lep_paf, lep_am, lep_af,lep_total, cal_total, lat, long
     ) 
+
+  # decide to exclude 2005 data
+  if(!include_2005) {
+    wild_lice_clean[which(wild_lice_clean$year = 2005), c("lep_co", "lep_c1", 
+                                                          "lep_c2", "lep_c3", 
+                                                          "lep_c4", "lep_pam", 
+                                                          "lep_paf", "lep_am", 
+                                                          "lep_af", "lep_total", 
+                                                          "cal_total")] <- NA
+  }
   
   # figure out the seine_date situation by year 
   wild_lice_dates <- wild_lice_clean %>% 
@@ -51,7 +61,11 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
     unique()
   readr::write_csv(
     wild_lice_dates,
-    paste0(raw_output_path, "unique_dates_for_manual_edit.csv")
+    if(include_2005) {
+      paste0(raw_output_path, "unique_dates_for_manual_edit_2005.csv")
+    } else {
+      paste0(raw_output_path, "unique_dates_for_manual_edit_2006.csv")
+    }
   )
   
   # important check to make sure no additional manual cleaning needs to happen
@@ -98,7 +112,11 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
   # sampling per year plot 
   ggplot2::ggsave(
     # output path 
-    paste0(fig_output_path, "number-of-obs-per-year.png"),
+    if(include_2005) {
+      paste0(fig_output_path, "number-of-obs-per-year-2005.png")
+    } else {
+      paste0(fig_output_path, "number-of-obs-per-year-2006.png")
+    },
     # plot
     ggplot(data = obs_per_year) + 
       geom_col(aes(x = year, y = n, fill = n),
@@ -130,7 +148,11 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
   
   ggplot2::ggsave(
     # output path 
-      paste0(fig_output_path, "number-of-obs-per-month.png"),
+    if(include_2005) {
+      paste0(fig_output_path, "number-of-obs-per-month-2005.png")
+    } else {
+      paste0(fig_output_path, "number-of-obs-per-month-2006.png")
+    },
     # plot
     ggplot(data = per_month_sampling) + 
       geom_col(aes(x = month_char, y = n, fill = n),
@@ -144,50 +166,37 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
         legend.position = "none"
       )
   )
-  # decide to exclude 2005 data
-  wild_lice_to_save_2006 <- wild_lice_to_save
-  wild_lice_to_save_2006[which(wild_lice_to_save_2006$year = 2005), 
-                                  c("lep_co", "lep_c1", 
-                                   "lep_c2", "lep_c3", 
-                                   "lep_c4", "lep_pam", 
-                                   "lep_paf", "lep_am", 
-                                   "lep_af", "lep_total", 
-                                   "cal_total")] <- NA
-  
+    
   # write out clean data
   readr::write_csv(
     wild_lice_to_save,
-    paste0(
+    if(include_2005) {
+      paste0(
         clean_output_path, "clean-wild-lice-df-2005.csv"
       )
-  )
-  readr::write_csv(
-    wild_lice_to_save_2006,
-    paste0(
+    } else {
+      paste0(
         clean_output_path, "clean-wild-lice-df-2006.csv"
       )
+    }
   )
   
   # return the clean dataframe of wild lice
-  return(list("wild_lice_2005" = wild_lice_to_save, 
-              "wild_lice_2006" = wild_lice_to_save_2006))
+  return(wild_lice_to_save)
 }
 
-# plot_wild_lice ===============================================================
-plot_wild_lice_data <- function(wild_lice, output_path) {
-  #' Preliminary plot of the wild lice data 
-  #' 
-  #' @description Prior to fitting models, make plots of the wild lice data, 
-  #' across years. Look at this for all of the possible groupings. Possible 
-  #' groupings are 1) All lice, 2) All leps, 3) All motile leps
-  #' 
-  #' @param wild_lice data frame. Cleaned data frame of the wild lice data
-  #' @param output_path character. Path to where to save the plot
-  #'  
-  #' @usage plot_wild_lice_data(wild_lice, output_path)
-  #' @return None
-  #' 
-  
+#' Preliminary plot of the wild lice data 
+#' 
+#' @description Prior to fitting models, make plots of the wild lice data, 
+#' across years. Look at this for all of the possible groupings. Possible 
+#' groupings are 1) All lice, 2) All leps, 3) All motile leps
+#' 
+#' @param wild_lice data frame. Cleaned data frame of the wild lice data
+#' @param output_path character. Path to where to save the plot
+#'  
+#' @usage plot_wild_lice_data(wild_lice, output_path)
+#' @return None
+plot_wild_lice_data <- function(wild_lice, output_path) {  
   # all leps scenario 
   wild_lice_grouped <- wild_lice %>% 
     dplyr::filter(!is.na(year)) %>% # get rid of the unknown year lice 
@@ -247,21 +256,20 @@ plot_wild_lice_data <- function(wild_lice, output_path) {
   )
 }
 
-# clean_pk_sr_data ================================================================
+#' Take in the raw spawner-recruit data and clean and write out the clean 
+#' version
+#' 
+#' @description Data needs to be renamed, cleaned up a bit, do this with this 
+#' one function 
+#' 
+#' @param sr_data file. the raw SR data
+#' @param output_path character. Path to where to save the plot
+#'  
+#' @usage clean_sr_data(sr_data, output_path)
+#' @return the clean sr data
+#' 
+#' @export
 clean_pk_sr_data <- function(sr_data, output_path) {
-  #' Take in the raw spawner-recruit data and clean and write out the clean 
-  #' version
-  #' 
-  #' @description Data needs to be renamed, cleaned up a bit, do this with this 
-  #' one function 
-  #' 
-  #' @param sr_data file. the raw SR data
-  #' @param output_path character. Path to where to save the plot
-  #'  
-  #' @usage clean_sr_data(sr_data, output_path)
-  #' @return the clean sr data
-  #' 
-  
   # basic cleaning (renaming etc)
   all_pinks <- sr_data %>% 
     dplyr::rename(
@@ -363,21 +371,20 @@ clean_pk_sr_data <- function(sr_data, output_path) {
   return(all_pinks_rivers)
 }
 
-# clean_coho_sr_data ===========================================================
+#' Take in the raw spawner-recruit data and clean and write out the clean 
+#' version for coho 
+#' 
+#' @description Data needs to be renamed, cleaned up a bit, do this with this 
+#' one function 
+#' 
+#' @param sr_data file. the raw SR data
+#' @param output_path character. Path to where to save the plot
+#'  
+#' @usage clean_coho_sr_data(sr_data, output_path)
+#' @return the clean sr data
+#' 
+#' @export
 clean_coho_sr_data <- function(sr_data, output_path) {
-  #' Take in the raw spawner-recruit data and clean and write out the clean 
-  #' version for coho 
-  #' 
-  #' @description Data needs to be renamed, cleaned up a bit, do this with this 
-  #' one function 
-  #' 
-  #' @param sr_data file. the raw SR data
-  #' @param output_path character. Path to where to save the plot
-  #'  
-  #' @usage clean_coho_sr_data(sr_data, output_path)
-  #' @return the clean sr data
-  #' 
-  
   # basic cleaning (renaming etc)
   coho <- sr_data %>% 
     dplyr::rename(
@@ -457,21 +464,21 @@ clean_coho_sr_data <- function(sr_data, output_path) {
   
   return(coho_all_rivers)
 }
-# clean_chum_sr_data ===========================================================
+
+#' Take in the raw spawner-recruit data and clean and write out the clean 
+#' version for chum 
+#' 
+#' @description Data needs to be renamed, cleaned up a bit, do this with this 
+#' one function 
+#' 
+#' @param sr_data file. the raw SR data
+#' @param output_path character. Path to where to save the plot
+#'  
+#' @usage clean_chum_sr_data(sr_data, output_path)
+#' @return the clean sr data
+#' 
 clean_chum_sr_data <- function(sr_data, output_path) {
-  #' Take in the raw spawner-recruit data and clean and write out the clean 
-  #' version for chum 
-  #' 
-  #' @description Data needs to be renamed, cleaned up a bit, do this with this 
-  #' one function 
-  #' 
-  #' @param sr_data file. the raw SR data
-  #' @param output_path character. Path to where to save the plot
-  #'  
-  #' @usage clean_chum_sr_data(sr_data, output_path)
-  #' @return the clean sr data
-  #' 
-  
+
   # basic cleaning (renaming etc)
   chum <- sr_data %>% 
     dplyr::rename(
@@ -552,27 +559,24 @@ clean_chum_sr_data <- function(sr_data, output_path) {
   return(chum_all_rivers)
 }
 
-# clean_farm_lice ==============================================================
+#' Clean the data on farm lice from two sources
+#' 
+#' @description The lice on farmed fish data are in two separate files, so 
+#' this function, reads them in and cleans each of them in turn, binds them
+#' together, and makes a figure of lice and inventory through time  
+#' 
+#' @param old_lice file. Lice data on farms from 2005 to part of 2019
+#' @param new_lice file. Lice data on farms from the last part of 2019 through
+#' 2022 summer
+#' @param data_output_path character. Where to save the cleaned data file
+#' @param fig_output_path character. Where to save the figure of inventory and 
+#' lice data 
+#'  
+#' @usage clean_farm_lice(old_lice, new_lice, data_output_path, 
+#' fig_output_path)
+#' @return the clean farmed lice data
 clean_farm_lice <- function(old_lice, new_lice, data_output_path, 
                             fig_output_path) {
-  #' Clean the data on farm lice from two sources
-  #' 
-  #' @description The lice on farmed fish data are in two separate files, so 
-  #' this function, reads them in and cleans each of them in turn, binds them
-  #' together, and makes a figure of lice and inventory through time  
-  #' 
-  #' @param old_lice file. Lice data on farms from 2005 to part of 2019
-  #' @param new_lice file. Lice data on farms from the last part of 2019 through
-  #' 2022 summer
-  #' @param data_output_path character. Where to save the cleaned data file
-  #' @param fig_output_path character. Where to save the figure of inventory and 
-  #' lice data 
-  #'  
-  #' @usage clean_farm_lice(old_lice, new_lice, data_output_path, 
-  #' fig_output_path)
-  #' @return the clean farmed lice data
-  #' 
-  
   # old lice ===================================================================
   
   old_lice <- readxl::read_excel(targets::tar_read(old_farm_lice),
@@ -740,7 +744,7 @@ clean_farm_lice <- function(old_lice, new_lice, data_output_path,
     ggplot(data = all_lice_both_measures) + 
       geom_line(aes(x = date, y = vals, colour = Measurement, 
                     linetype = Measurement)) +
-      geom_point(aes(x = date, y = vals, fill = Measurement), colour = "black",
+      geom_point(aes(x = date, y = vals, fill = Measurement),colour = "black",
                  shape = 21) +
       ggthemes::theme_base() + 
       scale_fill_manual(values = c("goldenrod1", "purple2")) + 
@@ -781,21 +785,19 @@ extrapolate_lice_years <- function(farm_lice, wild_lice) {
   ))
 }
 
-# clean_pop_sites =============================================================
-clean_pop_sites <- function(sr_pop_sites, output_path) {
-  #' Clean data on S-R population locations for mapping purposes
-  #' 
-  #' @description These data are actually pretty clean, but need some attention
-  #' to make everything clear and be in a good format for plotting
-  #' 
-  #' @param sr_pop_sites file. Data onthe locations and other CU/ locational 
-  #' information of each of the populations
-  #' @param output_path character. Where to save the clean data
-  #'  
-  #' @usage clean_farm_sites(sr_pop_sites, output_path)
-  #' @return the clean farmed lice data
-  #' 
-  
+#' Clean data on S-R population locations for mapping purposes
+#' 
+#' @description These data are actually pretty clean, but need some attention
+#' to make everything clear and be in a good format for plotting
+#' 
+#' @param sr_pop_sites file. Data onthe locations and other CU/ locational 
+#' information of each of the populations
+#' @param output_path character. Where to save the clean data
+#'  
+#' @usage clean_farm_sites(sr_pop_sites, output_path)
+#' @return the clean farmed lice data
+#'
+clean_pop_sites <- function(sr_pop_sites, output_path) { 
   sr_sites_clean <- sr_pop_sites %>% 
     standardize_names(.)
   
@@ -824,21 +826,18 @@ clean_pop_sites <- function(sr_pop_sites, output_path) {
   return(sr_sites_clean)
 }
 
-# get_farms_per_year ===========================================================
+#' Make a plot and table with the number of farms through time 
+#' 
+#' @description These data are actually pretty clean, but need some attention
+#' to make everything clear and be in a good format for plotting
+#' 
+#' @param sr_pop_sites file. Data onthe locations and other CU/ locational 
+#' information of each of the populations
+#' @param output_path character. Where to save the clean data
+#'  
+#' @usage clean_farm_sites(sr_pop_sites, output_path)
+#' @return the clean farmed lice data
+#'
 get_farms_per_year <- function(farm_lice, output_path) {
-  #' Make a plot and table with the number of farms through time 
-  #' 
-  #' @description These data are actually pretty clean, but need some attention
-  #' to make everything clear and be in a good format for plotting
-  #' 
-  #' @param sr_pop_sites file. Data onthe locations and other CU/ locational 
-  #' information of each of the populations
-  #' @param output_path character. Where to save the clean data
-  #'  
-  #' @usage clean_farm_sites(sr_pop_sites, output_path)
-  #' @return the clean farmed lice data
-  #'
-  
-  
   
 }

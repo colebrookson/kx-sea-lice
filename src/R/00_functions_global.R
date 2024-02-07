@@ -9,37 +9,27 @@
 #'library
 #'
 
-# %notin% ======================================================================
 `%notin%` = Negate(`%in%`)
 
-# get_data =====================================================================
+#' Takes in the file and reads it for use
+#' Generic function to interface with the file targets, to read them in and 
+#' make them available for analysis
+#'
+#' @param file character. The file path in the target
+#'  
+#' @return Dataframe
+#' @export
 get_data_csv = function(file) {
-  #' Takes in the file and reads it for use
-  #' 
-  #' @description Generic function to interface with the file targets, to read 
-  #' them in and make them available for analysis
-  #' 
-  #' @param file character. The file path in the target
-  #'  
-  #' @usage get_data_csv(here("./data/wild-lice/file.csv"))
-  #' @return Dataframe 
-  #' 
-  
   readr::read_csv(file, show_col_types = FALSE) 
 }
 
-# standardize_names ============================================================
+#' Standardizes column names in a dataframe
+#' 
+#' @param df dataFrame. The data at hand
+#'  
+#' @return df, but with new names 
+#' @export
 standardize_names = function(df) {
-  #' Standardizes column names in a dataframe
-  #' 
-  #' @description Generic function to take in some set of names and make them 
-  #' consistent and readable
-  #' 
-  #' @param df dataFrame. The data at hand
-  #'  
-  #' @usage standardize_names(df)
-  #' @return df, but with new names 
-  #'
   # get current set of names
   current_names = names(df)
   
@@ -64,28 +54,15 @@ standardize_names = function(df) {
   return(df)
 }
 
-# std_err ======================================================================
+#' Calculate standard error
+#' 
+#' @param x vector of values
+#'  
+#' @return numeric value
+#' @export
 std_err <- function(x) {
-  #' Calculate standard error
-  #' 
-  #' @description Easy add on function to calculate standard error 
-  #' 
-  #' @param x vector of values
-  #'  
-  #' @usage std_err(df, na.rm = TRUE)
-  #' @return numeric value
-  #'
-  
   return(sd(x, na.rm = TRUE) / sqrt(length(x)))
 }
-
-# a plotting theme =============================================================
-
-# Note that the below theme is almost identical to the theme_base provided in 
-# the ggthemes() package (see original function here: 
-# https://github.com/jrnold/ggthemes/blob/main/R/base.R
-# ), but it removes the black rectangle around the whole
-# plot
 
 #' Foundation Theme
 #'
@@ -102,6 +79,7 @@ std_err <- function(x) {
 #' \code{colour = "black"}, and \code{fill = "white"}. This leaves the spacing
 #' and-non colour defaults of the default \pkg{ggplot2} themes in place.
 #'
+#' @export
 #' @inheritParams ggplot2::theme_grey
 #'
 #' @family themes
@@ -123,9 +101,6 @@ theme_foundation <- function(base_size=12, base_family="") {
               rect = element_rect(fill = "white", colour = "black"),
               text = element_text(colour = "black"))
 }
-
-
-
 
 #' Theme Base
 #'
