@@ -1,33 +1,38 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|213b846122d195ed|||||||||||||||
+.Random.seed|object|69223f6e50693ebd|||||||||||||||
 %notin%|function|c5de772db35799a7|||||||||||||||
 all_edges_nodes|stem|d473d515a625a6bd|72327a9b16af27af|ef46db3751d8e999|-1089053256||t19758.7784759455s|7dead8e41ac4f62d|130|rds|local|vector|||0||
 all_nodes_edges_to_keep|stem|783235cf0425cc15|c616c74a70085b3c|c3b5fc02cdc369c1|1662062916||t19511.2235430538s|b0efa4f1e05eee68|121|rds|local|vector|||0.001||
 all_power_sims|stem|76fb562a619dc9ab|70b6ea9230da49bc|c3b5fc02cdc369c1|-1612245627|C:/Users/brookson/Documents/Github/kx-sea-lice/./outputs/power-analysis/pink-all-power-analysis-runs.csv|t19494.1428241895s|ef158fccc4b82778|6701351|file|local|vector|||0||
 all_region_network|stem|ed34075f953eb33d|094b6bf22bad0f08|c3b5fc02cdc369c1|-1766210777||t19511.2235429612s|6556730b296d7213|119|rds|local|vector|||0.001||
 chum_exposure_df|stem|2f598e4e630f82d9|258f9a56bfe9e04b|ef46db3751d8e999|1706549440|/Users/colebrookson/github/kx-sea-lice/./data/spawner-recruit/clean/chum-exposure-categorization-df.csv|t19747.7585030787s|3b7ed98ea101a7b5|20968|file|local|vector|||0||
-clean_chum_spawner_recruit_data|stem|dc92cd4ad69c276b|da8e3714eda89864|fab8e607b8127b1e|439968760||t19647.6623898836s|1cf6b5147fce5e2c|232074|rds|local|vector|||1.51||
+clean_chum_spawner_recruit_data|stem|b723fc86bbff55a8|da8e3714eda89864|3b64ba3a855381a4|1449659845||t19776.8368800307s|1cf6b5147fce5e2c|232074|rds|local|vector|||0.083||
 clean_chum_sr_data|function|a1318c10a981af9f|||||||||||||||
-clean_coho_spawner_recruit_data|stem|0a8a58f288d2b02b|db0557505fb0115d|2f07cc4ff52c29b4|-874499613||t19647.6623714039s|e60d5c6faacaa899|112978|rds|local|vector|||2.37||
+clean_coho_spawner_recruit_data|stem|8c382524cd2b6b87|db0557505fb0115d|711680b1c3e75217|-548643923||t19776.8368788212s|e60d5c6faacaa899|112978|rds|local|vector|||0.082||
 clean_coho_sr_data|function|bfcf27ec330178da|||||||||||||||
-clean_farm_lice|function|73a35b9873f2cc4c|||||||||||||||
-clean_farm_lice_data|stem|5a646afdf4c355fb|e790245b1908d9bb|afe2d40a8c92931a|1445379850||t19688.1122057218s|060c68a4fc487ab5|10986|rds|local|vector|||2.09|Expecting numeric in H1219  R1219C8 got no counts fish transfers. NAs introduced by coercion. 1m22mRemoved 4 rows containing missing values geom_point.|
+clean_farm_lice|function|8564e1c8e4f75fe1|||||||||||||||
+clean_farm_lice_data|stem|484ca13dcdda4ba8|e790245b1908d9bb|9617b1a58695cd41|1458901317||t19776.8377351307s|a4ef3094caaca990|10979|rds|local|vector|||0.804|Expecting numeric in H1219  R1219C8 got no counts fish transfers. NAs introduced by coercion. 1m22mRemoved 4 rows containing missing values geom_point.|
 clean_farm_loc_data|function|0a5258107be7135b|||||||||||||||
 clean_farm_locations|function|46431a854a18bd08|||||||||||||||
-clean_farm_locs|stem|81cc6cb5cd2fa56b|7d5e7047a351c704|2c6442dc4b5db6cf|-801743663||t19647.6624183674s|9ea571d1cd313787|411|rds|local|vector|||0.09||
+clean_farm_locs|stem|324eb4f42eddeeb0|7d5e7047a351c704|73b079894328d761|1566742373||t19776.8377365978s|9ea571d1cd313787|411|rds|local|vector|||0.005||
 clean_kitasoo_sampling|function|2d712ed9aa26ba3b|||||||||||||||
-clean_pink_spawner_recruit_data|stem|76abd7388106f3c2|5ad58daa70f6986c|2005d396546d426c|1143075027||t19647.6624167742s|fc11015d73e31694|165851|rds|local|vector|||2.23||
+clean_pink_spawner_recruit_data|stem|4f51cd9b7c32c723|5ad58daa70f6986c|275296e2c97b942b|-1046944679||t19776.8368777234s|fc11015d73e31694|165851|rds|local|vector|||0.297||
 clean_pk_sr_data|function|e2dab52f656612c4|||||||||||||||
 clean_pop_sites|function|3716256b1153764a|||||||||||||||
-clean_wild_lice|function|a8d85f8b680b3197|||||||||||||||
+clean_wild_lice|function|2a311623fd3df77e|||||||||||||||
 clean_wild_lice_data|stem|9e3af0ebf9daf878|90a1d83c84ee4616|36b4c0ba23eff809|-13439032||t19688.1122506853s|4b4807772de0bac0|120238|rds|local|vector|||3.72|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat|
-clean_wild_pop_location_data|stem|c60a263c945db72b|1ecf66814b7ad23d|0439c96a3b5e58c9|-4253491||t19647.6626529891s|3f795ab8f8d761fc|254550|rds|local|vector|||1.62||
+clean_wild_lice_data_2005|stem|5b44195475b44278|df7f085c2e470ba2|adc75f87f02a9b04|2119991839||t19776.8377443602s|fa5a00bd9557323a|120242|rds|local|vector|||0.629|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat|
+clean_wild_lice_data_2006|stem|a7bcd8364c9865d6|67fd339b41e7ba12|adc75f87f02a9b04|-1815718589||t19776.8377515918s|f0f45496ebfba257|120225|rds|local|vector|||0.585|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat|
+clean_wild_pop_location_data|stem|d3a21071798e749b|1ecf66814b7ad23d|bdc4b945bc1f565e|-1145884280||t19776.8377365137s|3f795ab8f8d761fc|254550|rds|local|vector|||0.08||
 controller_big_slurm|object|8fd1b70863bb2752|||||||||||||||
 controller_general|object|2eb4b36de5fb146d|||||||||||||||
+data_cleaning_targets|object|7beecc4d734a23d5|||||||||||||||
+data_options|object|29168fa02f2805cd|||||||||||||||
 dates_to_join|stem|1c0be8222a6c269f|ebd1dfe2658f8cc1|ef46db3751d8e999|-1608215162|/Users/colebrookson/github/kx-sea-lice/./data/wild-lice/raw/unique_dates_manually_edited.csv|t19747.7585044073s|8b9a29a5ea833366|9400|file|local|vector|||0||
 exposure_df|stem|200dd89689dfb59f|52afabefb50abe53|c3b5fc02cdc369c1|159346632|C:/Users/brookson/Documents/Github/kx-sea-lice/./data/spawner-recruit/clean/exposure-categorization-df.csv|t19528.9323949001s|dd881b81c7098a7e|21710|file|local|vector|||0||
-extrapolate_lice_years|function|e5a868e867a66f74|||||||||||||||
+extrapolate_lice_years|function|888c41adfcfa5df2|||||||||||||||
 farm_locations|stem|7c9aa8ec7801ab3a|0a5855a37f7f0433|ef46db3751d8e999|519632948|/Users/colebrookson/github/kx-sea-lice/./data/farm-lice/raw/farm_location_metadata.csv|t19747.7585004212s|39911213ec660508|5486|file|local|vector|||3.252|Package version inconsistency detected.TMB was built with Matrix version 1.6.4Current Matrix version is 1.6.1.1Please reinstall TMB from source using install.packagesTMB, type  source or ask CRAN for a binary version of TMB matching CRANs Matrix package. Package version inconsistency detected.glmmTMB was built with TMB version 1.9.6Current TMB version is 1.9.10Please reinstall glmmTMB from source or restore original TMB package see reinstalling for more information|
+file_targets|object|7493028a58c475d1|||||||||||||||
 geo_spatial|stem|6d1f11cf41d68186|9a8037910cf09df6|ef46db3751d8e999|1915401835|/Users/colebrookson/github/kx-sea-lice/./data/geo-spatial/gadm36_CAN_1_sp.rds|t19747.7585009697s|22c665b2510b4b7b|19080844|file|local|vector|||0.001||
 get_data_csv|function|f55fbb93cbb1e4ef|||||||||||||||
 get_farms_per_year|function|c37c57c1c568fd31|||||||||||||||
@@ -35,6 +40,7 @@ kx_sampling|stem|0b2767ae80dff6ba|89ac9ae29ece3593|ef46db3751d8e999|-146606893|/
 large_land|stem|220337adea720fd6|f6de36fd117857a1|ef46db3751d8e999|-1604107670||t19758.7784758932s|4f74cbc508fbc9d3|133|rds|local|vector|||0||
 larger_land|stem|17472213a4db06ac|8d021a47c4f6ebe8|ef46db3751d8e999|-1215733769||t19758.7784760456s|4f74cbc508fbc9d3|133|rds|local|vector|||0.001||
 lice_regression|function|1a2b5cd910599cc4|||||||||||||||
+lice_regression_targets|object|577e10e1d7aceb4e|||||||||||||||
 list_reassign|function|6b468980ce8503c5|||||||||||||||
 make_map_each_farm|function|784dff362af2662c|||||||||||||||
 make_nonexposure_yearly_maps|function|61379183f8b76d61|||||||||||||||
@@ -42,7 +48,7 @@ make_sampling_map|function|d20031d4da571bac|||||||||||||||
 make_yearly_popn_maps|function|d4450bee14ca9843|||||||||||||||
 network|stem|645dd60898a47d74|e1db21ba49998361|ef46db3751d8e999|1875603713|/Users/colebrookson/github/kx-sea-lice/./outputs/geo-objs/fresh/network.qs|t19747.758512048s|4d8e45eaa5da0286|7617504|file|local|vector|||0||
 new_farm_lice|stem|429ddc53ca8d4c53|64cdd37e6d0d0f8e|ef46db3751d8e999|1577695726|/Users/colebrookson/github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx|t19747.7585004575s|13cadd82fda31a7e|1394218|file|local|vector|||0||
-old_farm_lice|stem|230a0a0eeaa66b1e|8ddef53d1c163c9a|ef46db3751d8e999|-929003780|/Users/colebrookson/github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19747.758500516s|e2b8c6da6272f3c0|6212096|file|local|vector|||0||
+old_farm_lice|stem|ba715b3385483099|8ddef53d1c163c9a|ef46db3751d8e999|-929003780|/Users/colebrookson/github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19747.7584953704s|e2b8c6da6272f3c0|6212096|file|local|vector|||1.128|Package version inconsistency detected.glmmTMB was built with TMB version 1.9.6Current TMB version is 1.9.10Please reinstall glmmTMB from source or restore original TMB package see reinstalling for more information|
 pink_exposure_df|stem|a36babee9e016b3c|318db1a64f67e730|ef46db3751d8e999|2066375119|/Users/colebrookson/github/kx-sea-lice/./data/spawner-recruit/clean/pink-exposure-categorization-df.csv|t19747.7585031421s|96303aa540689079|27241|file|local|vector|||0||
 plot_given_sites|function|2ba0fd2404e9a5c0|||||||||||||||
 plot_power|function|5e55560ab01c601e|||||||||||||||
