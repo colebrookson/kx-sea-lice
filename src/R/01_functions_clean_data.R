@@ -489,7 +489,7 @@ clean_chum_sr_data <- function(sr_data, output_path) {
       indicator = Indicator,
       long = xLONG,
       lat = yLAT,
-      area = StatArea,
+      area = StatArea, 
       con_unit = CU,
       #con_unit_2 = CU_2,
       spawners = Spawners,
