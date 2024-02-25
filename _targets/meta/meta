@@ -1,11 +1,11 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|a5337e345f05aa44|||||||||||||||
+.Random.seed|object|1565a2eb6fcbaaf4|||||||||||||||
 %notin%|function|c5de772db35799a7|||||||||||||||
 all_edges_nodes|stem|d473d515a625a6bd|72327a9b16af27af|ef46db3751d8e999|-1089053256||t19758.7784759455s|7dead8e41ac4f62d|130|rds|local|vector|||0||
 all_nodes_edges_to_keep|stem|783235cf0425cc15|c616c74a70085b3c|c3b5fc02cdc369c1|1662062916||t19511.2235430538s|b0efa4f1e05eee68|121|rds|local|vector|||0.001||
 all_power_sims|stem|76fb562a619dc9ab|70b6ea9230da49bc|c3b5fc02cdc369c1|-1612245627|C:/Users/brookson/Documents/Github/kx-sea-lice/./outputs/power-analysis/pink-all-power-analysis-runs.csv|t19494.1428241895s|ef158fccc4b82778|6701351|file|local|vector|||0||
 all_region_network|stem|ed34075f953eb33d|094b6bf22bad0f08|c3b5fc02cdc369c1|-1766210777||t19511.2235429612s|6556730b296d7213|119|rds|local|vector|||0.001||
-chum_exposure_df|stem|e8cfd1ffd73ffb19|258f9a56bfe9e04b|ef46db3751d8e999|1706549440|/Users/colebrookson/github/kx-sea-lice/./data/spawner-recruit/clean/chum-exposure-categorization-df.csv|t19776.8931823122s|1ea0e7b63f46dbf0|20867|file|local|vector|||1.019|Package version inconsistency detected.glmmTMB was built with TMB version 1.9.6Current TMB version is 1.9.10Please reinstall glmmTMB from source or restore original TMB package see reinstalling for more information|
+chum_exposure_df|stem|04eb5e5242582048|258f9a56bfe9e04b|ef46db3751d8e999|1706549440|/Users/colebrookson/github/kx-sea-lice/./data/spawner-recruit/clean/chum-exposure-categorization-df.csv|t19777.7842113576s|49d32bb6d668babe|20861|file|local|vector|||1.015|Package version inconsistency detected.glmmTMB was built with TMB version 1.9.6Current TMB version is 1.9.10Please reinstall glmmTMB from source or restore original TMB package see reinstalling for more information|
 clean_chum_spawner_recruit_data|stem|b723fc86bbff55a8|da8e3714eda89864|3b64ba3a855381a4|1449659845||t19776.8368800307s|1cf6b5147fce5e2c|232074|rds|local|vector|||0.083||
 clean_chum_sr_data|function|a1318c10a981af9f|||||||||||||||
 clean_coho_spawner_recruit_data|stem|8c382524cd2b6b87|db0557505fb0115d|711680b1c3e75217|-548643923||t19776.8368788212s|e60d5c6faacaa899|112978|rds|local|vector|||0.082||
@@ -50,7 +50,7 @@ mapping_targets|object|01047e4e597b2880|||||||||||||||
 network|stem|645dd60898a47d74|e1db21ba49998361|ef46db3751d8e999|1875603713|/Users/colebrookson/github/kx-sea-lice/./outputs/geo-objs/fresh/network.qs|t19747.758512048s|4d8e45eaa5da0286|7617504|file|local|vector|||0||
 new_farm_lice|stem|429ddc53ca8d4c53|64cdd37e6d0d0f8e|ef46db3751d8e999|1577695726|/Users/colebrookson/github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_new.xlsx|t19747.7585004575s|13cadd82fda31a7e|1394218|file|local|vector|||0||
 old_farm_lice|stem|ba715b3385483099|8ddef53d1c163c9a|ef46db3751d8e999|-929003780|/Users/colebrookson/github/kx-sea-lice/./data/farm-lice/raw/klemtu_farm_lice_data_old.xls|t19747.7584953704s|e2b8c6da6272f3c0|6212096|file|local|vector|||1.128|Package version inconsistency detected.glmmTMB was built with TMB version 1.9.6Current TMB version is 1.9.10Please reinstall glmmTMB from source or restore original TMB package see reinstalling for more information|
-pink_exposure_df|stem|cc4f5a34ba08763d|318db1a64f67e730|ef46db3751d8e999|2066375119|/Users/colebrookson/github/kx-sea-lice/./data/spawner-recruit/clean/pink-exposure-categorization-df.csv|t19776.8931789253s|120fda68500b174d|27050|file|local|vector|||0||
+pink_exposure_df|stem|cc4f5a34ba08763d|318db1a64f67e730|ef46db3751d8e999|2066375119|/Users/colebrookson/github/kx-sea-lice/./data/spawner-recruit/clean/pink-exposure-categorization-df.csv|t19777.7842073336s|120fda68500b174d|27050|file|local|vector|||0||
 plot_given_sites|function|2ba0fd2404e9a5c0|||||||||||||||
 plot_power|function|5e55560ab01c601e|||||||||||||||
 plot_wild_lice_data|function|629373191331b595|||||||||||||||
@@ -81,8 +81,8 @@ wild_farm_lice_regression|stem|7fc7cda1eb2ec335|1dedcaa68a43d59f|5e1297f85462282
 wild_lice_per_fish_plot|stem|b13ba3278842dc84|5b206de9c81e35e1|c3d6de4ecf771120|1285149232||t19647.6627311319s|63e5c65d6d1ce375|134|rds|local|vector|||3.53|1m22mUsing size aesthetic for lines was deprecated in ggplot2 3.4.0.36mℹ39m Please use linewidth instead.. 1m22mThe size argument of element_rect is deprecated as of ggplot2 3.4.0.36mℹ39m Please use the linewidth argument instead.|
 yearly_nonexposure_maps_chum|stem|9244bb769d3266f3|a38f953865dc0b1e|d95da52ee457ac5b|-946887762||t19776.8551148306s|dffaa6f9b5cd0615|7101|rds|local|vector|||16.518||
 yearly_nonexposure_maps_pink|stem|2eb1c1a0ce9a741c|9a559146cfc6f9d3|1589dfe277030e9e|-1024875988||t19776.8553244062s|d76c24168a75d63d|7271|rds|local|vector|||18.104||
-yearly_popn_exposure_large_maps_chum|stem|17656ca132f3e9f7|52c4d7643b8b921f|e8dabcfeaaacaa55|-1640611462||t19776.898700715s|a1c456b03adbfbf8|44|rds|local|vector|||90.37||
+yearly_popn_exposure_large_maps_chum|stem|17656ca132f3e9f7|52c4d7643b8b921f|cab1251cfcabf1cd|-1640611462||t19777.7867471841s|a1c456b03adbfbf8|44|rds|local|vector|||89.322||
 yearly_popn_exposure_large_maps_pink|stem|17656ca132f3e9f7|13f9a03a32e64605|e186c59617eebd90|2055182846||t19776.9000155451s|a1c456b03adbfbf8|44|rds|local|vector|||113.598||
 yearly_popn_exposure_maps|stem|6f6c5b49f08ee810|871d6ad74cc0180f|7a6972da2fd84f01|1227065649||t19523.6143990292s|d76c24168a75d63d|7271|rds|local|vector|||33.971||
-yearly_popn_exposure_maps_chum|stem|17656ca132f3e9f7|5b647bb61af948a0|b3a61f053ded8b95|-1390111641||t19776.896460981s|a1c456b03adbfbf8|44|rds|local|vector|||83.346||
+yearly_popn_exposure_maps_chum|stem|17656ca132f3e9f7|5b647bb61af948a0|cc95940be8791780|-1390111641||t19777.7857133202s|a1c456b03adbfbf8|44|rds|local|vector|||79.482||
 yearly_popn_exposure_maps_pink|stem|17656ca132f3e9f7|b546bf026019337c|6f2219fa9621aabc|-1200911791||t19776.8976547119s|a1c456b03adbfbf8|44|rds|local|vector|||103.128||
