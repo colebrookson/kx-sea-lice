@@ -809,7 +809,7 @@ not_exposed_chumgroup_3 <- pops_chumgroup_3$site_num[which(
 )]
 
 possibly_exposed_chumgroup_3_north_maybes <- c(
-  1026, 1025, 1023, 1022, 1850, 1855, 1854, 1843, 1021, 1020,
+  1026, 1025, 1023, 1022, 1850, 1852, 1853, 1855, 1854, 1843, 1021, 1020,
   7990591, 1007, 1024
 )
 possibly_exposed_chumgroup_3_south_maybes <-
