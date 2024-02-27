@@ -143,7 +143,7 @@ sites,year,exposure,maybes
 1807,2006,maybe,south
 1809,2006,maybe,south
 1813,2006,maybe,south
-1817,2006,maybe,south
+1817,2006,maybe,both
 1820,2006,yes,NA
 1829,2006,yes,NA
 1834,2006,yes,NA
@@ -238,7 +238,7 @@ sites,year,exposure,maybes
 1798,2007,no,NA
 1803,2007,maybe,south
 1809,2007,maybe,south
-1817,2007,maybe,south
+1817,2007,maybe,both
 1820,2007,yes,NA
 1829,2007,yes,NA
 1833,2007,yes,NA
@@ -504,7 +504,7 @@ sites,year,exposure,maybes
 1807,2010,maybe,south
 1809,2010,maybe,south
 1813,2010,maybe,south
-1817,2010,maybe,south
+1817,2010,maybe,both
 1820,2010,yes,NA
 1825,2010,yes,NA
 1829,2010,yes,NA
@@ -1108,7 +1108,7 @@ sites,year,exposure,maybes
 993,2016,maybe,south
 998,2016,maybe,south
 999,2016,maybe,south
-1005,2017,maybe,south
+1005,2017,maybe,both
 1007,2017,maybe,both
 1009,2017,yes,NA
 1010,2017,yes,NA
@@ -1123,7 +1123,7 @@ sites,year,exposure,maybes
 1021,2017,maybe,north
 1022,2017,maybe,north
 1023,2017,maybe,north
-1024,2017,maybe,south
+1024,2017,maybe,north
 1025,2017,maybe,north
 1026,2017,maybe,north
 1027,2017,no,NA
@@ -1166,7 +1166,7 @@ sites,year,exposure,maybes
 1840,2017,yes,NA
 1843,2017,maybe,north
 1850,2017,maybe,north
-1852,2017,maybe,north
+1852,2017,maybe,south
 1853,2017,maybe,south
 1854,2017,maybe,north
 1855,2017,maybe,north

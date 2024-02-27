@@ -246,6 +246,7 @@ possibly_exposed_pinkgroup_2_all_maybe <- c(
   991, 990, 989, 1807, 999, 998, 1804, 1809, 1800, 1801, 1803, 987, 988, 2687,
   1817
 )
+both_exposed_pinkgroup_2 <- c(1817)
 
 not_exposed_pinkgroup_2 <- pops_pinkgroup_2$site_num[which(
   pops_pinkgroup_2$site_num %notin%
@@ -313,6 +314,7 @@ exposed_df_pinkgroup_2 <- data.frame(
       site_num %in% not_exposed_pinkgroup_2 ~ "no"
     ),
     maybes = dplyr::case_when(
+      site_num %in% both_exposed_pinkgroup_2 ~ "both",
       site_num %in% possibly_exposed_pinkgroup_2_north_maybe ~ "north",
       site_num %in% possibly_exposed_pinkgroup_2_south_maybe ~ "south",
       TRUE ~ NA
@@ -372,7 +374,7 @@ possibly_exposed_pinkgroup_3_south_maybe <-
     possibly_exposed_pinkgroup_3_all_maybe %notin%
       possibly_exposed_pinkgroup_3_north_maybe
   )]
-both_exposed_pinkgroup_3 <- c(100, 1833)
+both_exposed_pinkgroup_3 <- c(1007, 1833, 1816, 1005)
 
 pinkgroup_3_sites_cat <- c(
   def_exposed_pinkgroup_3, not_exposed_pinkgroup_3,
@@ -479,7 +481,7 @@ possibly_exposed_pinkgroup_4_south_maybe <-
     possibly_exposed_pinkgroup_4_all_maybe %notin%
       possibly_exposed_pinkgroup_4_north_maybe
   )]
-both_exposed_pinkgroup_4 <- c(1007)
+both_exposed_pinkgroup_4 <- c(1007, 1816, 1005)
 
 pinkgroup_4_sites_cat <- c(
   def_exposed_pinkgroup_4, not_exposed_pinkgroup_4,
@@ -676,9 +678,7 @@ def_exposed_chumgroup_2 <- c(
 possibly_exposed_chumgroup_2_all_maybe <- c(
   1025, 1021, 1838, 1020, 1022, 1023, 1024, 1026, 1812,
   1817, 991, 993, 998, 999, 2689, 2690, 989, 1807, 2691, 996, 992, 990, 988,
-  987, 1803,
-  2683, 2687, 1001, 1813, 1800, 1801,
-  1809, 1804, 2708
+  987, 1803, 2683, 2687, 1001, 1813, 1800, 1801, 1809, 1804, 2708
 )
 
 not_exposed_chumgroup_2 <- pops_chumgroup_2$site_num[which(
@@ -687,14 +687,16 @@ not_exposed_chumgroup_2 <- pops_chumgroup_2$site_num[which(
 )]
 
 possibly_exposed_chumgroup_2_north_maybe <- c(
-  1026, 1025, 1024, 1023, 1022, 1838, 1021, 1020
+  1026, 1025, 1024, 1023, 1022, 1838, 1021, 1020, 1817
 )
+
+both_exposed_chumgroup_2 <- c(1817)
+
 possibly_exposed_chumgroup_2_south_maybe <-
   possibly_exposed_chumgroup_2_all_maybe[which(
     possibly_exposed_chumgroup_2_all_maybe %notin%
       possibly_exposed_chumgroup_2_north_maybe
   )]
-
 
 plot_given_sites(
   site_nums_missing = c(not_exposed_chumgroup_2),
@@ -755,6 +757,7 @@ exposed_df_chumgroup_2 <- data.frame(
       site_num %in% not_exposed_chumgroup_2 ~ "no"
     ),
     maybes = dplyr::case_when(
+      site_num %in% both_exposed_chumgroup_2 ~ "both",
       site_num %in% possibly_exposed_chumgroup_2_north_maybe ~ "north",
       site_num %in% possibly_exposed_chumgroup_2_south_maybe ~ "south",
       TRUE ~ NA
@@ -796,9 +799,8 @@ def_exposed_chumgroup_3 <- c(
 
 possibly_exposed_chumgroup_3_all_maybes <- c(
   7990591, 1850, 1852, 1853, 1855, 1854, 1843, 1020, 1021, 1022, 1023, 1024,
-  1025, 1026,
-  989, 1807, 1813, 990, 991, 992, 993, 998, 999,
-  1007, 1005, 1809, 987
+  1025, 1026, 989, 1807, 1813, 990, 991, 992, 993, 998, 999, 1007, 1005, 1809,
+  987
 )
 
 not_exposed_chumgroup_3 <- pops_chumgroup_3$site_num[which(
@@ -807,15 +809,15 @@ not_exposed_chumgroup_3 <- pops_chumgroup_3$site_num[which(
 )]
 
 possibly_exposed_chumgroup_3_north_maybes <- c(
-  1026, 1025, 1023, 1022, 1850, 1852, 1855, 1854, 1843, 1021, 1020,
-  7990591, 1007
+  1026, 1025, 1023, 1022, 1850, 1855, 1854, 1843, 1021, 1020,
+  7990591, 1007, 1024
 )
 possibly_exposed_chumgroup_3_south_maybes <-
   possibly_exposed_chumgroup_3_all_maybes[which(
     possibly_exposed_chumgroup_3_all_maybes %notin%
       possibly_exposed_chumgroup_3_north_maybes
   )]
-both_exposed_chumgroup_3 <- c(1007, 7990591)
+both_exposed_chumgroup_3 <- c(1007, 7990591, 1005)
 
 plot_given_sites(
   site_nums_missing = c(not_exposed_chumgroup_3),
