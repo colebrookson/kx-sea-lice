@@ -13,8 +13,6 @@
 library(targets)
 library(tarchetypes)
 library(here)
-library(crew)
-library(crew.cluster)
 
 source(here::here("./src/R/00_functions_global.R"))
 source(here::here("./src/R/01_functions_clean_data.R"))
@@ -29,23 +27,6 @@ tar_option_set(packages = c(
   "tibble", "ggrepel", "sp", "glmmTMB", "sf",
   "sfnetworks", "qs", "tidygraph", "patchwork"
 ))
-controller_general <- crew_controller_local(
-  name = "general_controller",
-  workers = 1,
-  seconds_idle = 10
-)
-controller_big_slurm <- crew_controller_local(
-  name = "mcmc_controller",
-  workers = 6,
-  seconds_idle = 100,
-)
-
-# tar_option_set(
-#   controller = crew_controller_group(controller_local, controller_sge),
-#   resources = tar_resources(
-#     crew = tar_resources_crew(controller = "my_local_controller")
-#   )
-# )
 
 options(dplyr.summarise.inform = FALSE)
 
