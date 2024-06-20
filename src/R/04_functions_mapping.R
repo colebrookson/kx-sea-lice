@@ -97,7 +97,7 @@ clean_kitasoo_sampling <- function(kx_sampling, all_farm_locs) {
 }
 
 # make_sampling_map ============================================================
-make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
+make_sampling_map <- function(farm_locations, kx_sampling, large_land,
                               output_path, farm_path) {
   #' Take the all_locations data and make the plot with the geospatial data
   #'
@@ -107,7 +107,7 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
   #' @param kx_sampling file. Information on all the sampling locations in the
   #' sampling region
   #' @param farm_locations file. Information on all the farms in the region
-  #' @param geo_data file. The geo-spatial data rds file
+  #' @param large_land file. The land information
   #' @param output_path character. Where to save the plot
   #' @param farm_path character. Where to save the data of the farm locations
   #'
@@ -115,17 +115,24 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
   #' @return clean data frame
   #'
 
-  # make the data that we need
-  all_locations <- clean_kitasoo_sampling(
-    # this data can be just used
-    kx_sampling,
-    # use the cleaning function for this one
-    clean_farm_locations(farm_locations, farm_path)
-  )
+  sampling_locs <- get_data_csv(tar_read(kx_sampling))
+  farm_locs <- tar_read(clean_farm_locs)
+  large_land <- readRDS(tar_read(large_land))
 
-  # geospatial stuff
-  province <- "British Columbia"
-  canada_prov <- geo_data[geo_data$NAME_1 %in% province] # subset to just BC
+  sampling_locs <- clean_kitasoo_sampling(sampling_locs, farm_locs)
+
+  sampling_sf <- sf::st_as_sf(sampling_locs, coords = c("long", "lat"))
+
+  # set the coordinates for WGS84
+  sf::st_crs(sampling_sf) <- 4326
+  # transform to utm
+  sampling_utm <- sf::st_transform(sampling_sf,
+    crs = "+proj=utm +zone=9 +datum=NAD83 +unit=m"
+  )
+  # xmin <- 465674.8
+  # xmax <- 585488
+  # ymin <- 5761156
+  # ymax <- 5983932
 
   ggplot2::ggsave(
 
@@ -134,17 +141,15 @@ make_sampling_map <- function(farm_locations, kx_sampling, geo_data,
 
     # make and save the actual plot
     ggplot2::ggplot() +
-      geom_polygon(
-        data = canada_prov,
-        aes(x = long, y = lat, group = group),
-        colour = "black",
-        linewidth = 0.01,
-        fill = "grey65"
+      geom_sf(data = large_land, fill = "white", colour = "grey70") +
+      # coord_sf(xlim = c(-128.8, -128.1), ylim = c(52.2, 52.95)) +
+      coord_sf(,
+        xlim = c(5788844.52, 585488), ylim = c(500000.00, 4200932),
+        expand = FALSE
       ) +
-      coord_cartesian(xlim = c(-128.8, -128.1), ylim = c(52.2, 52.95)) +
-      geom_point(
-        data = all_locations,
-        aes(x = long, y = lat, fill = type, shape = type),
+      geom_sf(
+        data = sampling_utm,
+        aes(fill = type, shape = type),
         size = 4
       ) +
       ggthemes::theme_base() +

@@ -207,6 +207,15 @@ lice_regression_targets <- list(
 ## useful plots/extra content ================================================
 mapping_targets <- list(
   tar_target(
+    study_area_map,
+    make_sampling_map(
+      farm_locations = get_data_csv(farm_locations),
+      kx_sampling = kx_sampling, 
+      large_land =  large_land,
+
+    )
+  )
+  tar_target(
     yearly_nonexposure_maps_pink,
     make_nonexposure_yearly_maps(
       sr_pop_data = clean_pink_spawner_recruit_data,
