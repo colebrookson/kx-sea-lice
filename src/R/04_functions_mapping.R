@@ -97,75 +97,93 @@ clean_kitasoo_sampling <- function(kx_sampling, all_farm_locs) {
 }
 
 # make_sampling_map ============================================================
-make_sampling_map <- function(farm_locations, kx_sampling, large_land,
-                              output_path, farm_path) {
+make_sampling_map <- function(farm_locs, sampling_locs, large_land,
+                              output_path) {
   #' Take the all_locations data and make the plot with the geospatial data
   #'
   #' @description The geospatial data has been pre-downloaded, so take that
   #' data along with the cleaned location data and
   #'
-  #' @param kx_sampling file. Information on all the sampling locations in the
+  #' @param sampling_locs file. Information on all the sampling locations in the
   #' sampling region
-  #' @param farm_locations file. Information on all the farms in the region
+  #' @param farm_locs file. Information on all the farms in the region
   #' @param large_land file. The land information
   #' @param output_path character. Where to save the plot
-  #' @param farm_path character. Where to save the data of the farm locations
   #'
   #' @usage clean_kitasoo_sampling(kx_sampling)
   #' @return clean data frame
   #'
 
-  sampling_locs <- get_data_csv(tar_read(kx_sampling))
-  farm_locs <- tar_read(clean_farm_locs)
-  large_land <- readRDS(tar_read(large_land))
+  # sampling_locs <- get_data_csv(tar_read(kx_sampling))
+  # farm_locs <- tar_read(clean_farm_locs)
+  # large_land <- readRDS(tar_read(large_land))
+  # make_sampling_map(
+  #   farm_locs = clean_farm_locs,
+  #   sampling_locs = get_data_csv(kx_sampling),
+  #   large_land = large_land,
+  #   output_path = here::here("./figs/maps//")
+  # )
 
-  sampling_locs <- clean_kitasoo_sampling(sampling_locs, farm_locs)
+  sampling_locs <- clean_kitasoo_sampling(
+    kx_sampling = sampling_locs,
+    all_farm_locs = farm_locs
+  )
 
   sampling_sf <- sf::st_as_sf(sampling_locs, coords = c("long", "lat"))
-
   # set the coordinates for WGS84
   sf::st_crs(sampling_sf) <- 4326
-  # transform to utm
-  sampling_utm <- sf::st_transform(sampling_sf,
-    crs = "+proj=utm +zone=9 +datum=NAD83 +unit=m"
-  )
-  # xmin <- 465674.8
-  # xmax <- 585488
-  # ymin <- 5761156
-  # ymax <- 5983932
+  sampling_utm <- sampling_sf %>%
+    sf::st_transform(
+      .,
+      crs = "+proj=utm +zone=9 +datum=NAD83 +unit=m"
+    ) %>%
+    dplyr::mutate(
+      X = data.frame(sf::st_coordinates(.))$X,
+      Y = data.frame(sf::st_coordinates(.))$Y
+    ) %>%
+    dplyr::mutate(
+      type = as.factor(type),
+      ff = as.factor(ff)
+    )
+
+  p <- ggplot2::ggplot() +
+    geom_sf(data = large_land, fill = "#acabab9e", colour = "white") +
+    # coord_sf(xlim = c(-128.8, -128.1), ylim = c(52.2, 52.95)) +
+    geom_sf(
+      data = sampling_utm,
+      aes(fill = type, shape = type),
+      size = 4
+    ) +
+    coord_sf(
+      xlim = c(505674.8, 570488), ylim = c(5801156, 5873932),
+      expand = FALSE
+    ) +
+    theme_base() +
+    labs(x = "Longitude (°)", y = "Latitude (°)") +
+    scale_shape_manual("Location",
+      values = c(21, 22),
+      labels = c("**farm**", "sampling")
+    ) +
+    scale_fill_manual("Location",
+      values = c("#A1BE95", "#F98866"),
+      labels = c("**farm**", "sampling")
+    ) +
+    ggrepel::geom_text_repel(
+      data = sampling_utm,
+      aes(
+        x = X, y = Y,
+        label = site, fontface = ff
+      ),
+      size = 4,
+      max.overlaps = 20
+    ) +
+    theme(legend.text = ggtext::element_markdown())
 
   ggplot2::ggsave(
-
     # output part
     paste0(output_path, "study-region-map.png"),
-
-    # make and save the actual plot
-    ggplot2::ggplot() +
-      geom_sf(data = large_land, fill = "white", colour = "grey70") +
-      # coord_sf(xlim = c(-128.8, -128.1), ylim = c(52.2, 52.95)) +
-      coord_sf(,
-        xlim = c(5788844.52, 585488), ylim = c(500000.00, 4200932),
-        expand = FALSE
-      ) +
-      geom_sf(
-        data = sampling_utm,
-        aes(fill = type, shape = type),
-        size = 4
-      ) +
-      ggthemes::theme_base() +
-      labs(x = "Longitude (°)", y = "Latitude (°)") +
-      scale_shape_manual("Location", values = c(21, 22)) +
-      scale_fill_manual("Location", values = c("purple", "gold2")) +
-      ggrepel::geom_text_repel(
-        data = all_locations,
-        aes(
-          x = long, y = lat,
-          label = site, fontface = ff
-        ),
-        size = 3,
-        max.overlaps = 20
-      ),
-
+    # save the actual plot,
+    p,
     # make the size
     height = 8, width = 9
   )

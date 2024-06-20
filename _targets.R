@@ -25,7 +25,7 @@ tar_option_set(packages = c(
   "here", "readr", "magrittr", "dplyr", "ggplot2",
   "ggthemes", "wesanderson", "lubridate", "janitor",
   "tibble", "ggrepel", "sp", "glmmTMB", "sf",
-  "sfnetworks", "qs", "tidygraph", "patchwork"
+  "sfnetworks", "qs", "tidygraph", "patchwork", "ggtext"
 ))
 
 options(dplyr.summarise.inform = FALSE)
@@ -209,12 +209,12 @@ mapping_targets <- list(
   tar_target(
     study_area_map,
     make_sampling_map(
-      farm_locations = get_data_csv(farm_locations),
-      kx_sampling = kx_sampling, 
-      large_land =  large_land,
-
+      farm_locs = clean_farm_locs,
+      sampling_locs = get_data_csv(kx_sampling),
+      large_land = readRDS(large_land),
+      output_path = here::here("./figs/maps//")
     )
-  )
+  ),
   tar_target(
     yearly_nonexposure_maps_pink,
     make_nonexposure_yearly_maps(

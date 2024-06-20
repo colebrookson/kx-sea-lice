@@ -2,62 +2,62 @@
 ##' AUTHOR: Cole B. Brookson
 ##' DATE OF CREATION: 2022-10-14
 #'
-#' This targets file contains all functions that don't relate to a specific 
+#' This targets file contains all functions that don't relate to a specific
 #' part of the analysis, but are required to perform general tasks
 #'
-#'All functions are documented using the roxygen2 framework and the docstring
-#'library
+#' All functions are documented using the roxygen2 framework and the docstring
+#' library
 #'
 
-`%notin%` = Negate(`%in%`)
+`%notin%` <- Negate(`%in%`)
 
 #' Takes in the file and reads it for use
-#' Generic function to interface with the file targets, to read them in and 
+#' Generic function to interface with the file targets, to read them in and
 #' make them available for analysis
 #'
 #' @param file character. The file path in the target
-#'  
+#'
 #' @return Dataframe
 #' @export
-get_data_csv = function(file) {
-  readr::read_csv(file, show_col_types = FALSE) 
+get_data_csv <- function(file) {
+  readr::read_csv(file, show_col_types = FALSE)
 }
 
 #' Standardizes column names in a dataframe
-#' 
+#'
 #' @param df dataFrame. The data at hand
-#'  
-#' @return df, but with new names 
+#'
+#' @return df, but with new names
 #' @export
-standardize_names = function(df) {
+standardize_names <- function(df) {
   # get current set of names
-  current_names = names(df)
-  
+  current_names <- names(df)
+
   # loop through, pull the name out, change " " to "_"
-  for(name in seq_len(length(current_names))) {
-    current_names[name] = gsub("\\ ", "_", current_names[name])
+  for (name in seq_len(length(current_names))) {
+    current_names[name] <- gsub("\\ ", "_", current_names[name])
   }
-  
+
   # check for any upper case letters and make those lower_case
-  current_names = tolower(current_names)
-  
+  current_names <- tolower(current_names)
+
   # remove brackets
-  for(name in seq_len(length(current_names))) {
-    current_names[name] = gsub("\\(", "", current_names[name])
-    current_names[name] = gsub("\\)", "", current_names[name])
+  for (name in seq_len(length(current_names))) {
+    current_names[name] <- gsub("\\(", "", current_names[name])
+    current_names[name] <- gsub("\\)", "", current_names[name])
   }
-  
+
   # rename the dataframe
-  names(df) = current_names
-  
-  #return dataframe renamed 
+  names(df) <- current_names
+
+  # return dataframe renamed
   return(df)
 }
 
 #' Calculate standard error
-#' 
+#'
 #' @param x vector of values
-#'  
+#'
 #' @return numeric value
 #' @export
 std_err <- function(x) {
@@ -85,7 +85,7 @@ std_err <- function(x) {
 #' @family themes
 #' @export
 #' @importFrom ggplot2 theme_grey
-theme_foundation <- function(base_size=12, base_family="") {
+theme_foundation <- function(base_size = 12, base_family = "") {
   thm <- theme_grey(base_size = base_size, base_family = base_family)
   for (i in names(thm)) {
     if ("colour" %in% names(thm[[i]])) {
@@ -95,11 +95,13 @@ theme_foundation <- function(base_size=12, base_family="") {
       thm[[i]]["fill"] <- list(NULL)
     }
   }
-  thm + theme(panel.border = element_rect(fill = NA),
-              legend.background = element_rect(colour = NA),
-              line = element_line(colour = "black"),
-              rect = element_rect(fill = "white", colour = "black"),
-              text = element_text(colour = "black"))
+  thm + theme(
+    panel.border = element_rect(fill = NA),
+    legend.background = element_rect(colour = NA),
+    line = element_line(colour = "black"),
+    rect = element_rect(fill = "white", colour = "black"),
+    text = element_text(colour = "black")
+  )
 }
 
 #' Theme Base
@@ -112,29 +114,35 @@ theme_foundation <- function(base_size=12, base_family="") {
 #' @example inst/examples/ex-theme_base.R
 theme_base <- function(base_size = 16, base_family = "") {
   theme_foundation() +
-    theme(line = element_line(colour = "black",
-                              lineend = "round",
-                              linetype = "solid"),
-          rect = element_rect(fill = "white",
-                              colour = "black",
-                              linetype = "solid"),
-          text = element_text(colour = "black",
-                              face = "plain",
-                              family = base_family,
-                              size = base_size,
-                              vjust = 0.5,
-                              hjust = 0.5,
-                              lineheight = 1),
-          panel.grid = element_blank(),
-          strip.background = element_rect(colour = NA),
-          legend.key = element_rect(colour = NA),
-          title = element_text(size = rel(1)),
-          plot.title = element_text(size = rel(1.2), face = "bold"),
-          strip.text = element_text(),
-          axis.ticks.length = unit(0.5, "lines"),
-          # add my addition here
-          plot.background = element_rect(colour = NA)
+    theme(
+      line = element_line(
+        colour = "black",
+        lineend = "round",
+        linetype = "solid"
+      ),
+      rect = element_rect(
+        fill = "white",
+        colour = "black",
+        linetype = "solid"
+      ),
+      text = element_text(
+        colour = "black",
+        face = "plain",
+        family = base_family,
+        size = base_size,
+        vjust = 0.5,
+        hjust = 0.5,
+        lineheight = 1
+      ),
+      panel.grid = element_blank(),
+      strip.background = element_rect(colour = NA),
+      legend.key = element_rect(colour = NA),
+      title = element_text(size = rel(1)),
+      plot.title = element_text(size = rel(1.2), face = "bold"),
+      strip.text = element_text(),
+      axis.ticks.length = unit(0.5, "lines"),
+      # add my addition here
+      plot.background = element_rect(colour = NA)
     )
   # TODO: get margins right
 }
-
