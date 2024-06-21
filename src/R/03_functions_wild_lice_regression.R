@@ -46,12 +46,22 @@ power_prep_pink <- function(wild_lice) {
 
   all_spp_all_stages <- rstanarm::stan_glmer(
     lep_total ~ year + (1 | week) + (1 | site),
-    data = wild_lice[c(sample(1:nrow(wild_lice), 2000, replace = FALSE)), ],
+    data = wild_lice,
     family = rstanarm::neg_binomial_2(link = "log"),
-    chains = 4,
-    cores = 4,
-    iter = 5000,
+    chains = 6,
+    cores = 6,
+    iter = 8000,
+    warmup = 2000,
   )
+  qs::qsave(
+    all_spp_all_stages,
+    paste0(here::here(
+      "./outputs/model-outputs/regression-diagnostics",
+      "/all-spp-all-stages.qs"
+    ))
+  )
+
+  ## density plot - not useful but keep anyways
   all_spp_all_stages_ppc_dens <- bayesplot::ppc_dens_overlay(
     y = all_spp_all_stages$y,
     yrep = rstanarm::posterior_predict(all_spp_all_stages, draws = 100)
@@ -65,9 +75,8 @@ power_prep_pink <- function(wild_lice) {
     all_spp_all_stages_ppc_dens
   )
 
-  all_spp_all_stages_posterior <- as.matrix(all_spp_all_stages)
-  names(all_spp_all_stages$coefficients)
-
+  # posterior plot for the fixed effects
+  all_spp_all_stages_posterior <- as.array(all_spp_all_stages)
   plot_title <- ggplot2::ggtitle(
     "Posterior distributions",
     "with medians and 90% intervals"
@@ -76,7 +85,41 @@ power_prep_pink <- function(wild_lice) {
     pars = names(all_spp_all_stages$coefficients)[1:18],
     prob = 0.9
   ) + plot_title
-  ggsave(here::here("./figs/lice-per-year-regression/posterior.png"), posterior_year)
+  ggsave(
+    here::here("./figs/lice-per-year-regression/posterior.png"),
+    posterior_year
+  )
+
+  # trace plot
+  bayesplot::color_scheme_set("mix-blue-pink")
+  all_spp_all_stages_trace <- bayesplot::mcmc_trace(
+    all_spp_all_stages_posterior,
+    pars = names(all_spp_all_stages$coefficients)[1:18], n_warmup = 2000,
+    facet_args = list(nrow = 3, labeling = label_parsed)
+  ) + bayesplot::facet_text(size = 15) +
+    theme_base()
+  ggplot2::ggsave(
+    here::here("./figs/lice-per-year-regression/trace.png"),
+    all_spp_all_stages_trace,
+    height = 10, width = 20
+  )
+
+  # data vs prediction
+  ppc_intervals(
+    y = mtcars$mpg,
+    yrep = posterior_predict(fit),
+    x = mtcars$wt,
+    prob = 0.5
+  ) +
+    labs(
+      x = "Weight (1000 lbs)",
+      y = "MPG",
+      title = "50% posterior predictive intervals \nvs observed miles per gallon",
+      subtitle = "by vehicle weight"
+    ) +
+    panel_bg(fill = "gray95", color = NA) +
+    grid_lines(color = "white")
+
 
 
   fit <- stan_glm(mpg ~ ., data = mtcars)
