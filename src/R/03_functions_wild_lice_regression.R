@@ -46,38 +46,50 @@ power_prep_pink <- function(wild_lice) {
 
   all_spp_all_stages <- rstanarm::stan_glmer(
     lep_total ~ year + (1 | week) + (1 | site),
-    data = wild_lice[c(sample(1:nrow(wild_lice), 1000, replace = FALSE)), ],
+    data = wild_lice[c(sample(1:nrow(wild_lice), 2000, replace = FALSE)), ],
     family = rstanarm::neg_binomial_2(link = "log"),
     chains = 4,
     cores = 4,
     iter = 5000,
   )
-  ppc_dens_overlay(
+  all_spp_all_stages_ppc_dens <- bayesplot::ppc_dens_overlay(
     y = all_spp_all_stages$y,
-    yrep = posterior_predict(fit, draws = 50)
+    yrep = rstanarm::posterior_predict(all_spp_all_stages, draws = 100)
+  ) +
+    theme_base()
+  ggplot2::ggsave(
+    here::here(paste0(
+      "./figs/lice-per-year-regression/",
+      "all-spp-all-stages-ppc-dens.png"
+    )),
+    all_spp_all_stages_ppc_dens
   )
+
   all_spp_all_stages_posterior <- as.matrix(all_spp_all_stages)
-  plot_title <- ggtitle(
+  names(all_spp_all_stages$coefficients)
+
+  plot_title <- ggplot2::ggtitle(
     "Posterior distributions",
     "with medians and 90% intervals"
   )
   posterior_year <- bayesplot::mcmc_areas(all_spp_all_stages_posterior,
-    pars = c("year"),
+    pars = names(all_spp_all_stages$coefficients)[1:18],
     prob = 0.9
   ) + plot_title
   ggsave(here::here("./figs/lice-per-year-regression/posterior.png"), posterior_year)
 
 
-  library("rstan")
-  fit2 <- stan_demo("eight_schools", warmup = 300, iter = 700)
-  posterior2 <- extract(fit2, inc_warmup = TRUE, permuted = FALSE)
+  fit <- stan_glm(mpg ~ ., data = mtcars)
+  posterior <- as.matrix(fit)
 
-  color_scheme_set("mix-blue-pink")
-  p <- bayesplot::mcmc_trace(posterior2,
-    pars = c("mu", "tau"), n_warmup = 300,
-    facet_args = list(nrow = 2, labeller = label_parsed)
+  plot_title <- ggtitle(
+    "Posterior distributions",
+    "with medians and 80% intervals"
   )
-  p + bayesplot::facet_text(size = 15)
+  mcmc_areas(posterior,
+    pars = c("cyl"),
+    prob = 0.8
+  ) + plot_title
 
 
 
