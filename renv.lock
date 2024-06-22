@@ -575,48 +575,6 @@
       ],
       "Hash": "e8a1e41acf02548751f45c718d55aa6a"
     },
-    "crew": {
-      "Package": "crew",
-      "Version": "0.8.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "R6",
-        "cli",
-        "data.table",
-        "getip",
-        "mirai",
-        "nanonext",
-        "processx",
-        "ps",
-        "rlang",
-        "stats",
-        "tibble",
-        "tidyselect",
-        "tools",
-        "utils"
-      ],
-      "Hash": "99e32e4ac6a41fa1769029900f6fa812"
-    },
-    "crew.cluster": {
-      "Package": "crew.cluster",
-      "Version": "0.2.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "R6",
-        "crew",
-        "lifecycle",
-        "ps",
-        "rlang",
-        "utils",
-        "vctrs",
-        "xml2"
-      ],
-      "Hash": "9ced4370091a7cfe6135a57d8a9b0273"
-    },
     "crosstalk": {
       "Package": "crosstalk",
       "Version": "1.2.1",
@@ -968,16 +926,6 @@
       ],
       "Hash": "a722b946e99fd7a006ab1239c0d1b2bc"
     },
-    "getip": {
-      "Package": "getip",
-      "Version": "0.1-4",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R"
-      ],
-      "Hash": "0e81e7f976441581680fa2ebc5866212"
-    },
     "ggmap": {
       "Package": "ggmap",
       "Version": "4.0.0",
@@ -1060,6 +1008,21 @@
         "withr"
       ],
       "Hash": "66488692cb8621bc78df1b9b819497a6"
+    },
+    "ggtext": {
+      "Package": "ggtext",
+      "Version": "0.1.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "ggplot2",
+        "grid",
+        "gridtext",
+        "rlang",
+        "scales"
+      ],
+      "Hash": "c5ba8f5056487403a299b91984be86ca"
     },
     "ggthemes": {
       "Package": "ggthemes",
@@ -1175,6 +1138,26 @@
         "utils"
       ],
       "Hash": "7d7f283939f563670a697165b2cf5560"
+    },
+    "gridtext": {
+      "Package": "gridtext",
+      "Version": "0.1.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "curl",
+        "grDevices",
+        "grid",
+        "jpeg",
+        "markdown",
+        "png",
+        "rlang",
+        "stringr",
+        "xml2"
+      ],
+      "Hash": "05e4f5fffb1eecfeaac9ea0b7f255fef"
     },
     "gtable": {
       "Package": "gtable",
@@ -1684,17 +1667,6 @@
       ],
       "Hash": "f48238f8d4740426ca12f53f27d004dd"
     },
-    "mirai": {
-      "Package": "mirai",
-      "Version": "0.12.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "nanonext"
-      ],
-      "Hash": "e2e7870a06cb5afc7e1f409b632982ce"
-    },
     "modelr": {
       "Package": "modelr",
       "Version": "0.1.11",
@@ -1737,16 +1709,6 @@
         "methods"
       ],
       "Hash": "54388cc0cf3dfc0948a4bfbf9e8cceba"
-    },
-    "nanonext": {
-      "Package": "nanonext",
-      "Version": "0.12.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R"
-      ],
-      "Hash": "c25d11b44b63ef24f3955aad82aef60c"
     },
     "nlme": {
       "Package": "nlme",
