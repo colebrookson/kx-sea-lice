@@ -22,7 +22,7 @@ power_prep_pink <- function(wild_lice) {
   #' @return NA
   #'
 
-  # wild_lice <- tar_read(clean_wild_lice_data_2005)
+  # wild_lice <- targets::tar_read(clean_wild_lice_data_2005)
 
   ## bayesian formulation of the model =========================================
   #' The associated Bayesian generalized linear mixed-effects model (GLMM)
@@ -60,6 +60,12 @@ power_prep_pink <- function(wild_lice) {
       "/all-spp-all-stages.qs"
     ))
   )
+  all_spp_all_stages <- qs::qread(
+    paste0(here::here(
+      "./outputs/model-outputs/regression-diagnostics",
+      "/all-spp-all-stages.qs"
+    ))
+  )
 
   ## density plot - not useful but keep anyways
   all_spp_all_stages_ppc_dens <- bayesplot::ppc_dens_overlay(
@@ -84,7 +90,8 @@ power_prep_pink <- function(wild_lice) {
   posterior_year <- bayesplot::mcmc_areas(all_spp_all_stages_posterior,
     pars = names(all_spp_all_stages$coefficients)[1:18],
     prob = 0.9
-  ) + plot_title
+  ) + plot_title +
+    theme_base()
   ggsave(
     here::here("./figs/lice-per-year-regression/posterior.png"),
     posterior_year
@@ -95,7 +102,7 @@ power_prep_pink <- function(wild_lice) {
   all_spp_all_stages_trace <- bayesplot::mcmc_trace(
     all_spp_all_stages_posterior,
     pars = names(all_spp_all_stages$coefficients)[1:18], n_warmup = 2000,
-    facet_args = list(nrow = 3, labeling = label_parsed)
+    facet_args = list(nrow = 3)
   ) + bayesplot::facet_text(size = 15) +
     theme_base()
   ggplot2::ggsave(
@@ -104,36 +111,18 @@ power_prep_pink <- function(wild_lice) {
     height = 10, width = 20
   )
 
-  # data vs prediction
-  ppc_intervals(
-    y = mtcars$mpg,
-    yrep = posterior_predict(fit),
-    x = mtcars$wt,
-    prob = 0.5
-  ) +
-    labs(
-      x = "Weight (1000 lbs)",
-      y = "MPG",
-      title = "50% posterior predictive intervals \nvs observed miles per gallon",
-      subtitle = "by vehicle weight"
-    ) +
-    panel_bg(fill = "gray95", color = NA) +
-    grid_lines(color = "white")
-
-
-
-  fit <- stan_glm(mpg ~ ., data = mtcars)
-  posterior <- as.matrix(fit)
-
-  plot_title <- ggtitle(
-    "Posterior distributions",
-    "with medians and 80% intervals"
+  ### do the prediction ========================================================
+  predict_data <- data.frame(expand.grid(
+    year = as.character(c(2005:2022)),
+    week = as.factor(levels(unique(wild_lice$week))),
+    site = as.factor(levels(unique(wild_lice$site)))
+  ))
+  predicted_yearly_lice <- rstanarm::posterior_predict(
+    object = all_spp_all_stages,
+    newdata = predict_data,
+    re.form = NULL
   )
-  mcmc_areas(posterior,
-    pars = c("cyl"),
-    prob = 0.8
-  ) + plot_title
-
+  summary(predicted_yearly_lice)
 
 
 
