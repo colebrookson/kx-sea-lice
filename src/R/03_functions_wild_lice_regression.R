@@ -114,8 +114,8 @@ power_prep_pink <- function(wild_lice) {
   ### do the prediction ========================================================
   predict_data <- data.frame(expand.grid(
     year = as.character(c(2005:2022)),
-    week = as.factor(levels((wild_lice$week))[1]),
-    site = as.factor(levels(unique(wild_lice$site))[1])
+    week = "24",
+    site = "Kid Bay"
   ))
   prediction <- tidybayes::epred_draws(
     object = all_spp_all_stages,

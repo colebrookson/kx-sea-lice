@@ -34,11 +34,10 @@ replicated_df$count[which(replicated_df$year == 2015)] <- stats::rnbinom(
     mu = 3.0
 )
 
-(wild_lice$lep_total[which(wild_lice$year != 2015)])
-fitdistr(wild_lice$lep_total[which(wild_lice$year == 2015)],
-    densfun = "negative binomial"
-)
-
+# (wild_lice$lep_total[which(wild_lice$year != 2015)])
+# fitdistr(wild_lice$lep_total[which(wild_lice$year == 2015)],
+#     densfun = "negative binomial"
+# )
 
 df <- replicated_df %>%
     dplyr::mutate(
@@ -66,10 +65,16 @@ predicted_yearly <- data.frame(
         type = "response"
     )
 )
-ggplot(predicted_yearly) +
-    geom_errorbar(aes(x = year, ymin = fit - se.fit, ymax = fit + se.fit)) +
-    geom_point(aes(x = year, y = fit)) +
-    theme_bw()
+ggsave(
+    here::here("./TEST.png"),
+    ggplot(predicted_yearly) +
+        geom_errorbar(aes(x = year, ymin = fit - se.fit, ymax = fit + se.fit),
+            width = 0
+        ) +
+        geom_point(aes(x = year, y = fit)) +
+        theme_bw(),
+    height = 5, width = 5
+)
 
 bayes_fit <- rstanarm::stan_glmer(
     count ~ year + (1 | week) + (1 | site),
@@ -99,20 +104,26 @@ x <- tidybayes::epred_draws(
     newdata = predict_data_bayes,
     re_formula = NULL
 )
-ggplot(
-    x,
-    aes(
-        x = .epred, y = year, fill = year
-    )
-) +
-    tidybayes::stat_halfeye(.width = 0.95) +
-    scale_fill_manual(values = c(rep("lightpink", 16))) +
-    labs(
-        x = "Count", y = "Year",
-        subtitle = "Posterior predictions"
+?rstanarm::posterior_predict()
+ggsave(
+    here::here("./TEST.png"),
+    ggplot(
+        x,
+        aes(
+            x = .epred, y = year, fill = year
+        )
     ) +
-    theme(legend.position = "bottom") +
-    theme_bw()
+        tidybayes::stat_halfeye(.width = 0.95) +
+        scale_fill_manual(values = c(rep("lightpink", 16))) +
+        labs(
+            x = "Count", y = "Year",
+            subtitle = "Posterior predictions"
+        ) +
+        theme(legend.position = "bottom") +
+        theme_bw(),
+    width = 5,
+    height = 5
+)
 
 df_comparison <-
     bayesplot::mcmc_trace(
