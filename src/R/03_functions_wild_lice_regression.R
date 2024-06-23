@@ -112,16 +112,7 @@ power_prep_pink <- function(wild_lice) {
   )
 
   ### do the prediction ========================================================
-  predict_data <- data.frame(expand.grid(
-    year = as.character(c(2005:2022)),
-    week = levels(wild_lice$week),
-    site = levels(wild_lice$site)[]
-  ))
-  prediction <- tidybayes::epred_draws(
-    object = all_spp_all_stages,
-    newdata = predict_data,
-    re_formula = NULL
-  )
+
   ggplot(
     prediction,
     aes(
@@ -154,7 +145,7 @@ power_prep_pink <- function(wild_lice) {
   x <- wild_lice %>%
     dplyr::filter(!is.na(site), !is.na(week)) %>%
     modelr::data_grid(year, site, week) %>%
-    tidybayes::add_epred_draws(all_spp_all_stages, re_formula = NULL)
+    tidybayes::add_epred_draws(all_spp_all_stages, re_formula = NA)
 
 
 

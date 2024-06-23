@@ -70,21 +70,21 @@ predicted_yearly <- data.frame(
     stats::predict(
         object = freq_mod,
         newdata = predict_data,
-        re.form = ~0,
+        # re.form = ~0,
         se.fit = TRUE,
         type = "response"
     )
 )
-# ggsave(
-#     here::here("./TEST.png"),
-ggplot(predicted_yearly) +
-    geom_errorbar(aes(x = year, ymin = fit - se.fit, ymax = fit + se.fit),
-        width = 0
-    ) +
-    geom_point(aes(x = year, y = fit)) +
-    theme_bw()
-#     height = 5, width = 5
-# )
+ggsave(
+    here::here("./TEST.png"),
+    ggplot(predicted_yearly) +
+        geom_errorbar(aes(x = year, ymin = fit - se.fit, ymax = fit + se.fit),
+            width = 0
+        ) +
+        geom_point(aes(x = year, y = fit)) +
+        theme_bw(),
+    height = 5, width = 5
+)
 
 bayes_fit <- rstanarm::stan_glmer(
     count ~ year + (1 | week) + (1 | site),
@@ -94,53 +94,42 @@ bayes_fit <- rstanarm::stan_glmer(
     warmup = 2000,
     cores = 4
 )
-predict_data_bayes <- data.frame(
-    year = as.character(c(2005:2020)),
-    week = "1",
-    site = "one"
-)
-predicted_yearly_bayes <- data.frame(
-    year = as.character(c(2005:2020)),
-    week = "1",
-    site = "one",
-    rstanarm::posterior_predict(
-        object = bayes_fit,
-        newdata = predict_data_bayes,
-        re.form = NULL
-    )
-)
-x <- tidybayes::epred_draws(
-    object = bayes_fit,
-    newdata = predict_data_bayes,
-    re_formula = NULL
-)
-?rstanarm::posterior_predict()
-ggsave(
-    here::here("./TEST.png"),
-    ggplot(
-        x,
-        aes(
-            x = .epred, y = year, fill = year
-        )
-    ) +
-        tidybayes::stat_halfeye(.width = 0.95) +
-        scale_fill_manual(values = c(rep("lightpink", 16))) +
-        labs(
-            x = "Count", y = "Year",
-            subtitle = "Posterior predictions"
-        ) +
-        theme(legend.position = "bottom") +
-        theme_bw(),
-    width = 5,
-    height = 5
-)
+# predict_data_bayes_non_high <- data.frame(
+#     year = as.character(c(2005:2020)),
+#     week = "1",
+#     site = "1"
+# )
+# x <- tidybayes::epred_draws(
+#     object = bayes_fit,
+#     newdata = predict_data_bayes_non_high,
+#     re_formula = NULL
+# )
+# ggsave(
+#     here::here("./TEST-nonhigh.png"),
+#     ggplot(
+#         x,
+#         aes(
+#             x = .epred, y = year, fill = year
+#         )
+#     ) +
+#         tidybayes::stat_halfeye(.width = 0.95) +
+#         scale_fill_manual(values = c(rep("lightpink", 16))) +
+#         labs(
+#             x = "Count", y = "Year",
+#             subtitle = "Posterior predictions"
+#         ) +
+#         theme(legend.position = "bottom") +
+#         theme_bw(),
+#     width = 5,
+#     height = 5
+# )
 
 x <- df %>%
     # dplyr::filter(!is.na(site), !is.na(week)) %>%
     modelr::data_grid(year, site, week) %>%
-    tidybayes::add_epred_draws(bayes_fit, re_formula = NULL)
+    tidybayes::add_epred_draws(bayes_fit, re_formula = NA)
 ggsave(
-    here::here("./TEST.png"),
+    here::here("./TEST-NA.png"),
     ggplot(x, aes(x = .epred, y = year, fill = year)) +
         tidybayes::stat_halfeye(.width = 0.95) +
         scale_fill_manual(values = c(rep("lightpink", 16))) +
