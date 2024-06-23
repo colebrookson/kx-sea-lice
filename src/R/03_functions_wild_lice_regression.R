@@ -114,8 +114,8 @@ power_prep_pink <- function(wild_lice) {
   ### do the prediction ========================================================
   predict_data <- data.frame(expand.grid(
     year = as.character(c(2005:2022)),
-    week = "24",
-    site = "Kid Bay"
+    week = levels(wild_lice$week),
+    site = levels(wild_lice$site)[]
   ))
   prediction <- tidybayes::epred_draws(
     object = all_spp_all_stages,
@@ -135,12 +135,35 @@ power_prep_pink <- function(wild_lice) {
       subtitle = "Posterior predictions"
     ) +
     theme(legend.position = "bottom") +
-    theme_bw()
+    theme_bw() +
+    xlim(0, 15)
 
   ggplot(data = wild_lice %>% group_by(year) %>% summarize(
     mean = mean(lep_total), sd = std_err(lep_total)
   )) +
     geom_point(aes(x = year, y = mean))
+
+
+  # attempts to figure this out
+  wild_lice %>%
+    modelr::data_grid(year) %>%
+    tidybayes::add_epred_draws(all_spp_all_stages) %>%
+    ggplot(aes(x = .epred, y = year)) +
+    stat_pointinterval(.width = c(.66, .95))
+
+  x <- wild_lice %>%
+    dplyr::filter(!is.na(site), !is.na(week)) %>%
+    modelr::data_grid(year, site, week) %>%
+    tidybayes::add_epred_draws(all_spp_all_stages, re_formula = NULL)
+
+
+
+
+
+
+
+
+
 
 
 
