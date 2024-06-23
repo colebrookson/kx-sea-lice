@@ -139,15 +139,19 @@ x <- df %>%
     # dplyr::filter(!is.na(site), !is.na(week)) %>%
     modelr::data_grid(year, site, week) %>%
     tidybayes::add_epred_draws(bayes_fit, re_formula = NULL)
-ggplot(x, aes(x = .epred, y = year, fill = year)) +
-    tidybayes::stat_halfeye(.width = 0.95) +
-    scale_fill_manual(values = c(rep("lightpink", 16))) +
-    labs(
-        x = "Count", y = "Year",
-        subtitle = "Posterior predictions"
-    ) +
-    theme(legend.position = "bottom") +
-    theme_bw()
+ggsave(
+    here::here("./TEST.png"),
+    ggplot(x, aes(x = .epred, y = year, fill = year)) +
+        tidybayes::stat_halfeye(.width = 0.95) +
+        scale_fill_manual(values = c(rep("lightpink", 16))) +
+        labs(
+            x = "Count", y = "Year",
+            subtitle = "Posterior predictions"
+        ) +
+        theme(legend.position = "bottom") +
+        theme_bw()
+)
+
 
 
 df_comparison <-
