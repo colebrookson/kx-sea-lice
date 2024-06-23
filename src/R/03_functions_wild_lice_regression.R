@@ -127,6 +127,7 @@ power_prep_pink <- function(wild_lice) {
 
 
 
+
   ## first regression for the wild lice ========================================
   wild_lice <- wild_lice %>%
     dplyr::rowwise() %>%
