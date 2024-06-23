@@ -39,8 +39,8 @@ replicated_df$count[which(replicated_df$year == 2015 &
         which(replicated_df$year == 2015 &
             replicated_df$site == 2),
     ]),
-    size = 0.8,
-    mu = 3.0
+    size = 1.5,
+    mu = 18.0
 )
 hist(replicated_df$count[which(replicated_df$year == 2015 &
     replicated_df$site == 2)])
@@ -63,7 +63,7 @@ freq_mod <- glmmTMB::glmmTMB(
 predict_data <- data.frame(
     year = as.character(c(2005:2020)),
     week = NA,
-    site = NA
+    site = "2"
 )
 predicted_yearly <- data.frame(
     year = as.character(c(2005:2020)),
@@ -75,16 +75,16 @@ predicted_yearly <- data.frame(
         type = "response"
     )
 )
-ggsave(
-    here::here("./TEST.png"),
-    ggplot(predicted_yearly) +
-        geom_errorbar(aes(x = year, ymin = fit - se.fit, ymax = fit + se.fit),
-            width = 0
-        ) +
-        geom_point(aes(x = year, y = fit)) +
-        theme_bw(),
-    height = 5, width = 5
-)
+# ggsave(
+#     here::here("./TEST.png"),
+ggplot(predicted_yearly) +
+    geom_errorbar(aes(x = year, ymin = fit - se.fit, ymax = fit + se.fit),
+        width = 0
+    ) +
+    geom_point(aes(x = year, y = fit)) +
+    theme_bw()
+#     height = 5, width = 5
+# )
 
 bayes_fit <- rstanarm::stan_glmer(
     count ~ year + (1 | week) + (1 | site),
@@ -134,6 +134,21 @@ ggsave(
     width = 5,
     height = 5
 )
+
+x <- df %>%
+    # dplyr::filter(!is.na(site), !is.na(week)) %>%
+    modelr::data_grid(year, site, week) %>%
+    tidybayes::add_epred_draws(bayes_fit, re_formula = NULL)
+ggplot(x, aes(x = .epred, y = year, fill = year)) +
+    tidybayes::stat_halfeye(.width = 0.95) +
+    scale_fill_manual(values = c(rep("lightpink", 16))) +
+    labs(
+        x = "Count", y = "Year",
+        subtitle = "Posterior predictions"
+    ) +
+    theme(legend.position = "bottom") +
+    theme_bw()
+
 
 df_comparison <-
     bayesplot::mcmc_trace(
