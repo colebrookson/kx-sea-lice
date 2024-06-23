@@ -8,7 +8,7 @@ df <- data.frame(
     expand.grid(
         week = c(1:18),
         year = c(2005:2020),
-        site = c("one", "two", "three")
+        site = c(1:15)
     )
 ) %>%
     dplyr::rowwise() %>%
@@ -33,7 +33,17 @@ replicated_df$count[which(replicated_df$year == 2015)] <- stats::rnbinom(
     size = 0.45,
     mu = 3.0
 )
-
+replicated_df$count[which(replicated_df$year == 2015 &
+    replicated_df$site == 2)] <- stats::rnbinom(
+    nrow(replicated_df[
+        which(replicated_df$year == 2015 &
+            replicated_df$site == 2),
+    ]),
+    size = 0.8,
+    mu = 3.0
+)
+hist(replicated_df$count[which(replicated_df$year == 2015 &
+    replicated_df$site == 2)])
 # (wild_lice$lep_total[which(wild_lice$year != 2015)])
 # fitdistr(wild_lice$lep_total[which(wild_lice$year == 2015)],
 #     densfun = "negative binomial"
