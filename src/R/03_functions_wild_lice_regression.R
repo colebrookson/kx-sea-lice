@@ -128,7 +128,7 @@ power_prep_pink <- function(wild_lice) {
       x = .epred, y = year, fill = year
     )
   ) +
-    tidybayes::stat_halfeye(.width = 0.95) +
+    tidybayes::stat_halfeye(.width = 0.90) +
     scale_fill_manual(values = c(rep("lightpink", 18))) +
     labs(
       x = "Count", y = "Year",
@@ -136,6 +136,11 @@ power_prep_pink <- function(wild_lice) {
     ) +
     theme(legend.position = "bottom") +
     theme_bw()
+
+  ggplot(data = wild_lice %>% group_by(year) %>% summarize(
+    mean = mean(lep_total), sd = std_err(lep_total)
+  )) +
+    geom_point(aes(x = year, y = mean))
 
 
 
