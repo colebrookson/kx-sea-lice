@@ -114,15 +114,28 @@ power_prep_pink <- function(wild_lice) {
   ### do the prediction ========================================================
   predict_data <- data.frame(expand.grid(
     year = as.character(c(2005:2022)),
-    week = as.factor(levels(unique(wild_lice$week))),
-    site = as.factor(levels(unique(wild_lice$site)))
+    week = as.factor(levels((wild_lice$week))[1]),
+    site = as.factor(levels(unique(wild_lice$site))[1])
   ))
-  predicted_yearly_lice <- rstanarm::posterior_predict(
+  prediction <- tidybayes::epred_draws(
     object = all_spp_all_stages,
     newdata = predict_data,
-    re.form = NULL
+    re_formula = NULL
   )
-  summary(predicted_yearly_lice)
+  ggplot(
+    prediction,
+    aes(
+      x = .epred, y = year, fill = year
+    )
+  ) +
+    tidybayes::stat_halfeye(.width = 0.95) +
+    scale_fill_manual(values = c(rep("lightpink", 18))) +
+    labs(
+      x = "Count", y = "Year",
+      subtitle = "Posterior predictions"
+    ) +
+    theme(legend.position = "bottom") +
+    theme_bw()
 
 
 

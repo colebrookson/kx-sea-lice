@@ -25,7 +25,8 @@ tar_option_set(packages = c(
   "here", "readr", "magrittr", "dplyr", "ggplot2",
   "ggthemes", "wesanderson", "lubridate", "janitor",
   "tibble", "ggrepel", "sp", "glmmTMB", "sf",
-  "sfnetworks", "qs", "tidygraph", "patchwork", "ggtext"
+  "sfnetworks", "qs", "tidygraph", "patchwork", "ggtext", "rstanarm",
+  "bayesplot", "tidybayes"
 ))
 
 options(dplyr.summarise.inform = FALSE)
