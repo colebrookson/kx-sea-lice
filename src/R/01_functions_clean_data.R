@@ -42,6 +42,10 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
     dplyr::select(
       year, seine_date, site, zone, fish_spp, lep_co, lep_c1, lep_c2, lep_c3,
       lep_c4, lep_pam, lep_paf, lep_am, lep_af, lep_total, cal_total, lat, long
+    ) %>%
+    # keep out any species not chum or pink
+    dplyr::filter(
+      fish_spp %in% c("Pink", "Chum", "P", "CM")
     )
 
   # decide to exclude 2005 data

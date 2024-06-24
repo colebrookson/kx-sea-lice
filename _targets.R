@@ -31,7 +31,7 @@ tar_option_set(packages = c(
 
 options(dplyr.summarise.inform = FALSE)
 
-file_targets <- list(
+# file_targets <- list(
   ## files =====================================================================
   tar_target(raw_wild_lice_data,
     here::here("./data/wild-lice/raw/klemtu_wild_lice_data_CB.csv"),

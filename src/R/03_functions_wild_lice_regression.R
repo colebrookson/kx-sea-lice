@@ -42,7 +42,8 @@ power_prep_pink <- function(wild_lice) {
     ) %>%
     dplyr::mutate(
       week = as.factor(lubridate::week(date))
-    )
+    ) %>%
+    dplyr::filter(fish_spp %in% c("Pink", "Chum", "P", "CM"))
 
   all_spp_all_stages <- rstanarm::stan_glmer(
     lep_total ~ year + (1 | week) + (1 | site),
@@ -50,9 +51,10 @@ power_prep_pink <- function(wild_lice) {
     family = rstanarm::neg_binomial_2(link = "log"),
     chains = 6,
     cores = 6,
-    iter = 8000,
-    warmup = 2000,
+    iter = 20000,
+    warmup = 8000
   )
+
   qs::qsave(
     all_spp_all_stages,
     paste0(here::here(
@@ -113,26 +115,26 @@ power_prep_pink <- function(wild_lice) {
 
   ### do the prediction ========================================================
 
-  ggplot(
-    prediction,
-    aes(
-      x = .epred, y = year, fill = year
-    )
-  ) +
-    tidybayes::stat_halfeye(.width = 0.90) +
-    scale_fill_manual(values = c(rep("lightpink", 18))) +
-    labs(
-      x = "Count", y = "Year",
-      subtitle = "Posterior predictions"
-    ) +
-    theme(legend.position = "bottom") +
-    theme_bw() +
-    xlim(0, 15)
+  # ggplot(
+  #   prediction,
+  #   aes(
+  #     x = .epred, y = year, fill = year
+  #   )
+  # ) +
+  #   tidybayes::stat_halfeye(.width = 0.90) +
+  #   scale_fill_manual(values = c(rep("lightpink", 18))) +
+  #   labs(
+  #     x = "Count", y = "Year",
+  #     subtitle = "Posterior predictions"
+  #   ) +
+  #   theme(legend.position = "bottom") +
+  #   theme_bw() +
+  #   xlim(0, 15)
 
-  ggplot(data = wild_lice %>% group_by(year) %>% summarize(
-    mean = mean(lep_total), sd = std_err(lep_total)
-  )) +
-    geom_point(aes(x = year, y = mean))
+  # ggplot(data = wild_lice %>% group_by(year) %>% summarize(
+  #   mean = mean(lep_total), sd = std_err(lep_total)
+  # )) +
+  #   geom_point(aes(x = year, y = mean))
 
 
   # attempts to figure this out
@@ -146,6 +148,19 @@ power_prep_pink <- function(wild_lice) {
     dplyr::filter(!is.na(site), !is.na(week)) %>%
     modelr::data_grid(year, site, week) %>%
     tidybayes::add_epred_draws(all_spp_all_stages, re_formula = NA)
+
+  ggsave(
+    here::here("./TEST-new.png"),
+    ggplot(x, aes(x = .epred, y = year, fill = year)) +
+      tidybayes::stat_pointinterval(.width = 0.9) +
+      # scale_fill_manual(values = c(rep("lightpink", 18))) +
+      labs(
+        x = "Count", y = "Year",
+        subtitle = "Posterior predictions"
+      ) +
+      theme(legend.position = "bottom") +
+      theme_bw()
+  )
 
 
 
