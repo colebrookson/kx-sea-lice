@@ -54,7 +54,7 @@ power_prep_pink <- function(wild_lice) {
     iter = 20000,
     warmup = 8000
   )
-
+  summary(all_spp_all_stages)
   qs::qsave(
     all_spp_all_stages,
     paste0(here::here(
@@ -103,7 +103,7 @@ power_prep_pink <- function(wild_lice) {
   bayesplot::color_scheme_set("mix-blue-pink")
   all_spp_all_stages_trace <- bayesplot::mcmc_trace(
     all_spp_all_stages_posterior,
-    pars = names(all_spp_all_stages$coefficients)[1:18], n_warmup = 2000,
+    pars = names(all_spp_all_stages$coefficients)[1:18], n_warmup = 8000,
     facet_args = list(nrow = 3)
   ) + bayesplot::facet_text(size = 15) +
     theme_base()
@@ -138,11 +138,11 @@ power_prep_pink <- function(wild_lice) {
 
 
   # attempts to figure this out
-  wild_lice %>%
-    modelr::data_grid(year) %>%
-    tidybayes::add_epred_draws(all_spp_all_stages) %>%
-    ggplot(aes(x = .epred, y = year)) +
-    stat_pointinterval(.width = c(.66, .95))
+  # wild_lice %>%
+  #   modelr::data_grid(year) %>%
+  #   tidybayes::add_epred_draws(all_spp_all_stages) %>%
+  #   ggplot(aes(x = .epred, y = year)) +
+  #   stat_pointinterval(.width = c(.66, .95))
 
   x <- wild_lice %>%
     dplyr::filter(!is.na(site), !is.na(week)) %>%
