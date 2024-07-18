@@ -148,6 +148,9 @@ power_prep_pink <- function(wild_lice) {
     dplyr::filter(!is.na(site), !is.na(week)) %>%
     modelr::data_grid(year, site, week) %>%
     tidybayes::add_epred_draws(all_spp_all_stages, re_formula = NA)
+  x_subset <- x[, c("year", ".epred")] %>%
+    dplyr::mutate(year = as.factor(year)) %>%
+    dplyr::arrange(`.epred`)
 
   ggsave(
     here::here("./TEST-new.png"),
