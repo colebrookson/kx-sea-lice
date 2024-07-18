@@ -20,7 +20,7 @@
 #' @return Dataframe
 #' @export
 get_data_csv <- function(file) {
-  readr::read_csv(file, show_col_types = FALSE)
+  readr::read_csv(file, show_col_types = FALSE, guess_max = 100000)
 }
 
 #' Standardizes column names in a dataframe

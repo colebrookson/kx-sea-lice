@@ -9,8 +9,7 @@
 #' library
 #'
 
-# power_prep_pink ==============================================================
-power_prep_pink <- function(wild_lice) {
+bayesian_wild_fish_regression <- function(wild_lice) {
   #' Fit the actual models we'll need for the power analysis
   #'
   #' @description Fit the model and save the objects for pink salmon to be used
@@ -21,8 +20,6 @@ power_prep_pink <- function(wild_lice) {
   #' @usage power_prep_pink(all_power_sims, output_path)
   #' @return NA
   #'
-
-  # wild_lice <- targets::tar_read(clean_wild_lice_data_2005)
 
   ## bayesian formulation of the model =========================================
   #' The associated Bayesian generalized linear mixed-effects model (GLMM)
@@ -115,68 +112,40 @@ power_prep_pink <- function(wild_lice) {
 
   ### do the prediction ========================================================
 
-  # ggplot(
-  #   prediction,
-  #   aes(
-  #     x = .epred, y = year, fill = year
-  #   )
-  # ) +
-  #   tidybayes::stat_halfeye(.width = 0.90) +
-  #   scale_fill_manual(values = c(rep("lightpink", 18))) +
-  #   labs(
-  #     x = "Count", y = "Year",
-  #     subtitle = "Posterior predictions"
-  #   ) +
-  #   theme(legend.position = "bottom") +
-  #   theme_bw() +
-  #   xlim(0, 15)
-
-  # ggplot(data = wild_lice %>% group_by(year) %>% summarize(
-  #   mean = mean(lep_total), sd = std_err(lep_total)
-  # )) +
-  #   geom_point(aes(x = year, y = mean))
-
-
-  # attempts to figure this out
-  # wild_lice %>%
-  #   modelr::data_grid(year) %>%
-  #   tidybayes::add_epred_draws(all_spp_all_stages) %>%
-  #   ggplot(aes(x = .epred, y = year)) +
-  #   stat_pointinterval(.width = c(.66, .95))
-
   x <- wild_lice %>%
     dplyr::filter(!is.na(site), !is.na(week)) %>%
     modelr::data_grid(year, site, week) %>%
     tidybayes::add_epred_draws(all_spp_all_stages, re_formula = NA)
   x_subset <- x[, c("year", ".epred")] %>%
     dplyr::mutate(year = as.factor(year)) %>%
-    dplyr::arrange(`.epred`)
+    dplyr::group_by(year) %>%
+    dplyr::arrange(`.epred`) %>%
+    dplyr::reframe(
+      lo = quantile(.epred, prob = 0.05),
+      median = quantile(.epred, prob = 0.5),
+      hi = quantile(.epred, prob = 0.95)
+    )
 
-  ggsave(
-    here::here("./TEST-new.png"),
-    ggplot(x, aes(x = .epred, y = year, fill = year)) +
-      tidybayes::stat_pointinterval(.width = 0.9) +
-      # scale_fill_manual(values = c(rep("lightpink", 18))) +
-      labs(
-        x = "Count", y = "Year",
-        subtitle = "Posterior predictions"
-      ) +
-      theme(legend.position = "bottom") +
-      theme_bw()
-  )
+  ggplot2::ggplot(data = x_subset) +
+    ggplot2::geom_errorbar(aes(x = year, ymin = lo, ymax = hi, width = 0)) +
+    ggplot2::geom_point(aes(x = year, y = median)) +
+    theme_base()
+}
 
+# power_prep_pink ==============================================================
+power_prep_pink <- function(wild_lice) {
+  #' Fit the actual models we'll need for the power analysis
+  #'
+  #' @description Fit the model and save the objects for pink salmon to be used
+  #' in the power analysis
+  #'
+  #' @param wild_lice dataframe. The lice on wild fish data
+  #'
+  #' @usage power_prep_pink(all_power_sims, output_path)
+  #' @return NA
+  #'
 
-
-
-
-
-
-
-
-
-
-
-
+  # wild_lice <- targets::tar_read(clean_wild_lice_data_2005)
 
   ## first regression for the wild lice ========================================
   wild_lice <- wild_lice %>%
@@ -190,28 +159,23 @@ power_prep_pink <- function(wild_lice) {
       week = as.factor(lubridate::week(date))
     )
 
+
   # do first with negative binomial
-  wild_lice_glmm_nb <- glmmTMB::glmmTMB(
+  all_leps_glmm_nb <- glmmTMB::glmmTMB(
     lep_total ~ year + (1 | week) + (1 | site),
     family = nbinom2,
     data = wild_lice
   )
-  # now with poisson
-  wild_lice_glmm_poi <- glmmTMB::glmmTMB(
-    lep_total ~ year + (1 | week) + (1 | site),
-    family = poisson(link = "log"),
-    data = wild_lice
-  )
 
   ## do a check to see which model is better ===================================
-  if (AIC(wild_lice_glmm_nb) < (AIC(wild_lice_glmm_poi) + 2)) {
-    # the plus two is to make sure that the nb is at least 2 delta AIC better
-    best_model <- wild_lice_glmm_nb
-  } else if (AIC(wild_lice_glmm_poi) < (AIC(wild_lice_glmm_nb) + 2)) {
-    best_model <- wild_lice_glmm_poi
-  } else {
-    stop("Models not different enough via AIC - requires manual decision")
-  }
+  # if (AIC(wild_lice_glmm_nb) < (AIC(wild_lice_glmm_poi) + 2)) {
+  #   # the plus two is to make sure that the nb is at least 2 delta AIC better
+  #   best_model <- wild_lice_glmm_nb
+  # } else if (AIC(wild_lice_glmm_poi) < (AIC(wild_lice_glmm_nb) + 2)) {
+  #   best_model <- wild_lice_glmm_poi
+  # } else {
+  #   stop("Models not different enough via AIC - requires manual decision")
+  # }
 
   ## model predictions =========================================================
   predict_data <- data.frame(
