@@ -56,18 +56,6 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
       )
     )
 
-  # decide to exclude 2005 data
-  if (!include_2005) {
-    wild_lice_clean[which(wild_lice_clean$year == 2005), c(
-      "lep_co", "lep_c1",
-      "lep_c2", "lep_c3",
-      "lep_c4", "lep_pam",
-      "lep_paf", "lep_am",
-      "lep_af", "lep_total",
-      "cal_total"
-    )] <- NA
-  }
-
   # figure out the seine_date situation by year
   wild_lice_dates <- wild_lice_clean %>%
     dplyr::select(year, seine_date) %>%
@@ -196,15 +184,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
   # write out clean data
   readr::write_csv(
     wild_lice_to_save,
-    if (include_2005) {
-      paste0(
-        clean_output_path, "clean-wild-lice-df-2005.csv"
-      )
-    } else {
-      paste0(
-        clean_output_path, "clean-wild-lice-df-2006.csv"
-      )
-    }
+    paste0()
   )
 
   # return the clean dataframe of wild lice
@@ -297,12 +277,13 @@ plot_wild_lice_data <- function(wild_lice, output_path) {
 #'
 #' @param sr_data file. the raw SR data
 #' @param output_path character. Path to where to save the plot
+#' @param n_obs numeric. How many populations is the minimum to be included
 #'
 #' @usage clean_sr_data(sr_data, output_path)
 #' @return the clean sr data
 #'
 #' @export
-clean_pk_sr_data <- function(sr_data, output_path) {
+clean_pk_sr_data <- function(sr_data, output_path, n_obs) {
   # basic cleaning (renaming etc)
   all_pinks <- sr_data %>%
     dplyr::rename(
@@ -365,11 +346,11 @@ clean_pk_sr_data <- function(sr_data, output_path) {
   # find the streams to exclude
   pke_streams_to_exclude <- pke_obs_per_stream %>%
     dplyr::filter(
-      n < 4
+      n < n_obs
     )
   pko_streams_to_exclude <- pko_obs_per_stream %>%
     dplyr::filter(
-      n < 4
+      n < n_obs
     )
 
   # note that this could be condensed but it's handy to have a more easily
