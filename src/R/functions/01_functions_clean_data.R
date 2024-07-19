@@ -61,11 +61,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
     unique()
   readr::write_csv(
     wild_lice_dates,
-    if (include_2005) {
-      paste0(raw_output_path, "unique_dates_for_manual_edit_2005.csv")
-    } else {
-      paste0(raw_output_path, "unique_dates_for_manual_edit_2006.csv")
-    }
+    paste0(raw_output_path, "unique_dates_for_manual_edit.csv")
   )
 
   # important check to make sure no additional manual cleaning needs to happen
@@ -153,11 +149,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
 
   ggplot2::ggsave(
     # output path
-    if (include_2005) {
-      paste0(fig_output_path, "number-of-obs-per-month-2005.png")
-    } else {
-      paste0(fig_output_path, "number-of-obs-per-month-2006.png")
-    },
+    paste0(fig_output_path, "number-of-obs-per-month.png"),
     # plot
     ggplot(data = per_month_sampling) +
       geom_col(aes(x = month_char, y = n, fill = n),
@@ -179,7 +171,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
   # write out clean data
   readr::write_csv(
     wild_lice_to_save,
-    paste0()
+    paste0(clean_output_path, "clean-wild-lice-df.csv")
   )
 
   # return the clean dataframe of wild lice
@@ -237,7 +229,7 @@ plot_wild_lice_data <- function(wild_lice, output_path) {
           x = year_fac, ymin = lo_ci, ymax = up_ci,
           group = lice_group
         ),
-        width = 0, size = 1, colour = "black",
+        width = 0, linewidth = 1, colour = "black",
         position = position_dodge(width = 0.8)
       ) +
       geom_point(aes(x = year_fac, y = mean, fill = lice_group),
@@ -253,9 +245,9 @@ plot_wild_lice_data <- function(wild_lice, output_path) {
         labels = c("All Lice", "Motile Leps", "All Leps")
       ) +
       theme(
-        panel.border = element_rect(colour = "black", size = 1.1),
+        panel.border = element_rect(colour = "black", linewidth = 1.1),
         axis.text.x = element_text(angle = 90, vjust = 0.5),
-        legend.position = c(0.2, 0.7)
+        legend.position.inside = c(0.2, 0.7)
       ),
 
     # size arguments
@@ -313,7 +305,7 @@ clean_pk_sr_data <- function(sr_data, output_path, n_obs) {
     dplyr::filter(brood_year %notin% no_recruits$brood_year) %>%
     # get rid of NA's
     dplyr::filter_at(
-      vars(spawners, returns), all_vars(!is.na(.))
+      dplyr::vars(spawners, returns), dplyr::all_vars(!is.na(.))
     )
 
   # figure out how many observations per population there is
@@ -430,14 +422,14 @@ clean_coho_sr_data <- function(sr_data, output_path) {
     dplyr::filter(brood_year %notin% no_recruits$brood_year) %>%
     # get rid of NA's
     dplyr::filter_at(
-      vars(spawners, returns), all_vars(!is.na(.))
+      dplyr::vars(spawners, returns), dplyr::all_vars(!is.na(.))
     )
 
   # figure out how many observations per population there is
   all_coho_obs_per_stream <- coho %>%
     dplyr::mutate(river = as.factor(river)) %>%
     dplyr::group_by(river) %>%
-    dplyr::summarize(n = n())
+    dplyr::summarize(n = dplyr::n())
 
   # find the streams to exclude
   coho_streams_to_exclude <- all_coho_obs_per_stream %>%
@@ -523,14 +515,14 @@ clean_chum_sr_data <- function(sr_data, output_path, n_obs) {
     dplyr::filter(brood_year %notin% no_recruits$brood_year) %>%
     # get rid of NA's
     dplyr::filter_at(
-      vars(spawners, returns), all_vars(!is.na(.))
+      dplyr::vars(spawners, returns), dplyr::all_vars(!is.na(.))
     )
 
   # figure out how many observations per population there is
   all_chum_obs_per_stream <- chum %>%
     dplyr::mutate(river = as.factor(river)) %>%
     dplyr::group_by(river) %>%
-    dplyr::summarize(n = n())
+    dplyr::summarize(n = dplyr::n())
 
   # find the streams to exclude
   chum_streams_to_exclude <- all_chum_obs_per_stream %>%
@@ -846,7 +838,7 @@ clean_pop_sites <- function(sr_pop_sites, output_path) {
       y = unique_ids,
       by = "system_site"
     ) %>%
-    select(gfe_id, unique_id, names(.)[which(names(.) != "map_label")])
+    dplyr::select(gfe_id, unique_id, names(.)[which(names(.) != "map_label")])
 
   readr::write_csv(
     sr_sites_clean,

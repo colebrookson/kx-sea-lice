@@ -49,31 +49,31 @@ plot_wild_lice_data(
 # read in raw file
 sr_data <- readr::read_csv(
     here::here(paste0(
-      "./data/spawner-recruit/raw/river-level-sr/",
-      "NCC_streams_river-level_SR_data_2023-04-19.csv"
-    )
+        "./data/spawner-recruit/raw/river-level-sr/",
+        "NCC_streams_river-level_SR_data_2023-04-19.csv"
+    ))
 )
 
-#' Cleaning the sr-data 
+#' Cleaning the sr-data
 #'
-#' 1. do renaming so everything is consistent 
-#' 2. get rid of the years where recruitment wasn't measured 
+#' 1. do renaming so everything is consistent
+#' 2. get rid of the years where recruitment wasn't measured
 #' 3. figure out how many observations there are of each population
-#' 4. exclude the populations that don't have enough observations 
+#' 4. exclude the populations that don't have enough observations
 all_pinks_rivers <- clean_pk_sr_data(
-    sr_data = sr_data, 
+    sr_data = sr_data,
     output_path = here::here("./data/spawner-recruit/clean/"),
     n_obs = 4
-) 
+)
 all_chums_rivers <- clean_chum_sr_data(
-    sr_data = sr_data, 
+    sr_data = sr_data,
     output_path = here::here("./data/spawner-recruit/clean/"),
     n_obs = 4
-) 
+)
 
 # clean farm lice ==============================================================
 
-# read raw files 
+# read raw files
 old_lice <- readxl::read_excel(
     here::here("./data/farm-lice/raw/klemtu_farm_lice_data_old.xls"),
     sheet = 9
@@ -83,19 +83,19 @@ new_lice <- readxl::read_excel(
     sheet = 5
 )
 
-#' Cleaning Farm Lice Data 
-#' 
+#' Cleaning Farm Lice Data
+#'
 #' The most harrowing task of all
 #' 1. fix all the dates and get rid of observations with no dates
-#' 2. standardize names 
-#' 3. make sure inventory measurements are correct and being carried along 
+#' 2. standardize names
+#' 3. make sure inventory measurements are correct and being carried along
 #' 4. join the old and the new versions of the farm lice
 #' 5. plot the inventory and lice numbers through time
 farm_lice <- clean_farm_lice(
-    old_lice = old_lice, 
-    new_lice = new_lice, 
+    old_lice = old_lice,
+    new_lice = new_lice,
     data_output_path = here::here("./data/farm-lice/clean/"),
-    fig_output_path = here::here("./figs/farm-lice//") 
+    fig_output_path = here::here("./figs/farm-lice//")
 )
 
 # clean population locations ===================================================
@@ -105,11 +105,11 @@ sr_pop_sites <- readr::read_csv(
     here::here("./data/spawner-recruit/raw/conservation_unit_system_site.csv")
 )
 
-#' Clean the locations 
-#' 
-#' 1. These are essentially clean, but we need to make sure the gfe_ids and the 
-#' unique identifiers map up, and that everything is unique 
+#' Clean the locations
+#'
+#' 1. These are essentially clean, but we need to make sure the gfe_ids and the
+#' unique identifiers map up, and that everything is unique
 sr_sites_clean <- clean_pop_sites(
-    sr_pop_sites = sr_pop_sites, 
+    sr_pop_sites = sr_pop_sites,
     output_path = here::here("./data/spawner-recruit/clean/")
 )
