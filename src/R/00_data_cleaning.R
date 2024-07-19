@@ -10,6 +10,7 @@
 
 library(magrittr)
 library(ggplot2)
+source(here::here("./src/R/functions/00_functions_global.R"))
 source(here::here("./src/R/functions/01_functions_clean_data.R"))
 
 # wild lice data ===============================================================
@@ -95,4 +96,20 @@ farm_lice <- clean_farm_lice(
     new_lice = new_lice, 
     data_output_path = here::here("./data/farm-lice/clean/"),
     fig_output_path = here::here("./figs/farm-lice//") 
+)
+
+# clean population locations ===================================================
+
+# read in file
+sr_pop_sites <- readr::read_csv(
+    here::here("./data/spawner-recruit/raw/conservation_unit_system_site.csv")
+)
+
+#' Clean the locations 
+#' 
+#' 1. These are essentially clean, but we need to make sure the gfe_ids and the 
+#' unique identifiers map up, and that everything is unique 
+sr_sites_clean <- clean_pop_sites(
+    sr_pop_sites = sr_pop_sites, 
+    output_path = here::here("./data/spawner-recruit/clean/")
 )
