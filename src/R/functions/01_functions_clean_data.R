@@ -46,6 +46,14 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
     # keep out any species not chum or pink
     dplyr::filter(
       fish_spp %in% c("Pink", "Chum", "P", "CM")
+    ) %>%
+    dplyr::mutate(
+      fish_spp = dplyr::case_when(
+        fish_spp == "Chum" ~ "Chum",
+        fish_spp == "CM" ~ "Chum",
+        fish_spp == "Pink" ~ "Pink",
+        fish_spp == "P" ~ "Pink"
+      )
     )
 
   # decide to exclude 2005 data

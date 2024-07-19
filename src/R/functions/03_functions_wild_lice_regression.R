@@ -153,39 +153,57 @@ power_prep_pink <- function(wild_lice) {
     dplyr::mutate(
       date = lubridate::make_date(year, month, day),
       site = as.factor(site),
-      year = as.factor(year)
+      year = as.factor(year),
+      all_lice = lep_total + cal_total,
+      lep_chals = lep_c1 + lep_c2 + lep_c3 + lep_c4
+      cal_chals = cal_c1 + cal_c2
     ) %>%
     dplyr::mutate(
       week = as.factor(lubridate::week(date))
     )
 
-
-  # do first with negative binomial
+  # fit models with negative binomial 
   all_leps_glmm_nb <- glmmTMB::glmmTMB(
     lep_total ~ year + (1 | week) + (1 | site),
     family = nbinom2,
     data = wild_lice
   )
+  all_lice_glmm_nb <- glmmTMB::glmmTMB(
+    all_lice ~ year + (1 | week) + (1 | site),
+    family = nbinom2,
+    data = wild_lice
+  )
+  # separate out by stage
+  lep_co_glmm_nb <- glmmTMB::glmmTMB(
+    lep_co ~ year + (1 | week) + (1 | site),
+    family = nbinom2,
+    data = wild_lice
+  )
+  lep_mot_glmm_nb <- glmmTMB::glmmTMB(
+    lep_motiles ~ year + (1 | week) + (1 | site),
+    family = nbinom2,
+    data = wild_lice
+  )
+  lep_chal_glmm_nb <- glmmTMB::glmmTMB(
+    lep_chal ~ year + (1 | week) + (1 | site),
+    family = nbinom2,
+    data = wild_lice
+  )
+  # separate species to double check between 2009 and 2017
+  chum_2009_17 <- wild_lice %>% 
+  dplyr::filter(year %in% c(2009:2017)  & 
+  fish_spp == ) 
 
-  ## do a check to see which model is better ===================================
-  # if (AIC(wild_lice_glmm_nb) < (AIC(wild_lice_glmm_poi) + 2)) {
-  #   # the plus two is to make sure that the nb is at least 2 delta AIC better
-  #   best_model <- wild_lice_glmm_nb
-  # } else if (AIC(wild_lice_glmm_poi) < (AIC(wild_lice_glmm_nb) + 2)) {
-  #   best_model <- wild_lice_glmm_poi
-  # } else {
-  #   stop("Models not different enough via AIC - requires manual decision")
-  # }
 
   ## model predictions =========================================================
   predict_data <- data.frame(
-    year = as.character(c(2006:2022)),
+    year = as.character(c(2005:2022)),
     week = NA,
     site = NA
   )
 
   predicted_yearly_lice <- data.frame(
-    year = as.character(c(2006:2022)),
+    year = as.character(c(2005:2022)),
     stats::predict(
       object = best_model,
       newdata = predict_data,
