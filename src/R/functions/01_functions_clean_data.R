@@ -365,7 +365,7 @@ clean_pk_sr_data <- function(sr_data, output_path, n_obs) {
     )
   readr::write_csv(
     streams_to_keep,
-    paste0(output_path, "pink-obs-per-stream.csv")
+    paste0(output_path, "pink-", n_obs, "-obs-per-stream.csv")
   )
 
   # make the dataframe to move on with
@@ -378,7 +378,7 @@ clean_pk_sr_data <- function(sr_data, output_path, n_obs) {
     )
   readr::write_csv(
     all_pinks_rivers,
-    paste0(output_path, "pink-sr-data-clean.csv")
+    paste0(output_path, "pink-", n_obs, "-obs-sr-data-clean.csv")
   )
 
   # Make a plot of obs per area/year
@@ -459,7 +459,7 @@ clean_coho_sr_data <- function(sr_data, output_path) {
     )
   readr::write_csv(
     coho_streams_to_keep,
-    paste0(output_path, "coho-obs-per-stream.csv")
+    paste0(output_path, "coho-", n_obs, "-obs-per-stream.csv")
   )
 
   # make the dataframe to move on with
@@ -472,7 +472,7 @@ clean_coho_sr_data <- function(sr_data, output_path) {
     )
   readr::write_csv(
     coho_all_rivers,
-    paste0(output_path, "coho-sr-data-clean.csv")
+    paste0(output_path, "coho-", n_obs, "-obs-sr-data-clean.csv")
   )
 
   # Make a plot of obs per area/year
@@ -493,7 +493,7 @@ clean_coho_sr_data <- function(sr_data, output_path) {
 #' @usage clean_chum_sr_data(sr_data, output_path)
 #' @return the clean sr data
 #'
-clean_chum_sr_data <- function(sr_data, output_path) {
+clean_chum_sr_data <- function(sr_data, output_path, n_obs) {
   # basic cleaning (renaming etc)
   chum <- sr_data %>%
     dplyr::rename(
@@ -540,7 +540,7 @@ clean_chum_sr_data <- function(sr_data, output_path) {
   # find the streams to exclude
   chum_streams_to_exclude <- all_chum_obs_per_stream %>%
     dplyr::filter(
-      n < 4
+      n < n_obs
     )
 
   # note that this could be condensed but it's handy to have a more easily
@@ -552,7 +552,7 @@ clean_chum_sr_data <- function(sr_data, output_path) {
     )
   readr::write_csv(
     chum_streams_to_keep,
-    paste0(output_path, "chum-obs-per-stream.csv")
+    paste0(output_path, "chum-", n_obs, "-obs-per-stream.csv")
   )
 
   # make the dataframe to move on with
@@ -565,7 +565,7 @@ clean_chum_sr_data <- function(sr_data, output_path) {
     )
   readr::write_csv(
     chum_all_rivers,
-    paste0(output_path, "chum-sr-data-clean.csv")
+    paste0(output_path, "chum-", n_obs, "-obs-sr-data-clean.csv")
   )
 
   # Make a plot of obs per area/year
