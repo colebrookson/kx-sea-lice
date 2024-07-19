@@ -17,7 +17,6 @@
 #' @param raw_wild_lice file. The raw data file
 #' @param dates_to_join file. The previously (manually) edited file with all
 #' the info of the seine_date cleaning stuff
-#' @param include_2005 logical. Whether or not to include the 2005 data
 #' @param raw_output_path character. Path to where to save the dataframe with
 #' the unique values to do the manual cleaning
 #' @param clean_output_path character. Where to save the clean dataframe
@@ -26,7 +25,7 @@
 #' @usage clean_wild_lice(raw_wild_lice, output_path, fig_output_path)
 #' @return clean df of the wild lice info
 #'
-clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
+clean_wild_lice <- function(raw_wild_lice, dates_to_join,
                             raw_output_path, clean_output_path,
                             fig_output_path) {
   # Testing
@@ -119,11 +118,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join, include_2005,
   # sampling per year plot
   ggplot2::ggsave(
     # output path
-    if (include_2005) {
-      paste0(fig_output_path, "number-of-obs-per-year-2005.png")
-    } else {
-      paste0(fig_output_path, "number-of-obs-per-year-2006.png")
-    },
+    paste0(fig_output_path, "number-of-obs-per-year.png"),
     # plot
     ggplot(data = obs_per_year) +
       geom_col(aes(x = year, y = n, fill = n),
