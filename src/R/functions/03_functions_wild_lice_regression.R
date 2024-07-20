@@ -190,9 +190,9 @@ power_prep_pink <- function(wild_lice) {
     data = wild_lice
   )
   # separate species to double check between 2009 and 2017
-  chum_2009_17 <- wild_lice %>% 
-  dplyr::filter(year %in% c(2009:2017)  & 
-  fish_spp == ) 
+  # chum_2009_17 <- wild_lice %>% 
+  # dplyr::filter(year %in% c(2009:2017)  & 
+  # fish_spp == ) 
 
 
   ## model predictions =========================================================
