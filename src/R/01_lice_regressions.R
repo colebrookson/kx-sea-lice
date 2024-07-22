@@ -165,19 +165,60 @@ combined_latex_up_lar <- paste(
 # Write the combined LaTeX string to a text file
 write(combined_latex_up_lar, file = paste0(
     here::here("./outputs/lice-regression/"),
-    "all-sites-combined_tables.tex"
+    "upper-laredo-excluded-combined_tables.tex"
 ))
 
 ## exclude both laredo sites ===================================================
-reg_wild_lice_both_lar <- wild_lice %>%
-    dplyr::filter(site %notin% c("Lower Laredo", "Upper Laredo")) %>%
-    dplyr::mutate(
-        year = as.factor(year)
-    ) %>%
-    dplyr::group_by(year) %>%
-    dplyr::summarize(wild_lice = mean(lep_total, na.rm = TRUE))
+wild_lice_both_lar <- wild_lice %>%
+    dplyr::filter(site %notin% c("Lower Laredo", "Upper Laredo"))
 
-reg_data_both_lar <- data.frame(cbind(
-    reg_wild_lice_both_lar,
-    farm_lice = reg_farm_lice$farm_lice
+results_list_both_lar <- lice_regression(
+    wild_lice = wild_lice_both_lar,
+    farm_lice = farm_lice,
+    mod_output_path = here::here("./outputs/lice-regression/"),
+    plot_output_path = here::here("./figs/regression/"),
+    name = "no-both-lar"
+)
+
+# write a LaTeX output of all the tables -- note we only want some components
+# of the table
+latex_coefs_both_lar <- knitr::kable(
+    results_list$regular[[2]][
+        ,
+        c("term", "estimate", "std.error", "p.value") # just these columns
+    ],
+    format = "latex",
+    caption = "Model coefficients for the model containing all sites except
+    both laredo sites.",
+    col.names = c("Term", "Estimate", "Std. Error", "P-value"),
+    align = "r",
+    booktabs = TRUE
+) %>% kableExtra::kable_classic()
+latex_model_vals_both_lar <- knitr::kable(
+    results_list$regular[[4]][
+        , c(
+            "r.squared", "adj.r.squared", "sigma", "p.value", "df",
+            "logLik", "deviance", "nobs"
+        )
+    ],
+    format = "latex",
+    caption = "Model diagnostic values for the model containing all sites
+    except both laredo sites.",
+    col.names = c(
+        "$R^2$", "Adj. $R^2$", "$\\sigma$", "P-value",
+        "DF", "Log. Lik.", "Deviance", "No. Obs"
+    ),
+    escape = FALSE,
+    booktabs = TRUE
+) %>% kableExtra::kable_classic()
+
+# Concatenate the LaTeX table strings
+combined_latex_both_lar <- paste(
+    latex_coefs_both_lar, latex_model_vals_both_lar,
+    sep = "\n\n"
+)
+# Write the combined LaTeX string to a text file
+write(combined_latex_up_lar, file = paste0(
+    here::here("./outputs/lice-regression/"),
+    "both-lar-excluded-combined_tables.tex"
 ))
