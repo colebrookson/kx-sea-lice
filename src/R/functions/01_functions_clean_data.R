@@ -738,6 +738,14 @@ clean_farm_lice <- function(old_lice, new_lice, data_output_path,
     ) %>%
     dplyr::filter(!is.na(Inventory))
 
+  yearly_lice <- all_lice %>%
+    dplyr::group_by(year) %>%
+    dplyr::summarize(
+      Inventory = mean(mean_inventory, na.rm = TRUE),
+      Lice = mean(total_lice, na.rm = TRUE)
+    ) %>%
+    dplyr::filter(!is.na(Inventory))
+
   all_lice_both_measures <- all_lice_by_date %>%
     tidyr::pivot_longer(
       cols = !date,
