@@ -128,7 +128,7 @@ results_list_up_lar <- lice_regression(
 # write a LaTeX output of all the tables -- note we only want some components
 # of the table
 latex_coefs_up_lar <- knitr::kable(
-    results_list$regular[[2]][
+    results_list_up_lar$regular[[2]][
         ,
         c("term", "estimate", "std.error", "p.value") # just these columns
     ],
@@ -140,7 +140,7 @@ latex_coefs_up_lar <- knitr::kable(
     booktabs = TRUE
 ) %>% kableExtra::kable_classic()
 latex_model_vals_up_lar <- knitr::kable(
-    results_list$regular[[4]][
+    results_list_up_lar$regular[[4]][
         , c(
             "r.squared", "adj.r.squared", "sigma", "p.value", "df",
             "logLik", "deviance", "nobs"
@@ -183,7 +183,7 @@ results_list_both_lar <- lice_regression(
 # write a LaTeX output of all the tables -- note we only want some components
 # of the table
 latex_coefs_both_lar <- knitr::kable(
-    results_list$regular[[2]][
+    results_list_both_lar$regular[[2]][
         ,
         c("term", "estimate", "std.error", "p.value") # just these columns
     ],
@@ -195,7 +195,7 @@ latex_coefs_both_lar <- knitr::kable(
     booktabs = TRUE
 ) %>% kableExtra::kable_classic()
 latex_model_vals_both_lar <- knitr::kable(
-    results_list$regular[[4]][
+    results_list_both_lar$regular[[4]][
         , c(
             "r.squared", "adj.r.squared", "sigma", "p.value", "df",
             "logLik", "deviance", "nobs"
