@@ -84,7 +84,7 @@ lice_regression <- function(wild_lice, farm_lice, mod_output_path, name,
   )
   readr::write_csv(
     model_vals,
-    paste0(mod_output_path, name, -"model-vals.rds")
+    paste0(mod_output_path, name, "-model-vals.rds")
   )
 
   ggplot2::ggsave(
@@ -150,6 +150,11 @@ lice_regression <- function(wild_lice, farm_lice, mod_output_path, name,
     paste0(mod_output_path, name, "-log-model-vals.rds")
   )
 
+  results_list <- list(
+    "regular" = list(model, coefs, fitted_vals, model_vals),
+    "log" = list(model_log, log_coefs, log_fitted_vals, log_model_vals)
+  )
+
   ggplot2::ggsave(
 
     # output path
@@ -182,4 +187,5 @@ lice_regression <- function(wild_lice, farm_lice, mod_output_path, name,
         vjust = 2
       )
   )
+  return(results_list)
 }
