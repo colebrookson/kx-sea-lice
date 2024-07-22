@@ -218,7 +218,7 @@ combined_latex_both_lar <- paste(
     sep = "\n\n"
 )
 # Write the combined LaTeX string to a text file
-write(combined_latex_up_lar, file = paste0(
+write(combined_latex_both_lar, file = paste0(
     here::here("./outputs/lice-regression/"),
     "both-lar-excluded-combined_tables.tex"
 ))
