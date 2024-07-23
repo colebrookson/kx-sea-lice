@@ -162,12 +162,6 @@ lice_per_year_regression <- function(wild_lice, output_path) {
       week = as.factor(lubridate::week(date))
     )
 
-  # fit models with negative binomial
-  # leps_all_glmm_nb <- glmmTMB::glmmTMB(
-  #   lep_total ~ year + (1 | week) + (1 | site),
-  #   family = nbinom2,
-  #   data = wild_lice
-  # )
   leps_all_mod <- rstanarm::stan_glmer(
     lep_total ~ year + (1 | week) + (1 | site),
     data = wild_lice,
@@ -178,11 +172,6 @@ lice_per_year_regression <- function(wild_lice, output_path) {
     warmup = 2500
   )
 
-  # all_NA_glmm_nb <- glmmTMB::glmmTMB(
-  #   all_lice ~ year + (1 | week) + (1 | site),
-  #   family = nbinom2,
-  #   data = wild_lice
-  # )
   all_NA_mod <- rstanarm::stan_glmer(
     all_lice ~ year + (1 | week) + (1 | site),
     data = wild_lice,
@@ -193,12 +182,6 @@ lice_per_year_regression <- function(wild_lice, output_path) {
     warmup = 2500
   )
 
-  # separate out by stage
-  # leps_co_glmm_nb <- glmmTMB::glmmTMB(
-  #   lep_co ~ year + (1 | week) + (1 | site),
-  #   family = nbinom2,
-  #   data = wild_lice
-  # )
   leps_co_mod <- rstanarm::stan_glmer(
     lep_co ~ year + (1 | week) + (1 | site),
     data = wild_lice,
@@ -209,13 +192,8 @@ lice_per_year_regression <- function(wild_lice, output_path) {
     warmup = 2500
   )
 
-  # leps_mot_glmm_nb <- glmmTMB::glmmTMB(
-  #   lep_motiles ~ year + (1 | week) + (1 | site),
-  #   family = nbinom2,
-  #   data = wild_lice
-  # )
   leps_mot_mod <- rstanarm::stan_glmer(
-    lep_mot ~ year + (1 | week) + (1 | site),
+    lep_motiles ~ year + (1 | week) + (1 | site),
     data = wild_lice,
     family = rstanarm::neg_binomial_2(link = "log"),
     chains = 4,
@@ -224,11 +202,6 @@ lice_per_year_regression <- function(wild_lice, output_path) {
     warmup = 2500
   )
 
-  # leps_chal_glmm_nb <- glmmTMB::glmmTMB(
-  #   lep_chal ~ year + (1 | week) + (1 | site),
-  #   family = nbinom2,
-  #   data = wild_lice
-  # )
   leps_chal_mod <- rstanarm::stan_glmer(
     lep_chal ~ year + (1 | week) + (1 | site),
     data = wild_lice,
