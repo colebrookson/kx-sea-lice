@@ -1,28 +1,16 @@
 \begin{table}
 \centering
-\caption{Model coefficients for the model containing all sites except
-    both laredo sites.}
+\caption{Summary of Bayesian GLMs using all sites except either Laredo
+    site.}
 \centering
-\begin{tabular}[t]{rrrr}
+\begin{tabular}[t]{llrrrrrr}
 \toprule
-Term & Estimate & Std. Error & P-value\\
+Model & Term & Estimate & 10\% & 90\% & Bayes $R^2$ & $\hat{R}$ & $n_{eff}$\\
 \midrule
-(Intercept) & -0.3882327 & 0.1714033 & 0.0377484\\
-farm\_lice & 0.0000013 & 0.0000002 & 0.0000569\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}
-\centering
-\caption{Model diagnostic values for the model containing all sites
-    except both laredo sites.}
-\centering
-\begin{tabular}[t]{rrrrrrrr}
-\toprule
-$R^2$ & Adj. $R^2$ & $\sigma$ & P-value & DF & Log. Lik. & Deviance & No. Obs\\
-\midrule
-0.6472647 & 0.6252188 & 0.4272383 & 5.69e-05 & 1 & -9.173408 & 2.920522 & 18\\
+Original & (Intercept) & -0.3867993 & -0.6847678 & -0.0819227 & 0.6174415 & 1.0001443 & 0.7628667\\
+Original & farm_lice & 0.0000013 & 0.0000008 & 0.0000017 & 0.6174415 & 1.0000103 & 0.7314333\\
+Log-transformed & (Intercept) & -6.0306412 & -9.0492008 & -3.0023727 & 0.3325242 & 0.9999960 & 0.8033000\\
+Log-transformed & farm_lice & 0.9199189 & 0.3854721 & 1.4521272 & 0.3325242 & 0.9999952 & 0.8081667\\
 \bottomrule
 \end{tabular}
 \end{table}

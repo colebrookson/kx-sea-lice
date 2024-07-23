@@ -34,84 +34,29 @@ results_list <- lice_regression(
 
 # write a LaTeX output of all the tables -- note we only want some components
 # of the table
-latex_coefs <- knitr::kable(
-    results_list$regular[[2]][
-        ,
-        c("term", "estimate", "std.error", "p.value") # just these columns
-    ],
+original_sum <- extract_model_summary(results_list[[1]], "Original")
+log_sum <- extract_model_summary(results_list[[2]], "Log-transformed")
+
+# Combine summaries into one data frame
+combined_summary_df <- dplyr::bind_rows(original_sum, log_sum)
+
+# Convert the combined data frame to a LaTeX table
+latex_table <- knitr::kable(combined_summary_df,
     format = "latex",
-    caption = "Model coefficients for the model containing all sites.",
-    col.names = c("Term", "Estimate", "Std. Error", "P-value"),
-    align = "r",
-    booktabs = TRUE
-) %>% kableExtra::kable_classic()
-latex_model_vals <- knitr::kable(
-    results_list$regular[[4]][
-        , c(
-            "r.squared", "adj.r.squared", "sigma", "p.value", "df",
-            "logLik", "deviance", "nobs"
-        )
-    ],
-    format = "latex",
-    caption = "Model diagnostic values for the model containing all sites.",
+    caption = "Summary of Bayesian GLMs using all sites.",
     col.names = c(
-        "$R^2$", "Adj. $R^2$", "$\\sigma$", "P-value",
-        "DF", "Log. Lik.", "Deviance", "No. Obs"
+        "Model", "Term", "Estimate", "10\\%", "90\\%", "Bayes $R^2$",
+        "$\\hat{R}$", "$n_{eff}$"
     ),
-    escape = FALSE,
-    booktabs = TRUE
+    booktabs = TRUE,
+    escape = FALSE
 ) %>% kableExtra::kable_classic()
 
-# Concatenate the LaTeX table strings
-combined_latex <- paste(
-    latex_coefs, latex_model_vals,
-    sep = "\n\n"
+# Save the LaTeX table to a .tex file
+writeLines(
+    latex_table,
+    here::here("./outputs/lice-regression/all-sites-summary.tex")
 )
-# repeat for the log version
-latex_coefs_log <- knitr::kable(
-    results_list$log[[2]][
-        ,
-        c("term", "estimate", "std.error", "p.value") # just these columns
-    ],
-    format = "latex",
-    caption = "Model coefficients for the $log_{10}$ model containing all
-    sites.",
-    col.names = c("Term", "Estimate", "Std. Error", "P-value"),
-    align = "r",
-    booktabs = TRUE
-) %>% kableExtra::kable_classic()
-latex_model_vals_log <- knitr::kable(
-    results_list$log[[4]][
-        , c(
-            "r.squared", "adj.r.squared", "sigma", "p.value", "df",
-            "logLik", "deviance", "nobs"
-        )
-    ],
-    format = "latex",
-    caption = "Model diagnostic values for the $log_{10}$ model containing
-    all sites.",
-    col.names = c(
-        "$R^2$", "Adj. $R^2$", "$\\sigma$", "P-value",
-        "DF", "Log. Lik.", "Deviance", "No. Obs"
-    ),
-    escape = FALSE,
-    booktabs = TRUE
-) %>% kableExtra::kable_classic()
-
-# Concatenate the LaTeX table strings
-combined_latex_log <- paste(
-    latex_coefs_log, latex_model_vals_log,
-    sep = "\n\n"
-)
-# Write the combined LaTeX string to a text file
-write(combined_latex, file = paste0(
-    here::here("./outputs/lice-regression/"),
-    "all-sites-combined_tables.tex"
-))
-write(combined_latex_log, file = paste0(
-    here::here("./outputs/lice-regression/"),
-    "all-sites-log-combined_tables.tex"
-))
 
 ## exclude upper laredo ========================================================
 wild_lice_up_lar <- wild_lice %>%
@@ -125,45 +70,34 @@ results_list_up_lar <- lice_regression(
     name = "no-up-lar"
 )
 
-# write a LaTeX output of all the tables -- note we only want some components
-# of the table
-latex_coefs_up_lar <- knitr::kable(
-    results_list_up_lar$regular[[2]][
-        ,
-        c("term", "estimate", "std.error", "p.value") # just these columns
-    ],
-    format = "latex",
-    caption = "Model coefficients for the model containing all sites except
-    upper laredo.",
-    col.names = c("Term", "Estimate", "Std. Error", "P-value"),
-    align = "r",
-    booktabs = TRUE
-) %>% kableExtra::kable_classic()
-latex_model_vals_up_lar <- knitr::kable(
-    results_list_up_lar$regular[[4]][
-        , c(
-            "r.squared", "adj.r.squared", "sigma", "p.value", "df",
-            "logLik", "deviance", "nobs"
-        )
-    ],
-    format = "latex",
-    caption = "Model diagnostic values for the model containing all sites
-    except upper laredo.",
-    col.names = c(
-        "$R^2$", "Adj. $R^2$", "$\\sigma$", "P-value",
-        "DF", "Log. Lik.", "Deviance", "No. Obs"
-    ),
-    escape = FALSE,
-    booktabs = TRUE
-) %>% kableExtra::kable_classic()
-
-# Concatenate the LaTeX table strings
-combined_latex_up_lar <- paste(
-    latex_coefs_up_lar, latex_model_vals_up_lar,
-    sep = "\n\n"
+original_up_lar_sum <- extract_model_summary(
+    results_list_up_lar[[1]],
+    "Original"
 )
+log_up_lar_sum <- extract_model_summary(
+    results_list_up_lar[[2]],
+    "Log-transformed"
+)
+
+# Combine summaries into one data frame
+combined_summary_up_lar_df <- dplyr::bind_rows(
+    original_up_lar_sum,
+    log_up_lar_sum
+)
+
+# Convert the combined data frame to a LaTeX table
+latex_table_up_lar <- knitr::kable(combined_summary_up_lar_df,
+    format = "latex",
+    caption = "Summary of Bayesian GLMs using all sites except Upper Laredo.",
+    col.names = c(
+        "Model", "Term", "Estimate", "10\\%", "90\\%", "Bayes $R^2$",
+        "$\\hat{R}$", "$n_{eff}$"
+    ),
+    booktabs = TRUE,
+    escape = FALSE
+) %>% kableExtra::kable_classic()
 # Write the combined LaTeX string to a text file
-write(combined_latex_up_lar, file = paste0(
+write(latex_table_up_lar, file = paste0(
     here::here("./outputs/lice-regression/"),
     "upper-laredo-excluded-combined_tables.tex"
 ))
@@ -179,46 +113,35 @@ results_list_both_lar <- lice_regression(
     plot_output_path = here::here("./figs/regression/"),
     name = "no-both-lar"
 )
-
-# write a LaTeX output of all the tables -- note we only want some components
-# of the table
-latex_coefs_both_lar <- knitr::kable(
-    results_list_both_lar$regular[[2]][
-        ,
-        c("term", "estimate", "std.error", "p.value") # just these columns
-    ],
-    format = "latex",
-    caption = "Model coefficients for the model containing all sites except
-    both laredo sites.",
-    col.names = c("Term", "Estimate", "Std. Error", "P-value"),
-    align = "r",
-    booktabs = TRUE
-) %>% kableExtra::kable_classic()
-latex_model_vals_both_lar <- knitr::kable(
-    results_list_both_lar$regular[[4]][
-        , c(
-            "r.squared", "adj.r.squared", "sigma", "p.value", "df",
-            "logLik", "deviance", "nobs"
-        )
-    ],
-    format = "latex",
-    caption = "Model diagnostic values for the model containing all sites
-    except both laredo sites.",
-    col.names = c(
-        "$R^2$", "Adj. $R^2$", "$\\sigma$", "P-value",
-        "DF", "Log. Lik.", "Deviance", "No. Obs"
-    ),
-    escape = FALSE,
-    booktabs = TRUE
-) %>% kableExtra::kable_classic()
-
-# Concatenate the LaTeX table strings
-combined_latex_both_lar <- paste(
-    latex_coefs_both_lar, latex_model_vals_both_lar,
-    sep = "\n\n"
+original_both_lar_sum <- extract_model_summary(
+    results_list_both_lar[[1]],
+    "Original"
 )
+log_both_lar_sum <- extract_model_summary(
+    results_list_both_lar[[2]],
+    "Log-transformed"
+)
+
+# Combine summaries into one data frame
+combined_summary_both_lar_df <- dplyr::bind_rows(
+    original_both_lar_sum,
+    log_both_lar_sum
+)
+
+# Convert the combined data frame to a LaTeX table
+latex_table_both_lar <- knitr::kable(combined_summary_both_lar_df,
+    format = "latex",
+    caption = "Summary of Bayesian GLMs using all sites except either Laredo
+    site.",
+    col.names = c(
+        "Model", "Term", "Estimate", "10\\%", "90\\%", "Bayes $R^2$",
+        "$\\hat{R}$", "$n_{eff}$"
+    ),
+    booktabs = TRUE,
+    escape = FALSE
+) %>% kableExtra::kable_classic()
 # Write the combined LaTeX string to a text file
-write(combined_latex_both_lar, file = paste0(
+write(latex_table_both_lar, file = paste0(
     here::here("./outputs/lice-regression/"),
     "both-lar-excluded-combined_tables.tex"
 ))

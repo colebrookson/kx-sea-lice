@@ -249,9 +249,9 @@ lice_per_year_regression <- function(wild_lice, output_path) {
   saveRDS(all_models, paste0(output_path, "all-model-fits.rds"))
 
   all_stage_models <- list(
-    leps_all_glmm_nb, all_NA_glmm_nb, leps_co_glmm_nb, leps_mot_glmm_nb,
-    leps_chal_glmm_nb
+    leps_all_mod, all_NA_mod, leps_co_mod, leps_mot_mod, leps_chal_mod
   )
+  saveRDS(all_stage_models, paste0(output_path, "all-stage-model-fits.rds"))
   spp_models <- list(
     chum_glmm_nb, pink_glmm_nb, chum_all_lice_glmm_nb, pink_all_lice_glmm_nb
   )
