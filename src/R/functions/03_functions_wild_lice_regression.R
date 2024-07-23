@@ -51,7 +51,6 @@ bayesian_wild_fish_regression <- function(wild_lice) {
     iter = 20000,
     warmup = 8000
   )
-  summary(all_spp_all_stages)
   qs::qsave(
     all_spp_all_stages,
     paste0(here::here(
@@ -126,25 +125,28 @@ bayesian_wild_fish_regression <- function(wild_lice) {
       hi = quantile(.epred, prob = 0.95)
     )
 
-  ggplot2::ggplot(data = x_subset) +
+  xfig <- ggplot2::ggplot(data = x_subset) +
     ggplot2::geom_errorbar(aes(x = year, ymin = lo, ymax = hi, width = 0)) +
     ggplot2::geom_point(aes(x = year, y = median)) +
     theme_base()
+
+  ggsave(
+    here::here("./EXAMPLE.png"),
+    xfig
+  )
 }
 
-# power_prep_pink ==============================================================
-power_prep_pink <- function(wild_lice) {
-  #' Fit the actual models we'll need for the power analysis
-  #'
-  #' @description Fit the model and save the objects for pink salmon to be used
-  #' in the power analysis
-  #'
-  #' @param wild_lice dataframe. The lice on wild fish data
-  #'
-  #' @usage power_prep_pink(all_power_sims, output_path)
-  #' @return NA
-  #'
-
+#' Fit the actual models we'll need for the power analysis
+#'
+#' @description Fit the model and save the objects for pink salmon to be used
+#' in the power analysis
+#'
+#' @param wild_lice dataframe. The lice on wild fish data
+#' @param output_path character. Where to save the model objects
+#'
+#' @usage power_prep_pink(all_power_sims, output_path)
+#' @return a set of predicted dataframes
+lice_per_year_regression <- function(wild_lice, output_path) {
   # wild_lice <- targets::tar_read(clean_wild_lice_data_2005)
 
   ## first regression for the wild lice ========================================
@@ -154,439 +156,238 @@ power_prep_pink <- function(wild_lice) {
       date = lubridate::make_date(year, month, day),
       site = as.factor(site),
       year = as.factor(year),
-      all_lice = lep_total + cal_total,
-      lep_chals = lep_c1 + lep_c2 + lep_c3 + lep_c4
-      cal_chals = cal_c1 + cal_c2
+      all_lice = lep_total + cal_total
     ) %>%
     dplyr::mutate(
       week = as.factor(lubridate::week(date))
     )
 
-  # fit models with negative binomial 
-  all_leps_glmm_nb <- glmmTMB::glmmTMB(
+  # fit models with negative binomial
+  # leps_all_glmm_nb <- glmmTMB::glmmTMB(
+  #   lep_total ~ year + (1 | week) + (1 | site),
+  #   family = nbinom2,
+  #   data = wild_lice
+  # )
+  leps_all_mod <- rstanarm::stan_glmer(
+    lep_total ~ year + (1 | week) + (1 | site),
+    data = wild_lice,
+    family = rstanarm::neg_binomial_2(link = "log"),
+    chains = 4,
+    cores = 4,
+    iter = 10000,
+    warmup = 2500
+  )
+
+  # all_NA_glmm_nb <- glmmTMB::glmmTMB(
+  #   all_lice ~ year + (1 | week) + (1 | site),
+  #   family = nbinom2,
+  #   data = wild_lice
+  # )
+  all_NA_mod <- rstanarm::stan_glmer(
+    all_lice ~ year + (1 | week) + (1 | site),
+    data = wild_lice,
+    family = rstanarm::neg_binomial_2(link = "log"),
+    chains = 4,
+    cores = 4,
+    iter = 10000,
+    warmup = 2500
+  )
+
+  # separate out by stage
+  # leps_co_glmm_nb <- glmmTMB::glmmTMB(
+  #   lep_co ~ year + (1 | week) + (1 | site),
+  #   family = nbinom2,
+  #   data = wild_lice
+  # )
+  leps_co_mod <- rstanarm::stan_glmer(
+    lep_co ~ year + (1 | week) + (1 | site),
+    data = wild_lice,
+    family = rstanarm::neg_binomial_2(link = "log"),
+    chains = 4,
+    cores = 4,
+    iter = 10000,
+    warmup = 2500
+  )
+
+  # leps_mot_glmm_nb <- glmmTMB::glmmTMB(
+  #   lep_motiles ~ year + (1 | week) + (1 | site),
+  #   family = nbinom2,
+  #   data = wild_lice
+  # )
+  leps_mot_mod <- rstanarm::stan_glmer(
+    lep_mot ~ year + (1 | week) + (1 | site),
+    data = wild_lice,
+    family = rstanarm::neg_binomial_2(link = "log"),
+    chains = 4,
+    cores = 4,
+    iter = 10000,
+    warmup = 2500
+  )
+
+  # leps_chal_glmm_nb <- glmmTMB::glmmTMB(
+  #   lep_chal ~ year + (1 | week) + (1 | site),
+  #   family = nbinom2,
+  #   data = wild_lice
+  # )
+  leps_chal_mod <- rstanarm::stan_glmer(
+    lep_chal ~ year + (1 | week) + (1 | site),
+    data = wild_lice,
+    family = rstanarm::neg_binomial_2(link = "log"),
+    chains = 4,
+    cores = 4,
+    iter = 10000,
+    warmup = 2500
+  )
+
+  # separate species to double check between 2009 and 2017
+  chum_2009_17 <- wild_lice %>%
+    dplyr::filter(year %in% c(2009:2017) &
+      fish_spp == "Chum")
+  pink_2009_17 <- wild_lice %>%
+    dplyr::filter(year %in% c(2009:2017) &
+      fish_spp == "Pink")
+
+  chum_glmm_nb <- glmmTMB::glmmTMB(
     lep_total ~ year + (1 | week) + (1 | site),
     family = nbinom2,
-    data = wild_lice
+    data = chum_2009_17
   )
-  all_lice_glmm_nb <- glmmTMB::glmmTMB(
+  chum_all_lice_glmm_nb <- glmmTMB::glmmTMB(
     all_lice ~ year + (1 | week) + (1 | site),
     family = nbinom2,
-    data = wild_lice
+    data = chum_2009_17
   )
-  # separate out by stage
-  lep_co_glmm_nb <- glmmTMB::glmmTMB(
-    lep_co ~ year + (1 | week) + (1 | site),
+  pink_glmm_nb <- glmmTMB::glmmTMB(
+    lep_total ~ year + (1 | week) + (1 | site),
     family = nbinom2,
-    data = wild_lice
+    data = pink_2009_17
   )
-  lep_mot_glmm_nb <- glmmTMB::glmmTMB(
-    lep_motiles ~ year + (1 | week) + (1 | site),
+  pink_all_lice_glmm_nb <- glmmTMB::glmmTMB(
+    all_lice ~ year + (1 | week) + (1 | site),
     family = nbinom2,
-    data = wild_lice
+    data = pink_2009_17
   )
-  lep_chal_glmm_nb <- glmmTMB::glmmTMB(
-    lep_chal ~ year + (1 | week) + (1 | site),
-    family = nbinom2,
-    data = wild_lice
-  )
-  # separate species to double check between 2009 and 2017
-  # chum_2009_17 <- wild_lice %>% 
-  # dplyr::filter(year %in% c(2009:2017)  & 
-  # fish_spp == ) 
 
+  all_models <- list(
+    leps_all_glmm_nb, all_NA_glmm_nb, leps_co_glmm_nb, leps_mot_glmm_nb,
+    leps_chal_glmm_nb, chum_glmm_nb, pink_glmm_nb, chum_all_lice_glmm_nb,
+    pink_all_lice_glmm_nb
+  )
+  saveRDS(all_models, paste0(output_path, "all-model-fits.rds"))
+
+  all_stage_models <- list(
+    leps_all_glmm_nb, all_NA_glmm_nb, leps_co_glmm_nb, leps_mot_glmm_nb,
+    leps_chal_glmm_nb
+  )
+  spp_models <- list(
+    chum_glmm_nb, pink_glmm_nb, chum_all_lice_glmm_nb, pink_all_lice_glmm_nb
+  )
 
   ## model predictions =========================================================
+  # Prediction data
   predict_data <- data.frame(
     year = as.character(c(2005:2022)),
     week = NA,
     site = NA
   )
-
-  predicted_yearly_lice <- data.frame(
-    year = as.character(c(2005:2022)),
-    stats::predict(
-      object = best_model,
-      newdata = predict_data,
-      re.form = ~0,
-      se.fit = TRUE,
-      type = "response"
-    )
-  ) %>%
-    dplyr::mutate(
-      area = 7
-    )
-
-  # get yearly predicted
-  pred_yearly <- predicted_yearly_lice %>%
-    dplyr::filter(year < 2021) %>%
-    dplyr::mutate(farms = c(4, 3, 4, 5, 6, 4, 4, 5, 4, 5, 5, 3, 4, 3, 4)) %>%
-    dplyr::mutate(year = as.numeric(year))
-
-  return(pred_yearly)
-}
-
-# power_pink_mod ===============================================================
-power_pink_mod <- function(pred_yearly, pink_sr_df, output_path) {
-  #' Fit the models for pink salmon that we need for the power analysis
-  #'
-  #' @description Fit the model and save the objects for pink salmon to be used
-  #' in the power analysis
-  #'
-  #' @param pred_yearly dataframe. Predicted amounts of lice per year
-  #' @param pink_sr_df dataframe. The clean sr data for pinks alone
-  #' @param output_path character. Where to save the fit objects
-  #'
-  #' @usage power_pink_mod(pred_yearly, pink_sr_df, output_path)
-  #' @return NA
-  #'
-
-  ## calculate survival ========================================================
-  pink_sr <- pink_sr_df %>%
-    dplyr::select(
-      brood_year, river, species, area,
-      spawners, returns, recruits
-    ) %>%
-    # get the survival
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-      survival = log(recruits / spawners),
-      lice = as.numeric(NA),
-      return_year = brood_year + 2,
-      lice_year = brood_year + 1
-    )
-
-  ## insert NA's where we need them ============================================
-  # make the 10 years before data equal to NA
-  pink_sr[which(pink_sr$area == "7" &
-    pink_sr$lice_year %in% c(1994:2005)), "lice"] <- NA
-  # make effect in all other areas 0
-  pink_sr[which(pink_sr$area != "7"), "lice"] <- 0
-  # make effect in area 7 before 1994 into 0
-  pink_sr[which(pink_sr$area == "7" &
-    pink_sr$lice_year < 1994), "lice"] <- 0
-
-  pred_yearly <- pred_yearly %>% dplyr::mutate(year = as.numeric(year))
-  # str(pred_yearly); str(pink_sr)
-  for (year in c(2006:max(pink_sr$lice_year))) {
-    pink_sr[which(pink_sr$area == "7" &
-      pink_sr$lice_year == year), "lice"] <-
-      pred_yearly[which(
-        pred_yearly$year == year
-      ), "fit"]
-  }
-
-  # to double check the loop worked properly, there should only be the number of
-  # NA's equal to the number of observations between years 1994 & 2004 that are
-  # in area 7
-  if (nrow(pink_sr[which(pink_sr$area == "7" &
-    pink_sr$lice_year %in% c(1994:2005)), ]) !=
-    nrow(pink_sr[which(is.na(pink_sr$lice)), ])) {
-    stop("ERROR - something wrong in the NA ascribes")
-  }
-
-  ## fit stock recruit model for pre-lice years ================================
-
-  # fit model for pre-affect years
-  pink_sr_pre_2005 <- pink_sr %>%
-    dplyr::filter(brood_year < 2005) %>%
-    dplyr::mutate(
-      river = as.factor(river),
-      area = as.factor(area),
-      brood_year = as.factor(brood_year)
-    )
-
-  # find out the ones with too few observations
-  too_few <- data.frame(table(pink_sr_pre_2005$river))
-  too_few <- too_few[which(too_few$Freq < 4), "Var1"]
-
-  # take the too-few ones out
-  pink_sr_pre_2005 <- pink_sr_pre_2005 %>%
-    dplyr::filter(river %notin% too_few)
-
-  # fit null model pre-power analysis
-  null_model <- lme4::lmer(survival ~ spawners:river + (1 | brood_year / area),
-    data = pink_sr_pre_2005
-  )
-  summary(null_model)
-
-  # get the fixed effects values here to use in the loops ======================
-  r <- lme4::fixef(null_model)[[1]]
-  b_i_vals <- lme4::fixef(null_model)
-
-  # So there's this "missing" level and it's because Carpenter Bay doesn't
-  # actually fit a value since it has no data. We need to replace this with NA
-  all_rivers <- unique(pink_sr_pre_2005$river)
-  missing_level <- all_rivers[which(all_rivers %notin%
-    stringr::str_remove(
-      names(b_i_vals),
-      "spawners:river"
-    ))]
-  # adding in the name here so the whole loop below works properly
-  names(b_i_vals) <- c(
-    paste0("spawners:river", missing_level),
-    names(b_i_vals)[2:length(b_i_vals)]
-  )
-  b_i_vals[1] <- as.numeric(NA)
-  b_i_df <- data.frame(b_i_vals)
-  b_i_df$popn <- rownames(b_i_df)
-  rownames(b_i_df) <- NULL
-  # clean up the river names
-  b_i_df$popn <- stringr::str_remove(b_i_df$popn, "spawners:river")
-
-  # get the estimated variance for the three types of random effects
-  re_sd <- lme4::VarCorr(null_model)
-  sd_area_year <- attr(re_sd$`area:brood_year`, "stddev")
-  sd_year <- attr(re_sd$brood_year, "stddev")
-  resid_sd <- sigma(null_model)
-
-  df_fit_items <- data.frame(
-    r = r,
-    resid_sd = resid_sd,
-    sd_area_year = sd_area_year[[1]],
-    sd_year = sd_year[[1]]
-  )
-
-  # save objects
-  readr::write_csv(
-    x = df_fit_items,
-    path = paste0(output_path, "pink-fit-null-model-objects.csv")
-  )
-  readr::write_csv(
-    x = pink_sr,
-    path = paste0(output_path, "pink-sr-data-ready-for-sims.csv")
-  )
-  readr::write_csv(
-    x = b_i_df,
-    path = paste0(output_path, "pink-b-i-df.csv")
-  )
-
-  list_obs <- list(
-    df_fit_items = df_fit_items,
-    pink_sr = pink_sr,
-    b_i_df = b_i_df
-  )
-
-  return(list_obs)
-}
-
-# power_prep_chum ==============================================================
-power_prep_chum <- function(wild_lice) {
-  #' Fit the actual models we'll need for the power analysis
-  #'
-  #' @description Fit the model and save the objects for chum salmon to be used
-  #' in the power analysis
-  #'
-  #' @param wild_lice dataframe. The lice on wild fish data
-  #'
-  #' @usage power_prep_chum(all_power_sims, output_path)
-  #' @return NA
-  #'
-
-  ## first regression for the wild lice ========================================
-  wild_lice <- wild_lice %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-      date = lubridate::make_date(year, month, day),
-      site = as.factor(site),
-      year = as.factor(year)
-    ) %>%
-    dplyr::mutate(
-      week = as.factor(lubridate::week(date))
-    )
-
-  # do first with negative binomial
-  wild_lice_glmm_nb <- glmmTMB::glmmTMB(
-    lep_total ~ year + (1 | week) + (1 | site),
-    family = nbinom2,
-    data = wild_lice
-  )
-  # now with poisson
-  wild_lice_glmm_poi <- glmmTMB::glmmTMB(
-    lep_total ~ year + (1 | week) + (1 | site),
-    family = poisson(link = "log"),
-    data = wild_lice
-  )
-
-  ## do a check to see which model is better ===================================
-  if (AIC(wild_lice_glmm_nb) < (AIC(wild_lice_glmm_poi) + 2)) {
-    # the plus two is to make sure that the nb is at least 2 delta AIC better
-    best_model <- wild_lice_glmm_nb
-  } else if (AIC(wild_lice_glmm_poi) < (AIC(wild_lice_glmm_nb) + 2)) {
-    best_model <- wild_lice_glmm_poi
-  } else {
-    stop("Models not different enough via AIC - requires manual decision")
-  }
-
-  ## model predictions =========================================================
-  predict_data <- data.frame(
-    year = as.character(c(2006:2022)),
+  predict_data_co <- data.frame(
+    year = as.character(c(2009:2013, 2015:2022)),
     week = NA,
     site = NA
   )
+  years <- list(
+    (2005:2022), (2005:2022), c(2009:2013, 2015:2022),
+    (2005:2022), (2005:2022)
+  )
+  species <- c("Leps", "All", rep("Leps", 3))
+  stage <- c("All", "NA", "Copepodites", "Motiles", "Chalimus")
 
-  predicted_yearly_lice <- data.frame(
-    year = as.character(c(2006:2022)),
-    stats::predict(
-      object = best_model,
-      newdata = predict_data,
-      re.form = ~0,
-      se.fit = TRUE,
-      type = "response"
+  predict_farm_nums <- c(2, 4, 3, 4, 5, 5, 6, 4, 4, 5, 4, 5, 3, 3, 3, 3)
+  predict_co_nums <- c(5, 5, 6, 4, 4, 4, 5, 3, 3, 3, 3)
+  predict_farms <- list(
+    predict_farm_nums, predict_farm_nums, predict_co_nums,
+    predict_farm_nums, predict_farm_nums
+  )
+
+  # Initialize list to store prediction dataframes
+  predicted_dfs <- data.frame()
+  predict_dfs <- list(
+    predict_data, predict_data, predict_data_co,
+    predict_data, predict_data
+  )
+
+  # Iterate through each model and make predictions
+  for (i in seq_along(all_stage_models)) {
+    model <- all_stage_models[[i]]
+
+    predicted_df <- data.frame(
+      year = as.character(years[[i]]),
+      predict(
+        object = model,
+        newdata = predict_dfs[[i]],
+        re.form = ~0,
+        se.fit = TRUE,
+        type = "response"
+      )
     )
-  ) %>%
-    dplyr::mutate(
-      area = 7
+
+    predicted_df$area <- 7
+    predicted_df <- predicted_df[predicted_df$year < 2021, ]
+    predicted_df$farms <- predict_farms[[i]]
+    predicted_df$year <- as.numeric(predicted_df$year)
+
+    # add species and stage
+    predicted_df$stage <- stage[i]
+    predicted_df$species <- species[i]
+
+    # Store the predicted dataframe in the list
+    predicted_dfs <- rbind(predicted_dfs, predicted_df)
+  }
+
+  ### predictions for within each of the species ===============================
+  species_predict_data <- data.frame(
+    year = as.character(c(2009:2017)),
+    week = NA,
+    site = NA
+  )
+  # Initialize list to store prediction dataframes
+  predicted_spp_dfs <- data.frame()
+
+  # Iterate through each model and make predictions
+  for (i in seq_along(spp_models)) {
+    model <- spp_models[[i]]
+
+    predicted_df <- data.frame(
+      year = as.character(c(2009:2017)),
+      predict(
+        object = model,
+        newdata = species_predict_data,
+        re.form = ~0,
+        se.fit = TRUE,
+        type = "response"
+      )
     )
+    predicted_df$area <- 7
+    predicted_df$farms <- c(5, 5, 6, 4, 4, 5, 4, 5, 3)
+    predicted_df$year <- as.numeric(predicted_df$year)
+    predicted_df$species <- ifelse(i %in% c(1, 3), "Chum", "Pink")
+    predicted_df$louse_species <- ifelse(i %in% c(1, 2), "Leps", "All")
+    # Store the predicted dataframe in the list
+    predicted_spp_dfs <- rbind(predicted_spp_dfs, predicted_df)
+  }
 
-  # get yearly predicted
-  pred_yearly <- predicted_yearly_lice %>%
-    dplyr::filter(year < 2018) %>% # this is when our chum data end
-    dplyr::mutate(farms = c(4, 3, 4, 5, 6, 4, 4, 5, 4, 5, 5, 3)) %>%
-    dplyr::mutate(year = as.numeric(year))
-
-  return(pred_yearly)
-}
-
-# power_chum_mod ===============================================================
-power_chum_mod <- function(pred_yearly, chum_sr_df, output_path) {
-  #' Fit the models for pink salmon that we need for the power analysis
-  #'
-  #' @description Fit the model and save the objects for pink salmon to be used
-  #' in the power analysis
-  #'
-  #' @param pred_yearly dataframe. Predicted amounts of lice per year
-  #' @param chum_sr_df dataframe. The clean sr data for pinks alone
-  #' @param output_path character. Where to save the fit objects
-  #'
-  #' @usage power_pink_mod(pred_yearly, chum_sr_df, output_path)
-  #' @return NA
-  #'
-
-  ## calculate survival ========================================================
-  chum_sr <- chum_sr_df %>%
-    dplyr::select(
-      brood_year, river, species, area,
-      spawners, returns, recruits
-    ) %>%
-    # get the survival
+  predicted_dfs <- predicted_dfs %>%
     dplyr::rowwise() %>%
     dplyr::mutate(
-      survival = log(recruits / spawners),
-      lice = as.numeric(NA),
-      return_year = brood_year + 2,
-      lice_year = brood_year + 1
+      up = fit + (1.96 * se.fit),
+      lo = fit - (1.96 * se.fit)
     )
-
-  ## insert NA's where we need them ============================================
-  # make the 10 years before data equal to NA
-  chum_sr[which(chum_sr$area == "7" &
-    chum_sr$lice_year %in% c(1994:2005)), "lice"] <- NA
-  # make effect in all other areas 0
-  chum_sr[which(chum_sr$area != "7"), "lice"] <- 0
-  # make effect in area 7 before 1994 into 0
-  chum_sr[which(chum_sr$area == "7" &
-    chum_sr$lice_year < 1994), "lice"] <- 0
-
-  pred_yearly <- pred_yearly %>% dplyr::mutate(year = as.numeric(year))
-  # str(pred_yearly); str(chum_sr)
-  for (year in c(2006:max(chum_sr$lice_year))) {
-    chum_sr[which(chum_sr$area == "7" &
-      chum_sr$lice_year == year), "lice"] <-
-      pred_yearly[which(
-        pred_yearly$year == year
-      ), "fit"]
-  }
-
-  # to double check the loop worked properly, there should only be the number of
-  # NA's equal to the number of observations between years 1994 & 2004 that are
-  # in area 7
-  if (nrow(chum_sr[which(chum_sr$area == "7" &
-    chum_sr$lice_year %in% c(1994:2005)), ]) !=
-    nrow(chum_sr[which(is.na(chum_sr$lice)), ])) {
-    stop("ERROR - something wrong in the NA ascribes")
-  }
-
-  ## fit stock recruit model for pre-lice years ================================
-
-  # fit model for pre-affect years
-  chum_sr_pre_2005 <- chum_sr %>%
-    dplyr::filter(brood_year < 2005) %>%
+  predicted_spp_dfs <- predicted_spp_dfs %>%
+    dplyr::rowwise() %>%
     dplyr::mutate(
-      river = as.factor(river),
-      area = as.factor(area),
-      brood_year = as.factor(brood_year)
+      up = fit + (1.96 * se.fit),
+      lo = fit - (1.96 * se.fit)
     )
 
-  # find out the ones with too few observations
-  too_few <- data.frame(table(chum_sr_pre_2005$river))
-  too_few <- too_few[which(too_few$Freq < 4), "Var1"]
-
-  # take the too-few ones out
-  chum_sr_pre_2005 <- chum_sr_pre_2005 %>%
-    dplyr::filter(river %notin% too_few)
-
-  # fit null model pre-power analysis
-  null_model <- lme4::lmer(survival ~ spawners:river + (1 | brood_year / area),
-    data = chum_sr_pre_2005
-  )
-  summary(null_model)
-
-  # get the fixed effects values here to use in the loops ======================
-  r <- lme4::fixef(null_model)[[1]]
-  b_i_vals <- lme4::fixef(null_model)
-
-  # So there's this "missing" level and it's because Carpenter Bay doesn't
-  # actually fit a value since it has no data. We need to replace this with NA
-  all_rivers <- unique(chum_sr_pre_2005$river)
-  missing_level <- all_rivers[which(all_rivers %notin%
-    stringr::str_remove(
-      names(b_i_vals),
-      "spawners:river"
-    ))]
-  # adding in the name here so the whole loop below works properly
-  names(b_i_vals) <- c(
-    paste0("spawners:river", missing_level),
-    names(b_i_vals)[2:length(b_i_vals)]
-  )
-  b_i_vals[1] <- as.numeric(NA)
-  b_i_df <- data.frame(b_i_vals)
-  b_i_df$popn <- rownames(b_i_df)
-  rownames(b_i_df) <- NULL
-  # clean up the river names
-  b_i_df$popn <- stringr::str_remove(b_i_df$popn, "spawners:river")
-
-  # get the estimated variance for the three types of random effects
-  re_sd <- lme4::VarCorr(null_model)
-  sd_area_year <- attr(re_sd$`area:brood_year`, "stddev")
-  sd_year <- attr(re_sd$brood_year, "stddev")
-  resid_sd <- sigma(null_model)
-
-  df_fit_items <- data.frame(
-    r = r,
-    resid_sd = resid_sd,
-    sd_area_year = sd_area_year[[1]],
-    sd_year = sd_year[[1]]
-  )
-
-  # save objects
-  readr::write_csv(
-    x = df_fit_items,
-    path = paste0(output_path, "chum-fit-null-model-objects.csv")
-  )
-  readr::write_csv(
-    x = chum_sr,
-    path = paste0(output_path, "chum-sr-data-ready-for-sims.csv")
-  )
-  readr::write_csv(
-    x = b_i_df,
-    path = paste0(output_path, "chum-b-i-df.csv")
-  )
-
-  list_obs <- list(
-    df_fit_items = df_fit_items,
-    chum_sr = chum_sr,
-    b_i_df = b_i_df
-  )
-
-  return(list_obs)
+  return(list(leps_all_glmm_nb, predicted_dfs, predicted_spp_dfs))
 }
