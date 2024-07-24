@@ -66,7 +66,7 @@ bayesian_wild_fish_regression <- function(wild_lice) {
   )
 
   ## density plot - not useful but keep anyways
-  all_spp_all_stages_ppc_dens <- bayesplot::ppc_dens_overlay(
+  all_spp_all_stages_check <- bayesplot::pp_check(
     y = all_spp_all_stages$y,
     yrep = rstanarm::posterior_predict(all_spp_all_stages, draws = 100)
   ) +
@@ -136,6 +136,104 @@ bayesian_wild_fish_regression <- function(wild_lice) {
   )
 }
 
+#' Create Diagnostic Plots for a List of Models
+#'
+#' @description This function takes a named list of `rstanarm` model objects and generates
+#' diagnostic plots (density plot, posterior plot for fixed effects, and trace plot)
+#' for each model. The plots are saved as PNG files in a specified directory.
+#'
+#' @param model_list A named list of `rstanarm` model objects.
+#' @param n_coefs A numeric value of now many coefficients to include. This
+#' will correspond to the number of years (the only fixed effect) were used
+#' in the model
+#'
+#' @return None. The function saves the generated plots as PNG files in the `./figs/lice-per-year-regression/` directory.
+#'
+#' @examples
+#' \dontrun{
+#' set.seed(123)
+#' df <- data.frame(
+#'   x = runif(100, 1, 10),
+#'   y = 2 * log10(runif(100, 1, 10)) + rnorm(100)
+#' )
+#'
+#' # Fit models
+#' model1 <- rstanarm::stan_glm(y ~ x, data = df)
+#' model2 <- rstanarm::stan_glm(y ~ log10(x), data = df)
+#'
+#' # Create a named list of models
+#' model_list <- list(
+#'   "model1" = model1,
+#'   "model2" = model2
+#' )
+#'
+#' # Call the function to create diagnostic plots
+#' create_diagnostic_plots(model_list)
+#' }
+#' @importFrom bayesplot ppc_dens_overlay mcmc_areas mcmc_trace color_scheme_set facet_text
+#' @importFrom ggplot2 ggsave ggtitle
+#' @importFrom here here
+#' @import rstanarm
+#' @import dplyr
+#' @import bayesplot
+#' @import ggplot2
+#' @import here
+create_diagnostic_plots <- function(model_list, n_coefs) {
+  # Loop through each model in the list
+  for (model_name in names(model_list)) {
+    model <- model_list[[model_name]]
+
+    # Density plot
+    ppc_dens_plot <- bayesplot::pp_check(
+      y = model$y,
+      yrep = rstanarm::posterior_predict(model, draws = 100)
+    ) + theme_base()
+    ggplot2::ggsave(
+      here::here(paste0(
+        "./figs/lice-per-year-regression/diagnostics/",
+        model_name, "-ppc-dens.png"
+      )),
+      ppc_dens_plot
+    )
+
+    # Posterior plot for the fixed effects
+    model_posterior <- as.array(model)
+    plot_title <- ggplot2::ggtitle(
+      "Posterior distributions",
+      "with medians and 90% intervals"
+    )
+    posterior_year <- bayesplot::mcmc_areas(model_posterior,
+      pars = names(model$coefficients)[1:n_coefs],
+      prob = 0.9
+    ) + plot_title +
+      theme_base()
+    ggplot2::ggsave(
+      here::here(paste0(
+        "./figs/lice-per-year-regression/diagnostics/",
+        model_name, "-posterior.png"
+      )),
+      posterior_year
+    )
+
+    # Trace plot
+    bayesplot::color_scheme_set("mix-blue-pink")
+    trace_plot <- bayesplot::mcmc_trace(
+      model_posterior,
+      pars = names(model$coefficients)[1:n_coefs], n_warmup = 2500,
+      facet_args = list(nrow = 3)
+    ) + bayesplot::facet_text(size = 15) +
+      theme_base()
+    ggplot2::ggsave(
+      here::here(paste0(
+        "./figs/lice-per-year-regression/diagnostics/",
+        model_name, "-trace.png"
+      )),
+      trace_plot,
+      height = 10, width = 20
+    )
+  }
+}
+
 #' Fit the actual models we'll need for the power analysis
 #'
 #' @description Fit the model and save the objects for pink salmon to be used
@@ -143,10 +241,12 @@ bayesian_wild_fish_regression <- function(wild_lice) {
 #'
 #' @param wild_lice dataframe. The lice on wild fish data
 #' @param output_path character. Where to save the model objects
+#' @param run_or_read character. Denote whether to re-run the models entirely
+#' or read the model objects from a previous, saved version
 #'
 #' @usage power_prep_pink(all_power_sims, output_path)
 #' @return a set of predicted dataframes
-lice_per_year_regression <- function(wild_lice, output_path) {
+lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
   # wild_lice <- targets::tar_read(clean_wild_lice_data_2005)
 
   ## first regression for the wild lice ========================================
@@ -171,6 +271,10 @@ lice_per_year_regression <- function(wild_lice, output_path) {
     iter = 10000,
     warmup = 2500
   )
+  qs::qsave(
+    leps_all_mod,
+    here::here("./outputs/model-outputs/lice-per-year/leps-all-stages-spp.qs")
+  )
 
   all_NA_mod <- rstanarm::stan_glmer(
     all_lice ~ year + (1 | week) + (1 | site),
@@ -179,7 +283,11 @@ lice_per_year_regression <- function(wild_lice, output_path) {
     chains = 4,
     cores = 4,
     iter = 10000,
-    warmup = 2500
+    warrmup = 2500
+  )
+  qs::qsave(
+    all_NA_mod,
+    here::here("./outputs/model-outputs/lice-per-year/all-lice-all-fish.qs")
   )
 
   leps_co_mod <- rstanarm::stan_glmer(
@@ -191,6 +299,10 @@ lice_per_year_regression <- function(wild_lice, output_path) {
     iter = 10000,
     warmup = 2500
   )
+  qs::qsave(
+    leps_co_mod,
+    here::here("./outputs/model-outputs/lice-per-year/leps-co-all-spp.qs")
+  )
 
   leps_mot_mod <- rstanarm::stan_glmer(
     lep_motiles ~ year + (1 | week) + (1 | site),
@@ -200,6 +312,10 @@ lice_per_year_regression <- function(wild_lice, output_path) {
     cores = 4,
     iter = 10000,
     warmup = 2500
+  )
+  qs::qsave(
+    leps_mot_mod,
+    here::here("./outputs/model-outputs/lice-per-year/leps-mots-all-spp.qs")
   )
 
   leps_chal_mod <- rstanarm::stan_glmer(
@@ -211,6 +327,10 @@ lice_per_year_regression <- function(wild_lice, output_path) {
     iter = 10000,
     warmup = 2500
   )
+  qs::qsave(
+    leps_chal_mod,
+    here::here("./outputs/model-outputs/lice-per-year/leps-chal-all-spp.qs")
+  )
 
   # separate species to double check between 2009 and 2017
   chum_2009_17 <- wild_lice %>%
@@ -220,41 +340,66 @@ lice_per_year_regression <- function(wild_lice, output_path) {
     dplyr::filter(year %in% c(2009:2017) &
       fish_spp == "Pink")
 
-  chum_glmm_nb <- glmmTMB::glmmTMB(
+  chum_mod <- rstanarm::stan_glmer(
     lep_total ~ year + (1 | week) + (1 | site),
-    family = nbinom2,
-    data = chum_2009_17
+    data = chum_2009_17,
+    family = rstanarm::neg_binomial_2(link = "log"),
+    chains = 4,
+    cores = 4,
+    iter = 10000,
+    warmup = 2500
   )
-  chum_all_lice_glmm_nb <- glmmTMB::glmmTMB(
+  chum_all_lice_mod <- rstanarm::stan_glmer(
     all_lice ~ year + (1 | week) + (1 | site),
-    family = nbinom2,
-    data = chum_2009_17
-  )
-  pink_glmm_nb <- glmmTMB::glmmTMB(
-    lep_total ~ year + (1 | week) + (1 | site),
-    family = nbinom2,
-    data = pink_2009_17
-  )
-  pink_all_lice_glmm_nb <- glmmTMB::glmmTMB(
-    all_lice ~ year + (1 | week) + (1 | site),
-    family = nbinom2,
-    data = pink_2009_17
+    data = chum_2009_17,
+    family = rstanarm::neg_binomial_2(link = "log"),
+    chains = 4,
+    cores = 4,
+    iter = 10000,
+    warmup = 2500
   )
 
-  all_models <- list(
-    leps_all_glmm_nb, all_NA_glmm_nb, leps_co_glmm_nb, leps_mot_glmm_nb,
-    leps_chal_glmm_nb, chum_glmm_nb, pink_glmm_nb, chum_all_lice_glmm_nb,
-    pink_all_lice_glmm_nb
+  pink_mod <- rstanarm::stan_glmer(
+    lep_total ~ year + (1 | week) + (1 | site),
+    data = pink_2009_17,
+    family = rstanarm::neg_binomial_2(link = "log"),
+    chains = 4,
+    cores = 4,
+    iter = 10000,
+    warmup = 2500
   )
-  saveRDS(all_models, paste0(output_path, "all-model-fits.rds"))
+
+  pink_all_lice_mod <- rstanarm::stan_glmer(
+    all_lice ~ year + (1 | week) + (1 | site),
+    data = pink_2009_17,
+    family = rstanarm::neg_binomial_2(link = "log"),
+    chains = 4,
+    cores = 4,
+    iter = 10000,
+    warmup = 2500
+  )
 
   all_stage_models <- list(
-    leps_all_mod, all_NA_mod, leps_co_mod, leps_mot_mod, leps_chal_mod
+    "leps-all" = leps_all_mod,
+    "all-lice" = all_NA_mod,
+    "leps-co" = leps_co_mod,
+    "leps-mot" = leps_mot_mod,
+    "leps-chal" = leps_chal_mod
   )
-  saveRDS(all_stage_models, paste0(output_path, "all-stage-model-fits.rds"))
+
+  qs::qsave(all_stage_models, paste0(output_path, "all-stage-model-fits.qs"))
   spp_models <- list(
-    chum_glmm_nb, pink_glmm_nb, chum_all_lice_glmm_nb, pink_all_lice_glmm_nb
+    "chum-leps" = chum_mod,
+    "pink-leps" = pink_mod,
+    "chum-lice" = chum_all_lice_mod,
+    "chum-lice" = pink_all_lice_mod
   )
+  qs::qsave(spp_models, paste0(output_path, "all-species-model-fits.qs"))
+
+  ## model diagnostics =========================================================
+  create_diagnostic_plots(all_stage_models, n_coefs = 18)
+  create_diagnostic_plots(spp_models)
+
 
   ## model predictions =========================================================
   # Prediction data
