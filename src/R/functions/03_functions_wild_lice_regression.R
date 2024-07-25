@@ -261,77 +261,6 @@ lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
     dplyr::mutate(
       week = as.factor(lubridate::week(date))
     )
-
-  leps_all_mod <- rstanarm::stan_glmer(
-    lep_total ~ year + (1 | week) + (1 | site),
-    data = wild_lice,
-    family = rstanarm::neg_binomial_2(link = "log"),
-    chains = 4,
-    cores = 4,
-    iter = 10000,
-    warmup = 2500
-  )
-  qs::qsave(
-    leps_all_mod,
-    here::here("./outputs/model-outputs/lice-per-year/leps-all-stages-spp.qs")
-  )
-
-  all_NA_mod <- rstanarm::stan_glmer(
-    all_lice ~ year + (1 | week) + (1 | site),
-    data = wild_lice,
-    family = rstanarm::neg_binomial_2(link = "log"),
-    chains = 4,
-    cores = 4,
-    iter = 10000,
-    warrmup = 2500
-  )
-  qs::qsave(
-    all_NA_mod,
-    here::here("./outputs/model-outputs/lice-per-year/all-lice-all-fish.qs")
-  )
-
-  leps_co_mod <- rstanarm::stan_glmer(
-    lep_co ~ year + (1 | week) + (1 | site),
-    data = wild_lice,
-    family = rstanarm::neg_binomial_2(link = "log"),
-    chains = 4,
-    cores = 4,
-    iter = 10000,
-    warmup = 2500
-  )
-  qs::qsave(
-    leps_co_mod,
-    here::here("./outputs/model-outputs/lice-per-year/leps-co-all-spp.qs")
-  )
-
-  leps_mot_mod <- rstanarm::stan_glmer(
-    lep_motiles ~ year + (1 | week) + (1 | site),
-    data = wild_lice,
-    family = rstanarm::neg_binomial_2(link = "log"),
-    chains = 4,
-    cores = 4,
-    iter = 10000,
-    warmup = 2500
-  )
-  qs::qsave(
-    leps_mot_mod,
-    here::here("./outputs/model-outputs/lice-per-year/leps-mots-all-spp.qs")
-  )
-
-  leps_chal_mod <- rstanarm::stan_glmer(
-    lep_chal ~ year + (1 | week) + (1 | site),
-    data = wild_lice,
-    family = rstanarm::neg_binomial_2(link = "log"),
-    chains = 4,
-    cores = 4,
-    iter = 10000,
-    warmup = 2500
-  )
-  qs::qsave(
-    leps_chal_mod,
-    here::here("./outputs/model-outputs/lice-per-year/leps-chal-all-spp.qs")
-  )
-
   # separate species to double check between 2009 and 2017
   chum_2009_17 <- wild_lice %>%
     dplyr::filter(year %in% c(2009:2017) &
@@ -340,66 +269,121 @@ lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
     dplyr::filter(year %in% c(2009:2017) &
       fish_spp == "Pink")
 
-  chum_mod <- rstanarm::stan_glmer(
-    lep_total ~ year + (1 | week) + (1 | site),
-    data = chum_2009_17,
-    family = rstanarm::neg_binomial_2(link = "log"),
-    chains = 4,
-    cores = 4,
-    iter = 10000,
-    warmup = 2500
-  )
-  chum_all_lice_mod <- rstanarm::stan_glmer(
-    all_lice ~ year + (1 | week) + (1 | site),
-    data = chum_2009_17,
-    family = rstanarm::neg_binomial_2(link = "log"),
-    chains = 4,
-    cores = 4,
-    iter = 10000,
-    warmup = 2500
-  )
+  if (run_or_read == "run") {
+    leps_all_mod <- rstanarm::stan_glmer(
+      lep_total ~ year + (1 | week) + (1 | site),
+      data = wild_lice,
+      family = rstanarm::neg_binomial_2(link = "log"),
+      chains = 4,
+      cores = 4,
+      iter = 10000,
+      warmup = 2500
+    )
 
-  pink_mod <- rstanarm::stan_glmer(
-    lep_total ~ year + (1 | week) + (1 | site),
-    data = pink_2009_17,
-    family = rstanarm::neg_binomial_2(link = "log"),
-    chains = 4,
-    cores = 4,
-    iter = 10000,
-    warmup = 2500
-  )
+    all_NA_mod <- rstanarm::stan_glmer(
+      all_lice ~ year + (1 | week) + (1 | site),
+      data = wild_lice,
+      family = rstanarm::neg_binomial_2(link = "log"),
+      chains = 4,
+      cores = 4,
+      iter = 10000,
+      warrmup = 2500
+    )
 
-  pink_all_lice_mod <- rstanarm::stan_glmer(
-    all_lice ~ year + (1 | week) + (1 | site),
-    data = pink_2009_17,
-    family = rstanarm::neg_binomial_2(link = "log"),
-    chains = 4,
-    cores = 4,
-    iter = 10000,
-    warmup = 2500
-  )
+    leps_co_mod <- rstanarm::stan_glmer(
+      lep_co ~ year + (1 | week) + (1 | site),
+      data = wild_lice,
+      family = rstanarm::neg_binomial_2(link = "log"),
+      chains = 4,
+      cores = 4,
+      iter = 10000,
+      warmup = 2500
+    )
 
-  all_stage_models <- list(
-    "leps-all" = leps_all_mod,
-    "all-lice" = all_NA_mod,
-    "leps-co" = leps_co_mod,
-    "leps-mot" = leps_mot_mod,
-    "leps-chal" = leps_chal_mod
-  )
+    leps_mot_mod <- rstanarm::stan_glmer(
+      lep_motiles ~ year + (1 | week) + (1 | site),
+      data = wild_lice,
+      family = rstanarm::neg_binomial_2(link = "log"),
+      chains = 4,
+      cores = 4,
+      iter = 10000,
+      warmup = 2500
+    )
 
-  qs::qsave(all_stage_models, paste0(output_path, "all-stage-model-fits.qs"))
-  spp_models <- list(
-    "chum-leps" = chum_mod,
-    "pink-leps" = pink_mod,
-    "chum-lice" = chum_all_lice_mod,
-    "chum-lice" = pink_all_lice_mod
-  )
-  qs::qsave(spp_models, paste0(output_path, "all-species-model-fits.qs"))
+    leps_chal_mod <- rstanarm::stan_glmer(
+      lep_chal ~ year + (1 | week) + (1 | site),
+      data = wild_lice,
+      family = rstanarm::neg_binomial_2(link = "log"),
+      chains = 4,
+      cores = 4,
+      iter = 10000,
+      warmup = 2500
+    )
+    chum_mod <- rstanarm::stan_glmer(
+      lep_total ~ year + (1 | week) + (1 | site),
+      data = chum_2009_17,
+      family = rstanarm::neg_binomial_2(link = "log"),
+      chains = 4,
+      cores = 4,
+      iter = 10000,
+      warmup = 2500
+    )
+    chum_all_lice_mod <- rstanarm::stan_glmer(
+      all_lice ~ year + (1 | week) + (1 | site),
+      data = chum_2009_17,
+      family = rstanarm::neg_binomial_2(link = "log"),
+      chains = 4,
+      cores = 4,
+      iter = 10000,
+      warmup = 2500
+    )
+
+    pink_mod <- rstanarm::stan_glmer(
+      lep_total ~ year + (1 | week) + (1 | site),
+      data = pink_2009_17,
+      family = rstanarm::neg_binomial_2(link = "log"),
+      chains = 4,
+      cores = 4,
+      iter = 10000,
+      warmup = 2500
+    )
+
+    pink_all_lice_mod <- rstanarm::stan_glmer(
+      all_lice ~ year + (1 | week) + (1 | site),
+      data = pink_2009_17,
+      family = rstanarm::neg_binomial_2(link = "log"),
+      chains = 4,
+      cores = 4,
+      iter = 10000,
+      warmup = 2500
+    )
+    all_stage_models <- list(
+      "leps-all" = leps_all_mod,
+      "all-lice" = all_NA_mod,
+      "leps-co" = leps_co_mod,
+      "leps-mot" = leps_mot_mod,
+      "leps-chal" = leps_chal_mod
+    )
+
+    qs::qsave(all_stage_models, paste0(output_path, "all-stage-model-fits.qs"))
+    spp_models <- list(
+      "chum-leps" = chum_mod,
+      "pink-leps" = pink_mod,
+      "chum-lice" = chum_all_lice_mod,
+      "chum-lice" = pink_all_lice_mod
+    )
+    qs::qsave(spp_models, paste0(output_path, "all-species-model-fits.qs"))
+  } else {
+    all_stage_models <- qs::qsave(paste0(
+      output_path,
+      "all-stage-model-fits.qs"
+    ))
+    spp_models <- qs::qsave(paste0(output_path, "all-species-model-fits.qs"))
+  }
 
   ## model diagnostics =========================================================
   create_diagnostic_plots(all_stage_models, n_coefs = 18)
-  create_diagnostic_plots(spp_models)
-
+  create_diagnostic_plots(spp_models, n_coefs = 9)
 
   ## model predictions =========================================================
   # Prediction data
