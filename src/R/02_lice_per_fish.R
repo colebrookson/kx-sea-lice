@@ -30,7 +30,12 @@ wild_lice <- readr::read_csv(
 
 output_path <- here::here("./outputs/model-outputs/lice-per-year/")
 
-
+y_axis_list <- c("all ")
+axis <- expression(paste(
+    "Estimated number of ", italic("L. salmonis "),
+    "per year"
+))
+stage_list <- c("leps", "lice", "copes", "mots", "chals")
 
 # predicted_values <- lice_per_year_regression(
 #     wild_lice = wild_lice,

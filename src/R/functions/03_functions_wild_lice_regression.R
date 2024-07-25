@@ -285,6 +285,7 @@ create_diagnostic_plots <- function(model_list, n_coefs) {
 #' @import dplyr
 generate_prediction_plots <- function(model_list, data) {
   # Loop through each model in the list
+  predicted_dfs <- data.frame()
   for (model_name in names(model_list)) {
     model <- model_list[[model_name]]
 
@@ -302,13 +303,16 @@ generate_prediction_plots <- function(model_list, data) {
         lo = quantile(.epred, prob = 0.05),
         median = quantile(.epred, prob = 0.5),
         hi = quantile(.epred, prob = 0.95)
+      ) %>%
+      dplyr::mutate(
+        stage = stage_list[[model_name]]
       )
 
     # Create the plot
     xfig <- ggplot2::ggplot(data = x_subset) +
       ggplot2::geom_errorbar(aes(x = year, ymin = lo, ymax = hi, width = 0)) +
       ggplot2::geom_point(aes(x = year, y = median)) +
-      ggplot2::theme_base()
+      theme_base()
 
     # Save the plot
     ggplot2::ggsave(
@@ -456,7 +460,7 @@ lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
       "chum-leps" = chum_mod,
       "pink-leps" = pink_mod,
       "chum-lice" = chum_all_lice_mod,
-      "chum-lice" = pink_all_lice_mod
+      "pink-lice" = pink_all_lice_mod
     )
     qs::qread(spp_models, paste0(output_path, "all-species-model-fits.qs"))
   } else {
@@ -472,10 +476,54 @@ lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
   create_diagnostic_plots(spp_models, n_coefs = 9)
 
   ## model predictions =========================================================
-  predictions_all_stage <- generate_prediction_plots(
-    model_list = all_stage_models,
-    data = wild_lice
-  )
+  ### stage level predictions ==================================================
+  predicted_stage_dfs <- data.frame()
+  for (model_name in names(all_stage_models)) {
+    model <- all_stage_models[[model_name]]
+
+    # Generate predictions
+    x <- wild_lice %>%
+      dplyr::filter(!is.na(site), !is.na(week)) %>%
+      modelr::data_grid(year, site, week) %>%
+      tidybayes::add_epred_draws(model, re_formula = NA)
+
+    x_subset <- x[, c("year", ".epred")] %>%
+      dplyr::mutate(year = as.factor(year)) %>%
+      dplyr::group_by(year) %>%
+      dplyr::arrange(`.epred`) %>%
+      dplyr::reframe(
+        lo = quantile(.epred, prob = 0.05),
+        median = quantile(.epred, prob = 0.5),
+        hi = quantile(.epred, prob = 0.95)
+      ) %>%
+      dplyr::mutate(
+        stage = model_name
+      )
+  }
+  predicted_spp_dfs <- data.frame()
+  for (model_name in names(spp_models)) {
+    model <- spp_models[[model_name]]
+    data <- ifelse(model_name %in% c("chum-leps", "chum-lice" "chum-lice"))
+
+    # Generate predictions
+    x <- data %>%
+      dplyr::filter(!is.na(site), !is.na(week)) %>%
+      modelr::data_grid(year, site, week) %>%
+      tidybayes::add_epred_draws(model, re_formula = NA)
+
+    x_subset <- x[, c("year", ".epred")] %>%
+      dplyr::mutate(year = as.factor(year)) %>%
+      dplyr::group_by(year) %>%
+      dplyr::arrange(`.epred`) %>%
+      dplyr::reframe(
+        lo = quantile(.epred, prob = 0.05),
+        median = quantile(.epred, prob = 0.5),
+        hi = quantile(.epred, prob = 0.95)
+      ) %>%
+      dplyr::mutate(
+        stage = model_name
+      )
+  }
 
 
 
