@@ -332,12 +332,16 @@ generate_prediction_plots <- function(model_list, data) {
 #'
 #' @param wild_lice dataframe. The lice on wild fish data
 #' @param output_path character. Where to save the model objects
-#' @param run_or_read character. Denote whether to re-run the models entirely
-#' or read the model objects from a previous, saved version
+#' @param run_or_read_models character. Denote whether to re-run the models 
+#' entirely or read the model objects from a previous, saved version
+#' @param run_or_read_predictions character. Denote whether to re-run the model
+#' predictions entirely or just read the model predictions from a previous, 
+#' saved version
 #'
 #' @usage power_prep_pink(all_power_sims, output_path)
 #' @return a set of predicted dataframes
-lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
+lice_per_year_regression <- function(wild_lice, output_path, run_or_read_models,
+run_or_read_predictions) {
   # wild_lice <- targets::tar_read(clean_wild_lice_data_2005)
 
   ## first regression for the wild lice ========================================
@@ -529,6 +533,7 @@ lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
   }
   qs::qsave(predicted_stage_dfs, paste0(output_path, 
   "all-species-model-predictions.qs"))  
+
   predicted_spp_dfs <- data.frame()
   for (model_name in names(spp_models)) {
     model <- spp_models[[model_name]]
