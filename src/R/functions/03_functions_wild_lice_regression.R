@@ -9,145 +9,20 @@
 #' library
 #'
 
-bayesian_wild_fish_regression <- function(wild_lice) {
-  #' Fit the actual models we'll need for the power analysis
-  #'
-  #' @description Fit the model and save the objects for pink salmon to be used
-  #' in the power analysis
-  #'
-  #' @param wild_lice dataframe. The lice on wild fish data
-  #'
-  #' @usage power_prep_pink(all_power_sims, output_path)
-  #' @return NA
-  #'
-
-  ## bayesian formulation of the model =========================================
-  #' The associated Bayesian generalized linear mixed-effects model (GLMM)
-  #' included fixed effects for year and louse stage and random effects for w
-  #' eek-of-year (to account for spatially coherent seasonal variation in
-  #' louse counts) and location-year combination (to account for infestation
-  #' variation among locations due to farm activity or environmental factors).
-  #' The model employed a negative binomial error distribution to account for
-  #' parasite clustering, a log link function, and uniform priors.
-
-  wild_lice <- wild_lice %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-      date = lubridate::make_date(year, month, day),
-      site = as.factor(site),
-      year = as.factor(year)
-    ) %>%
-    dplyr::mutate(
-      week = as.factor(lubridate::week(date))
-    ) %>%
-    dplyr::filter(fish_spp %in% c("Pink", "Chum", "P", "CM"))
-
-  all_spp_all_stages <- rstanarm::stan_glmer(
-    lep_total ~ year + (1 | week) + (1 | site),
-    data = wild_lice,
-    family = rstanarm::neg_binomial_2(link = "log"),
-    chains = 6,
-    cores = 6,
-    iter = 20000,
-    warmup = 8000
-  )
-  qs::qsave(
-    all_spp_all_stages,
-    paste0(here::here(
-      "./outputs/model-outputs/regression-diagnostics",
-      "/all-spp-all-stages.qs"
-    ))
-  )
-  all_spp_all_stages <- qs::qread(
-    paste0(here::here(
-      "./outputs/model-outputs/regression-diagnostics",
-      "/all-spp-all-stages.qs"
-    ))
-  )
-
-  ## density plot - not useful but keep anyways
-  all_spp_all_stages_check <- bayesplot::pp_check(
-    y = all_spp_all_stages$y,
-    yrep = rstanarm::posterior_predict(all_spp_all_stages, draws = 100)
-  ) +
-    theme_base()
-  ggplot2::ggsave(
-    here::here(paste0(
-      "./figs/lice-per-year-regression/",
-      "all-spp-all-stages-ppc-dens.png"
-    )),
-    all_spp_all_stages_ppc_dens
-  )
-
-  # posterior plot for the fixed effects
-  all_spp_all_stages_posterior <- as.array(all_spp_all_stages)
-  plot_title <- ggplot2::ggtitle(
-    "Posterior distributions",
-    "with medians and 90% intervals"
-  )
-  posterior_year <- bayesplot::mcmc_areas(all_spp_all_stages_posterior,
-    pars = names(all_spp_all_stages$coefficients)[1:18],
-    prob = 0.9
-  ) + plot_title +
-    theme_base()
-  ggsave(
-    here::here("./figs/lice-per-year-regression/posterior.png"),
-    posterior_year
-  )
-
-  # trace plot
-  bayesplot::color_scheme_set("mix-blue-pink")
-  all_spp_all_stages_trace <- bayesplot::mcmc_trace(
-    all_spp_all_stages_posterior,
-    pars = names(all_spp_all_stages$coefficients)[1:18], n_warmup = 8000,
-    facet_args = list(nrow = 3)
-  ) + bayesplot::facet_text(size = 15) +
-    theme_base()
-  ggplot2::ggsave(
-    here::here("./figs/lice-per-year-regression/trace.png"),
-    all_spp_all_stages_trace,
-    height = 10, width = 20
-  )
-
-  ### do the prediction ========================================================
-
-  x <- wild_lice %>%
-    dplyr::filter(!is.na(site), !is.na(week)) %>%
-    modelr::data_grid(year, site, week) %>%
-    tidybayes::add_epred_draws(all_spp_all_stages, re_formula = NA)
-  x_subset <- x[, c("year", ".epred")] %>%
-    dplyr::mutate(year = as.factor(year)) %>%
-    dplyr::group_by(year) %>%
-    dplyr::arrange(`.epred`) %>%
-    dplyr::reframe(
-      lo = quantile(.epred, prob = 0.05),
-      median = quantile(.epred, prob = 0.5),
-      hi = quantile(.epred, prob = 0.95)
-    )
-
-  xfig <- ggplot2::ggplot(data = x_subset) +
-    ggplot2::geom_errorbar(aes(x = year, ymin = lo, ymax = hi, width = 0)) +
-    ggplot2::geom_point(aes(x = year, y = median)) +
-    theme_base()
-
-  ggsave(
-    here::here("./EXAMPLE.png"),
-    xfig
-  )
-}
-
 #' Create Diagnostic Plots for a List of Models
 #'
-#' @description This function takes a named list of `rstanarm` model objects and generates
-#' diagnostic plots (density plot, posterior plot for fixed effects, and trace plot)
-#' for each model. The plots are saved as PNG files in a specified directory.
+#' @description This function takes a named list of `rstanarm` model objects
+#' and generates diagnostic plots (density plot, posterior plot for fixed
+#' effects, and trace plot for each model. The plots are saved as PNG files in
+#' a specified directory.
 #'
 #' @param model_list A named list of `rstanarm` model objects.
 #' @param n_coefs A numeric value of now many coefficients to include. This
 #' will correspond to the number of years (the only fixed effect) were used
 #' in the model
 #'
-#' @return None. The function saves the generated plots as PNG files in the `./figs/lice-per-year-regression/` directory.
+#' @return None. The function saves the generated plots as PNG files in the
+#' `./figs/lice-per-year-regression/` directory.
 #'
 #' @examples
 #' \dontrun{
@@ -170,7 +45,8 @@ bayesian_wild_fish_regression <- function(wild_lice) {
 #' # Call the function to create diagnostic plots
 #' create_diagnostic_plots(model_list)
 #' }
-#' @importFrom bayesplot ppc_dens_overlay mcmc_areas mcmc_trace color_scheme_set facet_text
+#' @importFrom bayesplot ppc_dens_overlay mcmc_areas mcmc_trace color_scheme_set
+#' facet_text
 #' @importFrom ggplot2 ggsave ggtitle
 #' @importFrom here here
 #' @import rstanarm
@@ -184,17 +60,18 @@ create_diagnostic_plots <- function(model_list, n_coefs) {
     model <- model_list[[model_name]]
 
     # Density plot
-    ppc_dens_plot <- bayesplot::pp_check(
-      y = model$y,
-      yrep = rstanarm::posterior_predict(model, draws = 100)
-    ) + theme_base()
-    ggplot2::ggsave(
-      here::here(paste0(
-        "./figs/lice-per-year-regression/diagnostics/",
-        model_name, "-ppc-dens.png"
-      )),
-      ppc_dens_plot
-    )
+    # ppc_dens_plot <- bayesplot::pp_check(
+    #   model,
+    #   n = 100
+    #   # yrep = rstanarm::posterior_predict(model, draws = 100)
+    # ) + theme_base() + xlim(0, 100)
+    # ggplot2::ggsave(
+    #   here::here(paste0(
+    #     "./figs/lice-per-year-regression/diagnostics/",
+    #     model_name, "-ppc-dens.png"
+    #   )),
+    #   ppc_dens_plot
+    # )
 
     # Posterior plot for the fixed effects
     model_posterior <- as.array(model)
@@ -234,114 +111,24 @@ create_diagnostic_plots <- function(model_list, n_coefs) {
   }
 }
 
-#' Generate and Save Prediction Plots for a List of Models
-#'
-#' @description This function takes a named list of `rstanarm` model objects
-#' and generates prediction plots for each model. The plots show the median and
-#' 90% credible intervals for the predicted values. The plots are saved as PNG
-#' files based on the model name.
-#'
-#' @param model_list A named list of `rstanarm` model objects.
-#' @param data A data frame used for making predictions. It should contain the
-#' columns `year`, `site`, and `week`.
-#'
-#' @return None. The function saves the generated plots as PNG files.
-#'
-#' @examples
-#' \dontrun{
-#' set.seed(123)
-#' df <- data.frame(
-#'   x = runif(100, 1, 10),
-#'   y = 2 * log10(runif(100, 1, 10)) + rnorm(100)
-#' )
-#' df <- df %>% mutate(
-#'   year = sample(2000:2020, 100, replace = TRUE),
-#'   site = sample(letters[1:5], 100, replace = TRUE),
-#'   week = sample(1:52, 100, replace = TRUE)
-#' )
-#'
-#' # Fit models
-#' model1 <- rstanarm::stan_glm(y ~ x, data = df)
-#' model2 <- rstanarm::stan_glm(y ~ log10(x), data = df)
-#'
-#' # Create a named list of models
-#' model_list <- list(
-#'   "model1" = model1,
-#'   "model2" = model2
-#' )
-#'
-#' # Call the function to generate and save prediction plots
-#' generate_prediction_plots(model_list, df)
-#' }
-#' @importFrom dplyr filter mutate group_by arrange reframe
-#' @importFrom modelr data_grid
-#' @importFrom tidybayes add_epred_draws
-#' @importFrom ggplot2 ggplot geom_errorbar geom_point aes ggsave
-#' @importFrom ggplot2 theme_base
-#' @import here
-#' @import ggplot2
-#' @import tidybayes
-#' @import modelr
-#' @import dplyr
-generate_prediction_plots <- function(model_list, data) {
-  # Loop through each model in the list
-  predicted_dfs <- data.frame()
-  for (model_name in names(model_list)) {
-    model <- model_list[[model_name]]
-
-    # Generate predictions
-    x <- data %>%
-      dplyr::filter(!is.na(site), !is.na(week)) %>%
-      modelr::data_grid(year, site, week) %>%
-      tidybayes::add_epred_draws(model, re_formula = NA)
-
-    x_subset <- x[, c("year", ".epred")] %>%
-      dplyr::mutate(year = as.factor(year)) %>%
-      dplyr::group_by(year) %>%
-      dplyr::arrange(`.epred`) %>%
-      dplyr::reframe(
-        lo = quantile(.epred, prob = 0.05),
-        median = quantile(.epred, prob = 0.5),
-        hi = quantile(.epred, prob = 0.95)
-      ) %>%
-      dplyr::mutate(
-        stage = stage_list[[model_name]]
-      )
-
-    # Create the plot
-    xfig <- ggplot2::ggplot(data = x_subset) +
-      ggplot2::geom_errorbar(aes(x = year, ymin = lo, ymax = hi, width = 0)) +
-      ggplot2::geom_point(aes(x = year, y = median)) +
-      theme_base()
-
-    # Save the plot
-    ggplot2::ggsave(
-      filename = here::here(paste0(
-        "./figs/lice-per-year-regression/predictions/",
-        model_name, "-predictions.png"
-      )),
-      plot = xfig
-    )
-  }
-}
-
-#' Fit the actual models we'll need for the power analysis
+#' Fit the actual models we'll need for estimating yearly lice amounts
 #'
 #' @description Fit the model and save the objects for pink salmon to be used
 #' in the power analysis
 #'
 #' @param wild_lice dataframe. The lice on wild fish data
 #' @param output_path character. Where to save the model objects
-#' @param run_or_read_models character. Denote whether to re-run the models 
+#' @param run_or_read_models character. Denote whether to re-run the models
 #' entirely or read the model objects from a previous, saved version
 #' @param run_or_read_predictions character. Denote whether to re-run the model
-#' predictions entirely or just read the model predictions from a previous, 
+#' predictions entirely or just read the model predictions from a previous,
 #' saved version
 #'
 #' @usage power_prep_pink(all_power_sims, output_path)
 #' @return a set of predicted dataframes
-lice_per_year_regression <- function(wild_lice, output_path, run_or_read_models,
-run_or_read_predictions) {
+lice_per_year_regression <- function(
+    wild_lice, output_path, run_or_read_models,
+    run_or_read_predictions) {
   # wild_lice <- targets::tar_read(clean_wild_lice_data_2005)
 
   ## first regression for the wild lice ========================================
@@ -364,7 +151,7 @@ run_or_read_predictions) {
     dplyr::filter(year %in% c(2009:2017) &
       fish_spp == "Pink")
 
-  if (run_or_read == "run") {
+  if (run_or_read_models == "run") {
     leps_all_mod <- rstanarm::stan_glmer(
       lep_total ~ year + (1 | week) + (1 | site),
       data = wild_lice,
@@ -382,7 +169,7 @@ run_or_read_predictions) {
       chains = 4,
       cores = 4,
       iter = 10000,
-      warrmup = 2500
+      warmup = 2500
     )
 
     leps_co_mod <- rstanarm::stan_glmer(
@@ -484,205 +271,112 @@ run_or_read_predictions) {
   #' we need a few things to be different for the different models. The years
   #' that each model uses are slightly different, the copepodite model uses
   #' only a subset of the years, so we need to be filtering for the appropriate
-  #' number of years when we make the within-sample prediction. Additionally 
-  #' we want the number of farms 
-  predicted_stage_dfs <- data.frame()
-  years_list <- list(
-    "leps-all" = c(2005:2022), "all-lice" = c(2005:2022), 
-    "leps-co" = c(2009:2013, 2015:2022), "leps-mot" = c(2005:2022), 
-    "leps-chal" = c(2005:2022)
-  )
-  predict_farm_nums <- c(2, 4, 3, 4, 5, 5, 6, 4, 4, 5, 4, 5, 3, 3, 3, 3)
-  predict_co_nums <- c(5, 5, 6, 4, 4, 4, 5, 3, 3, 3, 3)
-  predict_farms <- list(
-    "leps-all" = predict_farm_nums, "all-lice" = predict_farm_nums, 
-    "leps-co" = predict_co_nums, "leps-mot" = predict_farm_nums, 
-    "leps-chal" = predict_farm_nums
-  )
-  for (model_name in names(all_stage_models)) {
-    model <- all_stage_models[[model_name]]
-    years <- years_list[[model_name]]
+  #' number of years when we make the within-sample prediction. Additionally
+  #' we want the number of farms
 
-    # Generate predictions
-    x <- wild_lice %>%
-      dplyr::filter(!is.na(site), !is.na(week)) %>%
-      dplyr::mutate(year = as.numeric(as.character(year))) %>% 
-      dplyr::filter(year %in% years) %>% 
-      dplyr::mutate(
-        year = as.factor(year)
-      )%>% 
-      modelr::data_grid(year, site, week) %>%
-      tidybayes::add_epred_draws(model, re_formula = NA)
+  if (run_or_read_predictions == "run") {
+    predicted_stage_dfs <- data.frame()
+    years_list <- list(
+      "leps-all" = c(2005:2022), "all-lice" = c(2005:2022),
+      "leps-co" = c(2009:2013, 2015:2022), "leps-mot" = c(2005:2022),
+      "leps-chal" = c(2005:2022)
+    )
+    predict_farm_nums <- c(2, 4, 3, 4, 5, 5, 6, 4, 4, 5, 4, 5, 3, 3, 3, 3)
+    predict_co_nums <- c(5, 5, 6, 4, 4, 4, 5, 3, 3, 3, 3)
+    predict_farms <- list(
+      "leps-all" = predict_farm_nums, "all-lice" = predict_farm_nums,
+      "leps-co" = predict_co_nums, "leps-mot" = predict_farm_nums,
+      "leps-chal" = predict_farm_nums
+    )
+    for (model_name in names(all_stage_models)) {
+      model <- all_stage_models[[model_name]]
+      years <- years_list[[model_name]]
 
-    x_subset <- x[, c("year", ".epred")] %>%
-      dplyr::filter(year %notin% c(2021, 2022)) %>% 
-      dplyr::mutate(year = as.factor(year)) %>%
-      dplyr::group_by(year) %>%
-      dplyr::arrange(`.epred`) %>%
-      dplyr::reframe(
-        lo = quantile(.epred, prob = 0.05),
-        median = quantile(.epred, prob = 0.5),
-        hi = quantile(.epred, prob = 0.95)
-      ) %>%
-      dplyr::mutate(
-        stage = model_name,
-        farms = predict_farms[[model_name]]
-      )
-      # bind 
+      # Generate predictions
+      x <- wild_lice %>%
+        dplyr::filter(!is.na(site), !is.na(week)) %>%
+        dplyr::mutate(year = as.numeric(as.character(year))) %>%
+        dplyr::filter(year %in% years) %>%
+        dplyr::mutate(
+          year = as.factor(year)
+        ) %>%
+        modelr::data_grid(year, site, week) %>%
+        tidybayes::add_epred_draws(model, re_formula = NA)
+
+      x_subset <- x[, c("year", ".epred")] %>%
+        dplyr::filter(year %notin% c(2021, 2022)) %>%
+        dplyr::mutate(year = as.factor(year)) %>%
+        dplyr::group_by(year) %>%
+        dplyr::arrange(`.epred`) %>%
+        dplyr::reframe(
+          lo = quantile(.epred, prob = 0.05),
+          median = quantile(.epred, prob = 0.5),
+          hi = quantile(.epred, prob = 0.95)
+        ) %>%
+        dplyr::mutate(
+          stage = model_name,
+          farms = predict_farms[[model_name]]
+        )
+      # bind
       predicted_stage_dfs <- rbind(predicted_stage_dfs, x_subset)
-  }
-  qs::qsave(predicted_stage_dfs, paste0(output_path, 
-  "all-species-model-predictions.qs"))  
+    }
+    qs::qsave(predicted_stage_dfs, paste0(
+      output_path,
+      "all-stages-model-predictions.qs"
+    ))
 
-  predicted_spp_dfs <- data.frame()
-  for (model_name in names(spp_models)) {
-    model <- spp_models[[model_name]]
-    data <- ifelse(model_name %in% c("chum-leps", "chum-lice"),
-      chum_2009_17, pink_2009_17
-    )
+    predicted_spp_dfs <- data.frame()
+    for (model_name in names(spp_models)) {
+      model <- spp_models[[model_name]]
+      if (model_name %in% c("chum-leps", "chum-lice")) {
+        data <- chum_2009_17
+      } else {
+        data <- pink_2009_17
+      }
 
-    # Generate predictions
-    x <- data %>%
-      dplyr::filter(!is.na(site), !is.na(week)) %>%
-      modelr::data_grid(year, site, week) %>%
-      tidybayes::add_epred_draws(model, re_formula = NA)
+      # Generate predictions
+      x <- data %>%
+        dplyr::filter(!is.na(site), !is.na(week)) %>%
+        dplyr::mutate(year = as.numeric(as.character(year))) %>%
+        dplyr::filter(year %in% c(2009:2017)) %>%
+        dplyr::mutate(
+          year = as.factor(year)
+        ) %>%
+        modelr::data_grid(year, site, week) %>%
+        tidybayes::add_epred_draws(model, re_formula = NA)
 
-    x_subset <- x[, c("year", ".epred")] %>%
-      dplyr::mutate(year = as.factor(year)) %>%
-      dplyr::group_by(year) %>%
-      dplyr::arrange(`.epred`) %>%
-      dplyr::reframe(
-        lo = quantile(.epred, prob = 0.05),
-        median = quantile(.epred, prob = 0.5),
-        hi = quantile(.epred, prob = 0.95)
-      ) %>%
-      dplyr::mutate(
-        species = stringr::str_split(model_name, "-")[[1]][1]
-        lice = stringr::str_split(model_name, "-")[[1]][2]
-      )
+      x_subset <- x[, c("year", ".epred")] %>%
+        dplyr::mutate(year = as.factor(year)) %>%
+        dplyr::group_by(year) %>%
+        dplyr::arrange(`.epred`) %>%
+        dplyr::reframe(
+          lo = quantile(.epred, prob = 0.05),
+          median = quantile(.epred, prob = 0.5),
+          hi = quantile(.epred, prob = 0.95)
+        ) %>%
+        dplyr::mutate(
+          species = stringr::str_split(model_name, "-")[[1]][1],
+          lice = stringr::str_split(model_name, "-")[[1]][2]
+        )
       predicted_spp_dfs <- rbind(predicted_spp_dfs, x_subset)
-  }
-  model_predictions <- list(predicted_stage_dfs, predicted_spp_dfs)
+    }
+    qs::qsave(predicted_spp_dfs, paste0(
+      output_path,
+      "all-species-model-predictions.qs"
+    ))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  # Prediction data
-  predict_data <- data.frame(
-    year = as.character(c(2005:2022)),
-    week = NA,
-    site = NA
-  )
-  predict_data_co <- data.frame(
-    year = as.character(c(2009:2013, 2015:2022)),
-    week = NA,
-    site = NA
-  )
-  years <- list(
-    (2005:2022), (2005:2022), c(2009:2013, 2015:2022),
-    (2005:2022), (2005:2022)
-  )
-  species <- c("Leps", "All", rep("Leps", 3))
-  stage <- c("All", "NA", "Copepodites", "Motiles", "Chalimus")
-
-  predict_farm_nums <- c(2, 4, 3, 4, 5, 5, 6, 4, 4, 5, 4, 5, 3, 3, 3, 3)
-  predict_co_nums <- c(5, 5, 6, 4, 4, 4, 5, 3, 3, 3, 3)
-  predict_farms <- list(
-    predict_farm_nums, predict_farm_nums, predict_co_nums,
-    predict_farm_nums, predict_farm_nums
-  )
-
-  # Initialize list to store prediction dataframes
-  predicted_dfs <- data.frame()
-  predict_dfs <- list(
-    predict_data, predict_data, predict_data_co,
-    predict_data, predict_data
-  )
-
-  # Iterate through each model and make predictions
-  for (i in seq_along(all_stage_models)) {
-    model <- all_stage_models[[i]]
-
-    predicted_df <- data.frame(
-      year = as.character(years[[i]]),
-      predict(
-        object = model,
-        newdata = predict_dfs[[i]],
-        re.form = ~0,
-        se.fit = TRUE,
-        type = "response"
-      )
-    )
-
-    predicted_df$area <- 7
-    predicted_df <- predicted_df[predicted_df$year < 2021, ]
-    predicted_df$farms <- predict_farms[[i]]
-    predicted_df$year <- as.numeric(predicted_df$year)
-
-    # add species and stage
-    predicted_df$stage <- stage[i]
-    predicted_df$species <- species[i]
-
-    # Store the predicted dataframe in the list
-    predicted_dfs <- rbind(predicted_dfs, predicted_df)
+    model_predictions <- list(predicted_stage_dfs, predicted_spp_dfs)
+  } else {
+    predicted_stage_dfs <- qs::qread(paste0(
+      output_path,
+      "all-species-model-predictions.qs"
+    ))
+    predicted_spp_dfs <- qs::qread(paste0(
+      output_path,
+      "all-species-model-predictions.qs"
+    ))
+    model_predictions <- list(predicted_stage_dfs, predicted_spp_dfs)
   }
 
-  ### predictions for within each of the species ===============================
-  species_predict_data <- data.frame(
-    year = as.character(c(2009:2017)),
-    week = NA,
-    site = NA
-  )
-  # Initialize list to store prediction dataframes
-  predicted_spp_dfs <- data.frame()
-
-  # Iterate through each model and make predictions
-  for (i in seq_along(spp_models)) {
-    model <- spp_models[[i]]
-
-    predicted_df <- data.frame(
-      year = as.character(c(2009:2017)),
-      predict(
-        object = model,
-        newdata = species_predict_data,
-        re.form = ~0,
-        se.fit = TRUE,
-        type = "response"
-      )
-    )
-    predicted_df$area <- 7
-    predicted_df$farms <- c(5, 5, 6, 4, 4, 5, 4, 5, 3)
-    predicted_df$year <- as.numeric(predicted_df$year)
-    predicted_df$species <- ifelse(i %in% c(1, 3), "Chum", "Pink")
-    predicted_df$louse_species <- ifelse(i %in% c(1, 2), "Leps", "All")
-    # Store the predicted dataframe in the list
-    predicted_spp_dfs <- rbind(predicted_spp_dfs, predicted_df)
-  }
-
-  predicted_dfs <- predicted_dfs %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-      up = fit + (1.96 * se.fit),
-      lo = fit - (1.96 * se.fit)
-    )
-  predicted_spp_dfs <- predicted_spp_dfs %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-      up = fit + (1.96 * se.fit),
-      lo = fit - (1.96 * se.fit)
-    )
-
-  return(list(leps_all_glmm_nb, predicted_dfs, predicted_spp_dfs))
+  return(model_predictions)
 }

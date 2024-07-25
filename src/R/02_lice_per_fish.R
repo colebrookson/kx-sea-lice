@@ -25,8 +25,15 @@ wild_lice <- readr::read_csv(
 #'      3. lep copepidites per fish
 #'      4. lep motiles per fish
 #'      5. lep chalimus per fish
-#' Then we separate chum and pink for 2009 to 2017 and model all leps per fish
-#' there as well
+#' Then we separate chum and pink for 2009 to 2017 and model all leps and all
+#' lice  per fish there as well
+
+lice_per_year <- lice_per_year_regression(
+    wild_lice = wild_lice,
+    output_path = here::here("./outputs/model-outputs/lice-per-year/"),
+    run_or_read_models = "read",
+    run_or_read_predictions = "read"
+)
 
 output_path <- here::here("./outputs/model-outputs/lice-per-year/")
 
@@ -35,7 +42,7 @@ axis <- expression(paste(
     "Estimated number of ", italic("L. salmonis "),
     "per year"
 ))
-stage_list <- c("leps", "lice", "copes", "mots", "chals")
+
 
 # predicted_values <- lice_per_year_regression(
 #     wild_lice = wild_lice,
