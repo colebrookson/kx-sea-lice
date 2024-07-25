@@ -28,7 +28,7 @@ wild_lice <- readr::read_csv(
 #' Then we separate chum and pink for 2009 to 2017 and model all leps per fish
 #' there as well
 
-
+output_path <- here::here("./outputs/model-outputs/lice-per-year/")
 
 
 

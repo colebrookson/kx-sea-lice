@@ -234,6 +234,93 @@ create_diagnostic_plots <- function(model_list, n_coefs) {
   }
 }
 
+#' Generate and Save Prediction Plots for a List of Models
+#'
+#' @description This function takes a named list of `rstanarm` model objects
+#' and generates prediction plots for each model. The plots show the median and
+#' 90% credible intervals for the predicted values. The plots are saved as PNG
+#' files based on the model name.
+#'
+#' @param model_list A named list of `rstanarm` model objects.
+#' @param data A data frame used for making predictions. It should contain the
+#' columns `year`, `site`, and `week`.
+#'
+#' @return None. The function saves the generated plots as PNG files.
+#'
+#' @examples
+#' \dontrun{
+#' set.seed(123)
+#' df <- data.frame(
+#'   x = runif(100, 1, 10),
+#'   y = 2 * log10(runif(100, 1, 10)) + rnorm(100)
+#' )
+#' df <- df %>% mutate(
+#'   year = sample(2000:2020, 100, replace = TRUE),
+#'   site = sample(letters[1:5], 100, replace = TRUE),
+#'   week = sample(1:52, 100, replace = TRUE)
+#' )
+#'
+#' # Fit models
+#' model1 <- rstanarm::stan_glm(y ~ x, data = df)
+#' model2 <- rstanarm::stan_glm(y ~ log10(x), data = df)
+#'
+#' # Create a named list of models
+#' model_list <- list(
+#'   "model1" = model1,
+#'   "model2" = model2
+#' )
+#'
+#' # Call the function to generate and save prediction plots
+#' generate_prediction_plots(model_list, df)
+#' }
+#' @importFrom dplyr filter mutate group_by arrange reframe
+#' @importFrom modelr data_grid
+#' @importFrom tidybayes add_epred_draws
+#' @importFrom ggplot2 ggplot geom_errorbar geom_point aes ggsave
+#' @importFrom ggplot2 theme_base
+#' @import here
+#' @import ggplot2
+#' @import tidybayes
+#' @import modelr
+#' @import dplyr
+generate_prediction_plots <- function(model_list, data) {
+  # Loop through each model in the list
+  for (model_name in names(model_list)) {
+    model <- model_list[[model_name]]
+
+    # Generate predictions
+    x <- data %>%
+      dplyr::filter(!is.na(site), !is.na(week)) %>%
+      modelr::data_grid(year, site, week) %>%
+      tidybayes::add_epred_draws(model, re_formula = NA)
+
+    x_subset <- x[, c("year", ".epred")] %>%
+      dplyr::mutate(year = as.factor(year)) %>%
+      dplyr::group_by(year) %>%
+      dplyr::arrange(`.epred`) %>%
+      dplyr::reframe(
+        lo = quantile(.epred, prob = 0.05),
+        median = quantile(.epred, prob = 0.5),
+        hi = quantile(.epred, prob = 0.95)
+      )
+
+    # Create the plot
+    xfig <- ggplot2::ggplot(data = x_subset) +
+      ggplot2::geom_errorbar(aes(x = year, ymin = lo, ymax = hi, width = 0)) +
+      ggplot2::geom_point(aes(x = year, y = median)) +
+      ggplot2::theme_base()
+
+    # Save the plot
+    ggplot2::ggsave(
+      filename = here::here(paste0(
+        "./figs/lice-per-year-regression/predictions/",
+        model_name, "-predictions.png"
+      )),
+      plot = xfig
+    )
+  }
+}
+
 #' Fit the actual models we'll need for the power analysis
 #'
 #' @description Fit the model and save the objects for pink salmon to be used
@@ -364,7 +451,6 @@ lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
       "leps-mot" = leps_mot_mod,
       "leps-chal" = leps_chal_mod
     )
-
     qs::qsave(all_stage_models, paste0(output_path, "all-stage-model-fits.qs"))
     spp_models <- list(
       "chum-leps" = chum_mod,
@@ -372,13 +458,13 @@ lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
       "chum-lice" = chum_all_lice_mod,
       "chum-lice" = pink_all_lice_mod
     )
-    qs::qsave(spp_models, paste0(output_path, "all-species-model-fits.qs"))
+    qs::qread(spp_models, paste0(output_path, "all-species-model-fits.qs"))
   } else {
-    all_stage_models <- qs::qsave(paste0(
+    all_stage_models <- qs::qread(paste0(
       output_path,
       "all-stage-model-fits.qs"
     ))
-    spp_models <- qs::qsave(paste0(output_path, "all-species-model-fits.qs"))
+    spp_models <- qs::qread(paste0(output_path, "all-species-model-fits.qs"))
   }
 
   ## model diagnostics =========================================================
@@ -386,6 +472,26 @@ lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
   create_diagnostic_plots(spp_models, n_coefs = 9)
 
   ## model predictions =========================================================
+  predictions_all_stage <- generate_prediction_plots(
+    model_list = all_stage_models,
+    data = wild_lice
+  )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   # Prediction data
   predict_data <- data.frame(
     year = as.character(c(2005:2022)),
