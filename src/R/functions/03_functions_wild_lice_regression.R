@@ -462,7 +462,7 @@ lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
       "chum-lice" = chum_all_lice_mod,
       "pink-lice" = pink_all_lice_mod
     )
-    qs::qread(spp_models, paste0(output_path, "all-species-model-fits.qs"))
+    qs::qsave(spp_models, paste0(output_path, "all-species-model-fits.qs"))
   } else {
     all_stage_models <- qs::qread(paste0(
       output_path,
@@ -477,17 +477,41 @@ lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
 
   ## model predictions =========================================================
   ### stage level predictions ==================================================
+  #' we need a few things to be different for the different models. The years
+  #' that each model uses are slightly different, the copepodite model uses
+  #' only a subset of the years, so we need to be filtering for the appropriate
+  #' number of years when we make the within-sample prediction. Additionally 
+  #' we want the number of farms 
   predicted_stage_dfs <- data.frame()
+  years_list <- list(
+    "leps-all" = c(2005:2022), "all-lice" = c(2005:2022), 
+    "leps-co" = c(2009:2013, 2015:2022), "leps-mot" = c(2005:2022), 
+    "leps-chal" = c(2005:2022)
+  )
+  predict_farm_nums <- c(2, 4, 3, 4, 5, 5, 6, 4, 4, 5, 4, 5, 3, 3, 3, 3)
+  predict_co_nums <- c(5, 5, 6, 4, 4, 4, 5, 3, 3, 3, 3)
+  predict_farms <- list(
+    "leps-all" = predict_farm_nums, "all-lice" = predict_farm_nums, 
+    "leps-co" = predict_co_nums, "leps-mot" = predict_farm_nums, 
+    "leps-chal" = predict_farm_nums
+  )
   for (model_name in names(all_stage_models)) {
     model <- all_stage_models[[model_name]]
+    years <- years_list[[model_name]]
 
     # Generate predictions
     x <- wild_lice %>%
       dplyr::filter(!is.na(site), !is.na(week)) %>%
+      dplyr::mutate(year = as.numeric(as.character(year))) %>% 
+      dplyr::filter(year %in% years) %>% 
+      dplyr::mutate(
+        year = as.factor(year)
+      )%>% 
       modelr::data_grid(year, site, week) %>%
       tidybayes::add_epred_draws(model, re_formula = NA)
 
     x_subset <- x[, c("year", ".epred")] %>%
+      dplyr::filter(year %notin% c(2021, 2022)) %>% 
       dplyr::mutate(year = as.factor(year)) %>%
       dplyr::group_by(year) %>%
       dplyr::arrange(`.epred`) %>%
@@ -497,13 +521,20 @@ lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
         hi = quantile(.epred, prob = 0.95)
       ) %>%
       dplyr::mutate(
-        stage = model_name
+        stage = model_name,
+        farms = predict_farms[[model_name]]
       )
+      # bind 
+      predicted_stage_dfs <- rbind(predicted_stage_dfs, x_subset)
   }
+  qs::qsave(predicted_stage_dfs, paste0(output_path, 
+  "all-species-model-predictions.qs"))  
   predicted_spp_dfs <- data.frame()
   for (model_name in names(spp_models)) {
     model <- spp_models[[model_name]]
-    data <- ifelse(model_name %in% c("chum-leps", "chum-lice" "chum-lice"))
+    data <- ifelse(model_name %in% c("chum-leps", "chum-lice"),
+      chum_2009_17, pink_2009_17
+    )
 
     # Generate predictions
     x <- data %>%
@@ -521,9 +552,12 @@ lice_per_year_regression <- function(wild_lice, output_path, run_or_read) {
         hi = quantile(.epred, prob = 0.95)
       ) %>%
       dplyr::mutate(
-        stage = model_name
+        species = stringr::str_split(model_name, "-")[[1]][1]
+        lice = stringr::str_split(model_name, "-")[[1]][2]
       )
+      predicted_spp_dfs <- rbind(predicted_spp_dfs, x_subset)
   }
+  model_predictions <- list(predicted_stage_dfs, predicted_spp_dfs)
 
 
 
