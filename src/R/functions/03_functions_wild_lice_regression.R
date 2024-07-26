@@ -383,6 +383,29 @@ lice_per_year_regression <- function(
   return(results_ob)
 }
 
+#' Extract Fixed Effects
+#'
+#' @param model A fitted Bayesian model object.
+#' @param model_name A string representing the name of the model.
+#' @return A data frame of fixed effects with 90% credible intervals.
+extract_fixed_effects <- function(model, model_name) {
+  library(broom.mixed)
+
+  # Extract coefficients and their statistics
+  coef_summary <- broom.mixed::tidy(model,
+    conf.level = 0.9,
+    conf.int = TRUE,
+    conf.method = c("quantile")
+  )
+  coef_summary$model <- model_name
+  coef_summary <- coef_summary[
+    ,
+    c("model", "term", "estimate", "conf.low", "conf.high")
+  ]
+
+  return(coef_summary)
+}
+
 #' Extract Model Diagnostics
 #'
 #' @param model A fitted Bayesian model object.
@@ -394,10 +417,15 @@ extract_diagnostics <- function(model, model_name) {
   library(rstanarm)
 
   # Extract diagnostics
-  elpd <- loo::loo(model)$elpd_loo
-  se_elpd <- loo::loo(model)$se_elpd_loo
-  effective_params <- loo::loo(model)$k
-  se_effective_params <- loo::loo(model)$se_k
+  loo_results <- rstanarm::loo(
+    model,
+    cores = round(parallel::detectCores() * 0.6)
+  )
+  loo_estimates <- loo_results$estimates
+  elpd <- loo_estimates["elpd_loo", "Estimate"]
+  se_elpd <- loo_estimates["elpd_loo", "SE"]
+  effective_params <- loo_estimates["p_loo", "Estimate"]
+  se_effective_params <- loo_estimates["p_loo", "SE"]
   rhat <- bayesplot::rhat(model)
   neff <- bayesplot::neff_ratio(model)
 
@@ -457,10 +485,15 @@ generate_main_model_tables <- function(
     fixed_effects,
     format = "latex",
     col.names = c(
-      "Model", "Term", "Estimate", "10\\%", "90\\%", "Model"
+      "Model", "Term", "Estimate", "10\\%", "90\\%"
     ),
-    caption = "Fixed Effects with 90% Credible Intervals"
-  )
+    booktabs = TRUE,
+    escape = FALSE,
+    caption = "Fixed Effects with 90% Credible Intervals for Bayesian
+    generalized linear model estimating the number of lice on fish per year.
+    This model uses all years of the timeseries and the response
+    variable is \\textit{L. salmonis} lice of all stages"
+  ) %>% kableExtra::kable_classic()
 
   diagnostics_table <- knitr::kable(
     diagnostics,
@@ -469,8 +502,10 @@ generate_main_model_tables <- function(
       "Model", "ELPD", "SE of ELPD", "Effective Parameters",
       "SE of Effective Parameters", "$\\hat{R}$", "$n_{eff}$"
     ),
-    caption = "Model Diagnostics"
-  )
+    caption = "Model Diagnostics",
+    booktabs = TRUE,
+    escape = FALSE
+  ) %>% kableExtra::kable_classic()
 
   # Combine fixed effects and diagnostics tables
   combined_tables <- paste(fixed_effects_table, diagnostics_table, sep = "\n\n")
@@ -527,8 +562,10 @@ generate_group_tables <- function(models, model_names, group_name, file_path) {
     col.names = c(
       "Model", "Term", "Estimate", "10\\%", "90\\%", "Model"
     ),
-    caption = paste("Fixed Effects for Group:", group_name)
-  )
+    caption = paste("Fixed Effects for Group:", group_name),
+    booktabs = TRUE,
+    escape = FALSE
+  ) %>% kableExtra::kable_classic()
 
   diagnostics_table <- knitr::kable(
     diagnostics_combined,
@@ -537,8 +574,10 @@ generate_group_tables <- function(models, model_names, group_name, file_path) {
       "Model", "ELPD", "SE of ELPD", "Effective Parameters",
       "SE of Effective Parameters", "$\\hat{R}$", "$n_{eff}$"
     ),
-    caption = paste("Performance Metrics for Group:", group_name)
-  )
+    caption = paste("Performance Metrics for Group:", group_name),
+    booktabs = TRUE,
+    escape = FALSE
+  ) %>% kableExtra::kable_classic()
 
   random_effects_table <- knitr::kable(
     random_effects_combined,
