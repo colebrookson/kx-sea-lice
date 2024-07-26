@@ -125,7 +125,7 @@ create_diagnostic_plots <- function(model_list, n_coefs) {
 #' saved version
 #'
 #' @usage power_prep_pink(all_power_sims, output_path)
-#' @return a set of predicted dataframes
+#' @return a set of predicted dataframes and all model objects
 lice_per_year_regression <- function(
     wild_lice, output_path, run_or_read_models,
     run_or_read_predictions) {
@@ -379,6 +379,7 @@ lice_per_year_regression <- function(
     ))
     model_predictions <- list(predicted_stage_dfs, predicted_spp_dfs)
   }
+  results_ob <- list(model_predictions, all_stage_models, spp_models)
 
-  return(model_predictions)
+  return(results_ob)
 }
