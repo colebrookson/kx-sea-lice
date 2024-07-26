@@ -241,7 +241,7 @@ lice_per_year_regression <- function(
     )
     all_stage_models <- list(
       "leps-all" = leps_all_mod,
-      "all-lice" = all_NA_mod,
+      "all-NA" = all_NA_mod,
       "leps-co" = leps_co_mod,
       "leps-mot" = leps_mot_mod,
       "leps-chal" = leps_chal_mod
@@ -277,14 +277,14 @@ lice_per_year_regression <- function(
   if (run_or_read_predictions == "run") {
     predicted_stage_dfs <- data.frame()
     years_list <- list(
-      "leps-all" = c(2005:2022), "all-lice" = c(2005:2022),
+      "leps-all" = c(2005:2022), "all-NA" = c(2005:2022),
       "leps-co" = c(2009:2013, 2015:2022), "leps-mot" = c(2005:2022),
       "leps-chal" = c(2005:2022)
     )
     predict_farm_nums <- c(2, 4, 3, 4, 5, 5, 6, 4, 4, 5, 4, 5, 3, 3, 3, 3)
     predict_co_nums <- c(5, 5, 6, 4, 4, 4, 5, 3, 3, 3, 3)
     predict_farms <- list(
-      "leps-all" = predict_farm_nums, "all-lice" = predict_farm_nums,
+      "leps-all" = predict_farm_nums, "all-NA" = predict_farm_nums,
       "leps-co" = predict_co_nums, "leps-mot" = predict_farm_nums,
       "leps-chal" = predict_farm_nums
     )
@@ -315,7 +315,9 @@ lice_per_year_regression <- function(
         ) %>%
         dplyr::mutate(
           stage = model_name,
-          farms = predict_farms[[model_name]]
+          farms = predict_farms[[model_name]],
+          lice = stringr::str_split(model_name, "-")[[1]][1],
+          stage = stringr::str_split(model_name, "-")[[1]][2]
         )
       # bind
       predicted_stage_dfs <- rbind(predicted_stage_dfs, x_subset)
@@ -369,7 +371,7 @@ lice_per_year_regression <- function(
   } else {
     predicted_stage_dfs <- qs::qread(paste0(
       output_path,
-      "all-species-model-predictions.qs"
+      "all-stages-model-predictions.qs"
     ))
     predicted_spp_dfs <- qs::qread(paste0(
       output_path,
