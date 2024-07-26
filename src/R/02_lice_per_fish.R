@@ -32,11 +32,11 @@ lice_per_year <- lice_per_year_regression(
     wild_lice = wild_lice,
     output_path = here::here("./outputs/model-outputs/lice-per-year/"),
     run_or_read_models = "read",
-    run_or_read_predictions = "run"
+    run_or_read_predictions = "read"
 )
 
-stages_df <- lice_per_year[[1]]
-spp_df <- lice_per_year[[2]]
+stages_df <- lice_per_year[[1]][[1]]
+spp_df <- lice_per_year[[1]][[2]]
 spp_df$dodge <- interaction(spp_df$species, spp_df$lice)
 
 ## stage model prediction ======================================================
@@ -163,71 +163,121 @@ ggsave(
 
 # make output tables ===========================================================
 
+# Example list of models and their names
 model_list <- unlist(lice_per_year[2:3], recursive = FALSE)
 model_names <- names(model_list)
 
-# Loop over each model, extract summaries, and create LaTeX tables
-latex_tables <- lapply(seq_along(model_list), function(i) {
+# Process models and generate LaTeX tables
+fixed_effects_tables <- lapply(seq_along(model_list), function(i) {
     model <- model_list[[i]]
     model_name <- model_names[i]
-    summary_df <- extract_model_summary(model, model_name)
+    estimates <- extract_detailed_estimates(model, model_name)
 
-    # Create LaTeX table using knitr::kable
+    # Create LaTeX table for fixed effects
     latex_table <- knitr::kable(
-        summary_df,
+        estimates$fixed_effects %>%
+            dplyr::filter(effect_type == "Fixed" | effect_type == "LOO-CV"),
         format = "latex",
         col.names = c(
-            "Model", "Term", "Estimate", "10\\%", "90\\%",
-            "Bayes $R^2$", "$\\hat{R}$", "$n_{eff}$"
+            "Model", "Term", "Estimate", "10\\%", "90\\%", "Bayes $R^2$",
+            "$\\hat{R}$", "$n_{eff}$"
         ),
-        caption = paste0("Summary for ", model_name)
+        caption = paste0("Fixed Effects and LOO-CV for ", model_name)
     )
 
-    # Convert the LaTeX table to a character vector
+    # Convert LaTeX table to character vector
     latex_table_lines <- strsplit(latex_table, "\n")[[1]]
 
     # Find the position to insert the label (before \end{table})
     insert_pos <- which(grepl("\\end{tabular}", latex_table_lines)) + 1
 
     # Insert the label
-    latex_table_lines <- append(latex_table_lines, paste0(
-        "\\label{SI-",
-        model_name, "}"
-    ), after = insert_pos - 1)
+    latex_table_lines <- append(
+        latex_table_lines,
+        paste0("\\label{SI-", model_name, "-fixed}"),
+        after = insert_pos - 1
+    )
 
-    # Combine the lines back into a single string
+    # Combine lines back into a single string
     latex_table <- paste(latex_table_lines, collapse = "\n")
 
     return(latex_table)
 })
 
-# Combine all LaTeX tables into one string
-combined_latex <- paste(latex_tables, collapse = "\n")
+random_effects_tables <- lapply(seq_along(model_list), function(i) {
+    model <- model_list[[i]]
+    model_name <- model_names[i]
+    estimates <- extract_detailed_estimates(model, model_name)
 
-# Write the combined LaTeX to a .tex file
-writeLines(combined_latex, "model_summaries.tex")
+    # Create LaTeX table for random effects
+    latex_table <- knitr::kable(
+        estimates$random_effects,
+        format = "latex",
+        col.names = c("Model", "Term", "Estimate"),
+        caption = paste0("Random Effects for ", model_name)
+    )
 
+    # Convert LaTeX table to character vector
+    latex_table_lines <- strsplit(latex_table, "\n")[[1]]
 
+    # Find the position to insert the label (before \end{table})
+    insert_pos <- which(grepl("\\end{tabular}", latex_table_lines)) + 1
 
+    # Insert the label
+    latex_table_lines <- append(
+        latex_table_lines,
+        paste0("\\label{SI-", model_name, "-random}"),
+        after = insert_pos - 1
+    )
 
+    # Combine lines back into a single string
+    latex_table <- paste(latex_table_lines, collapse = "\n")
 
-stats::model.frame(model)
-# Posterior predictive checks
-ppc_dens_overlay(your_data$y, posterior_predict(fit))
+    return(latex_table)
+})
 
-# Additional checks
-ppc_hist(your_data$y, posterior_predict(fit))
-ppc_scatter_avg(your_data$y, posterior_predict(fit))
+performance_metrics_tables <- lapply(seq_along(model_list), function(i) {
+    model <- model_list[[i]]
+    model_name <- model_names[i]
+    performance_df <- extract_performance_metrics(model, model_name)
 
-library(loo)
+    # Create LaTeX table for performance metrics
+    latex_table <- knitr::kable(
+        performance_df,
+        format = "latex",
+        col.names = c("Model", "Term", "Estimate"),
+        caption = paste0("Model Performance Metrics for ", model_name)
+    )
 
-# Compute LOO-CV
-start <- Sys.time()
-loo_result <- loo::loo(model, cores = (parallel::detectCores() - 2))
-print(loo_result)
+    # Convert LaTeX table to character vector
+    latex_table_lines <- strsplit(latex_table, "\n")[[1]]
 
-# Compute WAIC
-waic_result <- loo::waic(model)
-print(waic_result)
-end <- Sys.time()
-end - start
+    # Find the position to insert the label (before \end{table})
+    insert_pos <- which(grepl("\\end{tabular}", latex_table_lines)) + 1
+
+    # Insert the label
+    latex_table_lines <- append(
+        latex_table_lines,
+        paste0("\\label{SI-", model_name, "-performance}"),
+        after = insert_pos - 1
+    )
+
+    # Combine lines back into a single string
+    latex_table <- paste(latex_table_lines, collapse = "\n")
+
+    return(latex_table)
+})
+
+# Combine all LaTeX tables into one string for each file
+combined_fixed_effects_and_performance <- paste(
+    c(fixed_effects_tables, performance_metrics_tables),
+    collapse = "\n\n"
+)
+combined_random_effects <- paste(random_effects_tables, collapse = "\n\n")
+
+# Write the combined LaTeX tables to .tex files
+writeLines(
+    combined_fixed_effects_and_performance,
+    "fixed_effects_and_performance_metrics.tex"
+)
+writeLines(combined_random_effects, "random_effects.tex")

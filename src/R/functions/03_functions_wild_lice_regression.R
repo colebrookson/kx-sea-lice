@@ -254,6 +254,9 @@ lice_per_year_regression <- function(
       "pink-lice" = pink_all_lice_mod
     )
     qs::qsave(spp_models, paste0(output_path, "all-species-model-fits.qs"))
+    ## model diagnostics =======================================================
+    create_diagnostic_plots(all_stage_models, n_coefs = 18)
+    create_diagnostic_plots(spp_models, n_coefs = 9)
   } else {
     all_stage_models <- qs::qread(paste0(
       output_path,
@@ -261,10 +264,6 @@ lice_per_year_regression <- function(
     ))
     spp_models <- qs::qread(paste0(output_path, "all-species-model-fits.qs"))
   }
-
-  ## model diagnostics =========================================================
-  create_diagnostic_plots(all_stage_models, n_coefs = 18)
-  create_diagnostic_plots(spp_models, n_coefs = 9)
 
   ## model predictions =========================================================
   ### stage level predictions ==================================================
@@ -382,4 +381,217 @@ lice_per_year_regression <- function(
   results_ob <- list(model_predictions, all_stage_models, spp_models)
 
   return(results_ob)
+}
+
+#' Extract Model Diagnostics
+#'
+#' @param model A fitted Bayesian model object.
+#' @param model_name A string representing the name of the model.
+#' @return A data frame of model performance metrics including ELPD, Rhat,
+#'   and n_eff.
+extract_diagnostics <- function(model, model_name) {
+  library(bayesplot)
+  library(rstanarm)
+
+  # Extract diagnostics
+  elpd <- loo::loo(model)$elpd_loo
+  se_elpd <- loo::loo(model)$se_elpd_loo
+  effective_params <- loo::loo(model)$k
+  se_effective_params <- loo::loo(model)$se_k
+  rhat <- bayesplot::rhat(model)
+  neff <- bayesplot::neff_ratio(model)
+
+  # Combine into a summary data frame
+  diagnostics <- data.frame(
+    model = model_name,
+    elpd = elpd,
+    se_elpd = se_elpd,
+    effective_params = effective_params,
+    se_effective_params = se_effective_params,
+    rhat = rhat,
+    n_eff = neff
+  )
+
+  return(diagnostics)
+}
+
+#' Extract Random Effects
+#'
+#' @param model A fitted Bayesian model object.
+#' @param model_name A string representing the name of the model.
+#' @return A data frame of random effects.
+extract_random_effects <- function(model, model_name) {
+  library(broom.mixed)
+
+  # Extract random effects
+  rand_summary <- broom.mixed::tidy(model,
+    conf.level = 0.9,
+    conf.int = TRUE,
+    conf.method = "quantile"
+  )
+
+  # Filter for random effects only
+  random_effects <- rand_summary[rand_summary$effect == "random", ]
+  random_effects$model <- model_name
+
+  return(random_effects)
+}
+#' Generate LaTeX Tables for Main Model
+#'
+#' @param model A fitted Bayesian model object.
+#' @param model_name A string representing the name of the model.
+#' @param fixed_effects_file_path A string representing the path to the .tex file
+#'   for fixed effects and diagnostics.
+#' @param random_effects_file_path A string representing the path to the .tex file
+#'   for random effects.
+generate_main_model_tables <- function(
+    model, model_name,
+    fixed_effects_file_path,
+    random_effects_file_path) {
+  # Extract fixed effects and diagnostics
+  fixed_effects <- extract_fixed_effects(model, model_name)
+  diagnostics <- extract_diagnostics(model, model_name)
+
+  # Create LaTeX tables for fixed effects and diagnostics
+  fixed_effects_table <- knitr::kable(
+    fixed_effects,
+    format = "latex",
+    col.names = c(
+      "Model", "Term", "Estimate", "10\\%", "90\\%", "Model"
+    ),
+    caption = "Fixed Effects with 90% Credible Intervals"
+  )
+
+  diagnostics_table <- knitr::kable(
+    diagnostics,
+    format = "latex",
+    col.names = c(
+      "Model", "ELPD", "SE of ELPD", "Effective Parameters",
+      "SE of Effective Parameters", "$\\hat{R}$", "$n_{eff}$"
+    ),
+    caption = "Model Diagnostics"
+  )
+
+  # Combine fixed effects and diagnostics tables
+  combined_tables <- paste(fixed_effects_table, diagnostics_table, sep = "\n\n")
+
+  # Write fixed effects and diagnostics tables to .tex file
+  writeLines(combined_tables, fixed_effects_file_path)
+
+  # Extract random effects
+  random_effects <- extract_random_effects(model, model_name)
+
+  # Create LaTeX table for random effects
+  random_effects_table <- knitr::kable(
+    random_effects,
+    format = "latex",
+    col.names = c("Model", "Term", "Estimate"),
+    caption = "Random Effects"
+  )
+
+  # Write random effects table to .tex file
+  writeLines(random_effects_table, random_effects_file_path)
+}
+
+
+
+#' Generate LaTeX Tables for Models in Groups
+#'
+#' @param models A list of fitted Bayesian model objects.
+#' @param model_names A vector of strings representing model names.
+#' @param group_name A string representing the group name.
+#' @param file_path A string representing the path to the .tex file to save.
+generate_group_tables <- function(models, model_names, group_name, file_path) {
+  # Extract fixed effects, diagnostics, and random effects
+  fixed_effects_list <- lapply(seq_along(models), function(i) {
+    extract_fixed_effects(models[[i]], model_names[i])
+  })
+
+  diagnostics_list <- lapply(seq_along(models), function(i) {
+    extract_diagnostics(models[[i]], model_names[i])
+  })
+
+  random_effects_list <- lapply(seq_along(models), function(i) {
+    extract_random_effects(models[[i]], model_names[i])
+  })
+
+  # Combine data frames
+  fixed_effects_combined <- do.call(rbind, fixed_effects_list)
+  diagnostics_combined <- do.call(rbind, diagnostics_list)
+  random_effects_combined <- do.call(rbind, random_effects_list)
+
+  # Create LaTeX tables
+  fixed_effects_table <- knitr::kable(
+    fixed_effects_combined,
+    format = "latex",
+    col.names = c(
+      "Model", "Term", "Estimate", "10\\%", "90\\%", "Model"
+    ),
+    caption = paste("Fixed Effects for Group:", group_name)
+  )
+
+  diagnostics_table <- knitr::kable(
+    diagnostics_combined,
+    format = "latex",
+    col.names = c(
+      "Model", "ELPD", "SE of ELPD", "Effective Parameters",
+      "SE of Effective Parameters", "$\\hat{R}$", "$n_{eff}$"
+    ),
+    caption = paste("Performance Metrics for Group:", group_name)
+  )
+
+  random_effects_table <- knitr::kable(
+    random_effects_combined,
+    format = "latex",
+    col.names = c("Model", "Term", "Estimate"),
+    caption = paste("Random Effects for Group:", group_name)
+  )
+
+  # Combine tables
+  combined_tables <- paste(
+    fixed_effects_table,
+    diagnostics_table,
+    random_effects_table,
+    sep = "\n\n"
+  )
+
+  # Write to .tex file
+  writeLines(combined_tables, file_path)
+}
+
+#' Generate and Write All LaTeX Tables
+#'
+#' @param main_model The main model object.
+#' @param main_model_name The name of the main model.
+#' @param model_list A list of all model objects.
+#' @param model_names A vector of all model names.
+generate_all_tables <- function(
+    main_model, main_model_name,
+    model_list, model_names) {
+  # Generate tables for the main model
+  generate_main_model_tables(
+    main_model, main_model_name,
+    "main_model_tables.tex"
+  )
+
+  # Define model groups
+  group_1 <- c("all-NA", "leps-co", "leps-mot", "leps-chal")
+  group_2 <- c("chum-leps", "pink-leps", "chum-lice", "pink-lice")
+
+  # Split models into groups
+  models_group_1 <- model_list[model_names %in% group_1]
+  names_group_1 <- model_names[model_names %in% group_1]
+
+  models_group_2 <- model_list[model_names %in% group_2]
+  names_group_2 <- model_names[model_names %in% group_2]
+
+  # Generate tables for each group
+  generate_group_tables(
+    models_group_1, names_group_1,
+    "Group 1", "group_1_tables.tex"
+  )
+  generate_group_tables(
+    models_group_2, names_group_2,
+    "Group 2", "group_2_tables.tex"
+  )
 }

@@ -19,8 +19,6 @@
 #'
 #' @param model A stan_glm model object fitted using the rstanarm package.
 #' @param model_name A character string specifying the name of the model.
-#' @param loo_cv A boolean determining if the thing calculated should be the
-#' bayesian R^2 (default) or a leave-one-out-cross-validation.
 #'
 #' @return A data frame containing the summary statistics for the model.
 #'
@@ -32,7 +30,7 @@
 #' # Extract summary statistics
 #' summary_df <- extract_model_summary(model, "Example Model")
 #' }
-extract_model_summary <- function(model, model_name, loo_cv = FALSE) {
+extract_model_summary <- function(model, model_name) {
   # Extract coefficients and their statistics
   # Extract posterior summary statistics
   # Use broom.mixed to tidy the model output
@@ -47,24 +45,18 @@ extract_model_summary <- function(model, model_name, loo_cv = FALSE) {
   rhat_values <- bayesplot::rhat(model)
   neff_values <- bayesplot::neff_ratio(model)
   # Extract Bayesian R-squared if desired
-  if (!loo_cv) {
-    bayes_r2 <- median(rstanarm::bayes_R2(model))
-    summary_df <- coef_summary %>%
-      dplyr::mutate(
-        rhat = rhat_values[match(term, names(rhat_values))],
-        n_eff = neff_values[match(term, names(neff_values))],
-        model = model_name,
-        bayes_r2 = bayes_r2
-      ) %>%
-      dplyr::select(
-        model, term, estimate, conf.low, conf.high, bayes_r2,
-        rhat, n_eff
-      )
-  } else {
-    df <- stats::model.frame(model)
-    # Posterior predictive checks
-    ppc_dens_overlay(df$y, posterior_predict(model))
-  }
+  bayes_r2 <- median(rstanarm::bayes_R2(model))
+  summary_df <- coef_summary %>%
+    dplyr::mutate(
+      rhat = rhat_values[match(term, names(rhat_values))],
+      n_eff = neff_values[match(term, names(neff_values))],
+      model = model_name,
+      bayes_r2 = bayes_r2
+    ) %>%
+    dplyr::select(
+      model, term, estimate, conf.low, conf.high, bayes_r2,
+      rhat, n_eff
+    )
 }
 
 lice_regression <- function(wild_lice, farm_lice, mod_output_path, name,
