@@ -103,7 +103,14 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
     dplyr::select(-c(
       lep_pam, lep_paf, lep_am, lep_af,
       lep_c1, lep_c2, lep_c3, lep_c4
-    ))
+    )) %>%
+    dplyr::mutate(
+      if (site == "?") {
+        site <- NA
+      } else {
+        site <- site
+      }
+    )
 
   # make dataframe to plot
   obs_per_year <- wild_lice_clean_dates_fixed %>%

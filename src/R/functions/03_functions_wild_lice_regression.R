@@ -389,8 +389,6 @@ lice_per_year_regression <- function(
 #' @param model_name A string representing the name of the model.
 #' @return A data frame of fixed effects with 90% credible intervals.
 extract_fixed_effects <- function(model, model_name) {
-  library(broom.mixed)
-
   # Extract coefficients and their statistics
   coef_summary <- broom.mixed::tidy(model,
     conf.level = 0.9,
@@ -403,6 +401,20 @@ extract_fixed_effects <- function(model, model_name) {
     c("model", "term", "estimate", "conf.low", "conf.high")
   ]
 
+  # Extract random effects using the ranef function
+  random_effects_list <- ranef(model)
+
+  # Combine the random effects into a single data frame
+  random_effects_df <- do.call(rbind, lapply(names(random_effects_list), function(group) {
+    df <- as.data.frame(random_effects_list[[group]])
+    df$group <- group
+    df$term <- rownames(df)
+    return(df)
+  }))
+
+  # Reset row names
+  rownames(random_effects_df) <- NULL
+
   return(coef_summary)
 }
 
@@ -413,21 +425,39 @@ extract_fixed_effects <- function(model, model_name) {
 #' @return A data frame of model performance metrics including ELPD, Rhat,
 #'   and n_eff.
 extract_diagnostics <- function(model, model_name) {
-  library(bayesplot)
-  library(rstanarm)
-
   # Extract diagnostics
-  loo_results <- rstanarm::loo(
+
+  # things I want:
+  #'  1. the Posterior Predictive Checks (PPC) (in a plot)
+  #'  2. Root Mean Square Error (RMSE)
+  #'  3. Effective Sample Size (ESS)
+  #'  4. Rhat (Potential Scale Reduction Factor)
+  #'  5. LOO Predictive Density (ELPD)
+  #'  6.
+  #'
+
+  # Generate posterior predictive simulations
+  y_rep <- rstanarm::posterior_predict(model)
+  y <- stats::model.frame(model)[, all.vars(model$formula)[1]]
+
+
+
+  # Use ppc_bars to compare observed and simulated data
+  observed_data <- mtcars$mpg # Replace with your observed data
+  ppc_bars(observed_data, y_rep)
+  loo_results <- loo::loo(
     model,
-    cores = round(parallel::detectCores() * 0.6)
+    cores = round(parallel::detectCores() * 0.6),
   )
+  max(loo_results$diagnostics$pareto_k)
+  str(loo::pareto_k_table(loo_results))
   loo_estimates <- loo_results$estimates
   elpd <- loo_estimates["elpd_loo", "Estimate"]
   se_elpd <- loo_estimates["elpd_loo", "SE"]
   effective_params <- loo_estimates["p_loo", "Estimate"]
   se_effective_params <- loo_estimates["p_loo", "SE"]
   rhat <- bayesplot::rhat(model)
-  neff <- bayesplot::neff_ratio(model)
+  neff <- round(mean(bayesplot::neff_ratio(model)[1:length(fixef(model))]), 3)
 
   # Combine into a summary data frame
   diagnostics <- data.frame(
@@ -436,8 +466,8 @@ extract_diagnostics <- function(model, model_name) {
     se_elpd = se_elpd,
     effective_params = effective_params,
     se_effective_params = se_effective_params,
-    rhat = rhat,
-    n_eff = neff
+    rhat = max(rhat),
+    n_eff_ratio = min(neff)
   )
 
   return(diagnostics)
@@ -449,20 +479,20 @@ extract_diagnostics <- function(model, model_name) {
 #' @param model_name A string representing the name of the model.
 #' @return A data frame of random effects.
 extract_random_effects <- function(model, model_name) {
-  library(broom.mixed)
-
   # Extract random effects
   rand_summary <- broom.mixed::tidy(model,
     conf.level = 0.9,
     conf.int = TRUE,
-    conf.method = "quantile"
-  )
+    conf.method = "quantile",
+    effects =
+    )
+  coef_summary$model <- model_name
+  coef_summary <- coef_summary[
+    ,
+    c("model", "term", "estimate", "conf.low", "conf.high")
+  ]
 
-  # Filter for random effects only
-  random_effects <- rand_summary[rand_summary$effect == "random", ]
-  random_effects$model <- model_name
-
-  return(random_effects)
+  return(coef_summary)
 }
 #' Generate LaTeX Tables for Main Model
 #'
@@ -500,7 +530,8 @@ generate_main_model_tables <- function(
     format = "latex",
     col.names = c(
       "Model", "ELPD", "SE of ELPD", "Effective Parameters",
-      "SE of Effective Parameters", "$\\hat{R}$", "$n_{eff}$"
+      "SE of Effective Parameters", "$\\hat{R}$",
+      "Mean fixed effects $n_{eff}$ ratio"
     ),
     caption = "Model Diagnostics",
     booktabs = TRUE,
@@ -510,25 +541,62 @@ generate_main_model_tables <- function(
   # Combine fixed effects and diagnostics tables
   combined_tables <- paste(fixed_effects_table, diagnostics_table, sep = "\n\n")
 
-  # Write fixed effects and diagnostics tables to .tex file
-  writeLines(combined_tables, fixed_effects_file_path)
+  # Convert the LaTeX table to a character vector
+  latex_table_lines <- strsplit(combined_tables, "\n")[[1]]
 
-  # Extract random effects
-  random_effects <- extract_random_effects(model, model_name)
+  # Find the position to insert the label (before \end{table})
+  insert_pos_fixef <- (which(grepl(
+    "\\\\end\\{tabular\\}",
+    latex_table_lines
+  )) + 1)[1]
+  insert_pos_diags <- (which(grepl(
+    "\\\\end\\{tabular\\}",
+    latex_table_lines
+  )) + 1)[2]
 
-  # Create LaTeX table for random effects
-  random_effects_table <- knitr::kable(
-    random_effects,
-    format = "latex",
-    col.names = c("Model", "Term", "Estimate"),
-    caption = "Random Effects"
+  # Insert the label
+  latex_table_lines <- append(latex_table_lines,
+    paste0("\\label\\{SI-", model_name, "-fixef-", "\\}"),
+    after = insert_pos_fixef - 1
+  )
+  latex_table_lines <- append(latex_table_lines,
+    paste0("\\label\\{SI-", model_name, "-diags-", "\\}"),
+    after = insert_pos_diags - 1
   )
 
-  # Write random effects table to .tex file
-  writeLines(random_effects_table, random_effects_file_path)
+  # Write fixed effects and diagnostics tables to .tex file
+  writeLines(latex_table_lines, paste0(
+    fixed_effects_file_path,
+    "main-model-fixef-diags.tex"
+  ))
+
+  # Extract random effects
+  # random_effects <- extract_random_effects(model, model_name)
+
+  # # Create LaTeX table for random effects
+  # random_effects_table <- knitr::kable(
+  #   random_effects,
+  #   format = "latex",
+  #   col.names = c("Model", "Term", "Estimate", "10\\%", "90\\%"),
+  #   caption = "Random Effects"
+  # )
+  # ranef_table_lines <- strsplit(random_effects_table, "\n")[[1]]
+
+  # insert_pos_ranef <- (which(grepl(
+  #   "\\\\end\\{tabular\\}",
+  #   ranef_table_lines
+  # )) + 1)
+  # ranef_table_lines <- append(ranef_table_lines,
+  #   paste0("\\label\\{SI-", model_name, "-ranefs-", "\\}"),
+  #   after = insert_pos_ranef - 1
+  # )
+
+  # # Write random effects table to .tex file
+  # writeLines(ranef_table_lines, paste0(
+  #   random_effects_file_path,
+  #   "main-model-randef.tex"
+  # ))
 }
-
-
 
 #' Generate LaTeX Tables for Models in Groups
 #'
@@ -546,14 +614,14 @@ generate_group_tables <- function(models, model_names, group_name, file_path) {
     extract_diagnostics(models[[i]], model_names[i])
   })
 
-  random_effects_list <- lapply(seq_along(models), function(i) {
-    extract_random_effects(models[[i]], model_names[i])
-  })
+  # random_effects_list <- lapply(seq_along(models), function(i) {
+  #   extract_random_effects(models[[i]], model_names[i])
+  # })
 
   # Combine data frames
   fixed_effects_combined <- do.call(rbind, fixed_effects_list)
   diagnostics_combined <- do.call(rbind, diagnostics_list)
-  random_effects_combined <- do.call(rbind, random_effects_list)
+  # random_effects_combined <- do.call(rbind, random_effects_list)
 
   # Create LaTeX tables
   fixed_effects_table <- knitr::kable(
@@ -579,23 +647,48 @@ generate_group_tables <- function(models, model_names, group_name, file_path) {
     escape = FALSE
   ) %>% kableExtra::kable_classic()
 
-  random_effects_table <- knitr::kable(
-    random_effects_combined,
-    format = "latex",
-    col.names = c("Model", "Term", "Estimate"),
-    caption = paste("Random Effects for Group:", group_name)
-  )
+  # random_effects_table <- knitr::kable(
+  #   random_effects_combined,
+  #   format = "latex",
+  #   col.names = c("Model", "Term", "Estimate"),
+  #   caption = paste("Random Effects for Group:", group_name)
+  # )
 
   # Combine tables
   combined_tables <- paste(
     fixed_effects_table,
     diagnostics_table,
-    random_effects_table,
+    # random_effects_table,
     sep = "\n\n"
   )
 
+  latex_table_lines <- strsplit(combined_tables, "\n")[[1]]
+
+  # Find the position to insert the label (before \end{table})
+  insert_pos_fixef <- (which(grepl(
+    "\\\\end\\{tabular\\}",
+    latex_table_lines
+  )) + 1)[1]
+  insert_pos_diags <- (which(grepl(
+    "\\\\end\\{tabular\\}",
+    latex_table_lines
+  )) + 1)[2]
+
+  # Insert the label
+  latex_table_lines <- append(latex_table_lines,
+    paste0("\\label\\{SI-", group_name, "-fixef-", "\\}"),
+    after = insert_pos_fixef - 1
+  )
+  latex_table_lines <- append(latex_table_lines,
+    paste0("\\label\\{SI-", group_name, "-diags-", "\\}"),
+    after = insert_pos_diags - 1
+  )
+
   # Write to .tex file
-  writeLines(combined_tables, file_path)
+  writeLines(latex_table_lines, paste0(
+    file_path, group_name,
+    "-fixef-diags.tex"
+  ))
 }
 
 #' Generate and Write All LaTeX Tables
@@ -609,8 +702,9 @@ generate_all_tables <- function(
     model_list, model_names) {
   # Generate tables for the main model
   generate_main_model_tables(
-    main_model, main_model_name,
-    "main_model_tables.tex"
+    main_model = main_model, main_model_name = main_model_name,
+    fixed_effects_file_path = fixed_effects_file_path,
+    random_effects_file_path = random_effects_file_path
   )
 
   # Define model groups
@@ -626,11 +720,15 @@ generate_all_tables <- function(
 
   # Generate tables for each group
   generate_group_tables(
-    models_group_1, names_group_1,
-    "Group 1", "group_1_tables.tex"
+    models = models_group_1,
+    model_names = names_group_1,
+    file_path = here::here("./outputs/model-outputs/lice-per-year/tables/"),
+    group_name = "Stage models"
   )
   generate_group_tables(
-    models_group_2, names_group_2,
-    "Group 2", "group_2_tables.tex"
+    models = models_group_2,
+    model_names = names_group_2,
+    file_path = here::here("./outputs/model-outputs/lice-per-year/tables/"),
+    group_name = "Chum vs. pink models"
   )
 }

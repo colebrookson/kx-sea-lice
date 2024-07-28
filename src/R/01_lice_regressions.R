@@ -46,7 +46,7 @@ latex_table <- knitr::kable(combined_summary_df,
     caption = "Summary of Bayesian GLMs using all sites.",
     col.names = c(
         "Model", "Term", "Estimate", "10\\%", "90\\%", "Bayes $R^2$",
-        "$\\hat{R}$", "$n_{eff}$"
+        "$\\hat{R}$", "$n_{eff}$ ratio"
     ),
     booktabs = TRUE,
     escape = FALSE
@@ -91,7 +91,7 @@ latex_table_up_lar <- knitr::kable(combined_summary_up_lar_df,
     caption = "Summary of Bayesian GLMs using all sites except Upper Laredo.",
     col.names = c(
         "Model", "Term", "Estimate", "10\\%", "90\\%", "Bayes $R^2$",
-        "$\\hat{R}$", "$n_{eff}$"
+        "$\\hat{R}$", "$n_{eff}$ ratio"
     ),
     booktabs = TRUE,
     escape = FALSE
@@ -135,7 +135,7 @@ latex_table_both_lar <- knitr::kable(combined_summary_both_lar_df,
     site.",
     col.names = c(
         "Model", "Term", "Estimate", "10\\%", "90\\%", "Bayes $R^2$",
-        "$\\hat{R}$", "$n_{eff}$"
+        "$\\hat{R}$", "$n_{eff}$ ratio"
     ),
     booktabs = TRUE,
     escape = FALSE

@@ -173,3 +173,14 @@ main_model_name <- "leps-all"
 
 # Call the function to generate and write all LaTeX tables
 generate_all_tables(main_model, main_model_name, model_list, model_names)
+
+
+models <- model_list[2:length(model_list)]
+model_names <- names(models)
+
+
+model <- main_model
+model_name <- "leps-all"
+fixed_effects_file_path <-
+    here::here("./outputs/model-outputs/lice-per-year/tables/")
+random_effects_file_path <- here::here("./outputs/lice-per-year/tables/")
