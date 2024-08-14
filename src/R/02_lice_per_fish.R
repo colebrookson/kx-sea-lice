@@ -184,3 +184,26 @@ model_name <- "leps-all"
 fixed_effects_file_path <-
     here::here("./outputs/model-outputs/lice-per-year/tables/")
 random_effects_file_path <- here::here("./outputs/lice-per-year/tables/")
+
+
+# for stan forums
+
+
+data <- rnbinom(25000, size = 0.099, mu = 0.34)
+
+df <- data.frame(
+    y = data,
+    fixed = sample(as.factor(c(1:25)), 25000, replace = TRUE),
+    random1 = sample(as.factor(c(1:25)), 25000, replace = TRUE),
+    random2 = sample(as.factor(c(1:55)), 25000, replace = TRUE)
+)
+model <- rstanarm::stan_glmer(
+    y ~ fixed + (1 | random1) + (1 | random2),
+    data = df,
+    family = rstanarm::neg_binomial_2(link = "log")
+)
+bayesplot::ppc_dens_overlay(
+    df$y,
+    rstanarm::posterior_predict(model, draws = 500)
+) +
+    ggplot2::scale_x_continuous(trans = "pseudo_log")

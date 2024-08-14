@@ -436,14 +436,37 @@ extract_diagnostics <- function(model, model_name) {
   #'  6.
   #'
 
-  # Generate posterior predictive simulations
-  y_rep <- rstanarm::posterior_predict(model)
+  # Get the ppc checks in a plot
+  y_rep <- rstanarm::posterior_predict(model, draws = 300)
+  log_y_rep <- log10(y_rep)
   y <- stats::model.frame(model)[, all.vars(model$formula)[1]]
+  log_y <- log10(y)
+  intervals <- ppc_intervals(
+    y = y,
+    yrep = y_rep,
+    x = as.numeric(stats::model.frame(model)[, "year"]),
+    prob = 0.5
+  )
+
+  plot <- bayesplot::ppc_scatter(y, y_rep) +
+    theme_base()
+  ggsave(
+    here::here("./TEST.png"),
+    plot
+  )
+  prop_zero <- function(x) mean(x == 0)
+  plot <- bayesplot::ppc_stat(y, y_rep, stat = "prop_zero")
+  plot <- bayesplot::ppc_rootogram(y, y_rep, prob = 0.9) + xlim(c(0, 40))
+  plot <- ggplot() +
+    geom_histogram(aes(x = y))
+
+  # get the root mean squared error
+  rmse <- sqrt(mean((y - rowMeans(y_rep))^2))
+
+  # get the effective sample size
+  ess <- rstan::monitor(fit1$stanfit)
 
 
-
-  # Use ppc_bars to compare observed and simulated data
-  observed_data <- mtcars$mpg # Replace with your observed data
   ppc_bars(observed_data, y_rep)
   loo_results <- loo::loo(
     model,
