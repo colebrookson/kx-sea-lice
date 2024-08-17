@@ -40,6 +40,7 @@ spp_df <- lice_per_year[[1]][[2]]
 spp_df$dodge <- interaction(spp_df$species, spp_df$lice)
 
 ## stage model prediction ======================================================
+leg_title <- expression(paste(italic("L. salmonis"), , " stage"))
 stage_plot <- ggplot(data = stages_df, aes(group = stage)) +
     geom_errorbar(aes(x = year, ymin = lo, ymax = hi, linetype = lice),
         width = 0,

@@ -401,16 +401,19 @@ extract_fixed_effects <- function(model, model_name) {
     c("model", "term", "estimate", "conf.low", "conf.high")
   ]
 
-  # Extract random effects using the ranef function
-  random_effects_list <- ranef(model)
+  # # Extract random effects using the ranef function
+  # random_effects_list <- rstanarm::ranef(model)
 
-  # Combine the random effects into a single data frame
-  random_effects_df <- do.call(rbind, lapply(names(random_effects_list), function(group) {
-    df <- as.data.frame(random_effects_list[[group]])
-    df$group <- group
-    df$term <- rownames(df)
-    return(df)
-  }))
+  # # Combine the random effects into a single data frame
+  # random_effects_df <- do.call(rbind, lapply(
+  #   names(random_effects_list),
+  #   function(group) {
+  #     df <- as.data.frame(random_effects_list[[group]])
+  #     df$group <- group
+  #     df$term <- rownames(df)
+  #     return(df)
+  #   }
+  # ))
 
   # Reset row names
   rownames(random_effects_df) <- NULL
@@ -437,19 +440,36 @@ extract_diagnostics <- function(model, model_name) {
   #'
 
   # Get the ppc checks in a plot
-  y_rep <- rstanarm::posterior_predict(model, draws = 300)
+  y_rep <- rstanarm::posterior_predict(model, draws = 500)
   log_y_rep <- log10(y_rep)
   y <- stats::model.frame(model)[, all.vars(model$formula)[1]]
   log_y <- log10(y)
-  intervals <- ppc_intervals(
+  intervals <- bayesplot::ppc_intervals(
     y = y,
     yrep = y_rep,
-    x = as.numeric(stats::model.frame(model)[, "year"]),
+    x = as.numeric(as.character(stats::model.frame(model)[, "year"])),
     prob = 0.5
-  )
-
-  plot <- bayesplot::ppc_scatter(y, y_rep) +
+  ) +
     theme_base()
+
+  dens_psuedo_log_plot <- bayesplot::ppc_dens_overlay(y, y_rep) +
+    ggplot2::scale_x_continuous(trans = "pseudo_log") +
+    theme_base() +
+    labs(y = "Density", x = "Psudeo-logged values")
+  sqrt_y <- sqrt(y)
+  sqrt_yrep <- sqrt(y_rep)
+  sqrt_dens_plot <- bayesplot::ppc_dens_overlay(sqrt_y, sqrt_yrep) +
+    theme_base() +
+    xlim(c(0, 8))
+  labs(y = "Density", x = "Square-root values")
+  rootogram_plot <- bayesplot::ppc_rootogram(
+    y = y, yrep = y_rep
+  ) +
+    theme_base()
+
+  diagnostics_plots <- patchwork::align_plots(
+    intervals,
+  )
   ggsave(
     here::here("./TEST.png"),
     plot
@@ -529,6 +549,10 @@ generate_main_model_tables <- function(
     model, model_name,
     fixed_effects_file_path,
     random_effects_file_path) {
+  # testing
+  model <- main_model
+  model_name <- "leps-all"
+
   # Extract fixed effects and diagnostics
   fixed_effects <- extract_fixed_effects(model, model_name)
   diagnostics <- extract_diagnostics(model, model_name)
