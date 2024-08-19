@@ -121,7 +121,8 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
         site == "Nowish" ~ "Jackson Pass",
         TRUE ~ site
       )
-    )
+    ) %>%
+    dplyr::filter(site %notin% c("?", "No Info"))
   sites_in_years <- ggplot(data = wild_lice_clean_dates_fixed %>%
     dplyr::select(year, month, day, site) %>%
     dplyr::mutate(
@@ -140,10 +141,12 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
     sites_in_years
   )
 
-  dplyr::filter(site != c(
-    "?", "Close Bay", "Griffin Pass",
-    "Heidi Pt.", "Kyhoe", "Mouth of Kyhaeh", "No Info", "Wilby Point"
-  ))
+  # for now, get rid of the sites I don't know what to do with
+  wild_lice_clean_dates_fixed <- wild_lice_clean_dates_fixed %>%
+    dplyr::filter(site %notin% c(
+      "?", "Close Bay", "Griffin Pass",
+      "Heidi Pt.", "Kyhoe", "Mouth of Kyhaeh", "No Info", "Wilby Point"
+    ))
   table(wild_lice_clean_dates_fixed$site)
   wild_lice_to_save <- wild_lice_clean_dates_fixed %>%
     dplyr::rowwise() %>%
