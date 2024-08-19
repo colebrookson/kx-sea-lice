@@ -9,6 +9,8 @@
 #' library
 #'
 
+prop_zero <- function(x) mean(x == 0)
+
 `%notin%` <- Negate(`%in%`)
 
 #' Takes in the file and reads it for use

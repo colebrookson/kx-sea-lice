@@ -402,18 +402,18 @@ extract_fixed_effects <- function(model, model_name) {
   ]
 
   # # Extract random effects using the ranef function
-  # random_effects_list <- rstanarm::ranef(model)
+  random_effects_list <- rstanarm::ranef(model)
 
-  # # Combine the random effects into a single data frame
-  # random_effects_df <- do.call(rbind, lapply(
-  #   names(random_effects_list),
-  #   function(group) {
-  #     df <- as.data.frame(random_effects_list[[group]])
-  #     df$group <- group
-  #     df$term <- rownames(df)
-  #     return(df)
-  #   }
-  # ))
+  # Combine the random effects into a single data frame
+  random_effects_df <- do.call(rbind, lapply(
+    names(random_effects_list),
+    function(group) {
+      df <- as.data.frame(random_effects_list[[group]])
+      df$group <- group
+      df$term <- rownames(df)
+      return(df)
+    }
+  ))
 
   # Reset row names
   rownames(random_effects_df) <- NULL
@@ -450,62 +450,66 @@ extract_diagnostics <- function(model, model_name) {
     x = as.numeric(as.character(stats::model.frame(model)[, "year"])),
     prob = 0.5
   ) +
-    theme_base()
+    theme_base() +
+    scale_x_continuous(labels = c(2005:2022), breaks = c(2005:2022)) +
+    labs(x = "Years model was fit")
 
+  sqrt_y <- sqrt(y)
+  sqrt_yrep <- sqrt(y_rep)
+  # three different types of ppc plots
   dens_psuedo_log_plot <- bayesplot::ppc_dens_overlay(y, y_rep) +
     ggplot2::scale_x_continuous(trans = "pseudo_log") +
     theme_base() +
-    labs(y = "Density", x = "Psudeo-logged values")
-  sqrt_y <- sqrt(y)
-  sqrt_yrep <- sqrt(y_rep)
+    labs(x = "Psudeo-logged values")
   sqrt_dens_plot <- bayesplot::ppc_dens_overlay(sqrt_y, sqrt_yrep) +
     theme_base() +
-    xlim(c(0, 8))
-  labs(y = "Density", x = "Square-root values")
+    xlim(c(0, 8)) +
+    labs(x = "Square-root values")
   rootogram_plot <- bayesplot::ppc_rootogram(
     y = y, yrep = y_rep
   ) +
     theme_base()
 
-  diagnostics_plots <- patchwork::align_plots(
-    intervals,
+  diagnostics_plots <- patchwork::wrap_plots(
+    intervals, dens_psuedo_log_plot, sqrt_dens_plot, rootogram_plot,
+    nrow = 2, ncol = 2
   )
   ggsave(
-    here::here("./TEST.png"),
-    plot
+    here::here(paste0(
+      "./figs/lice-per-year-regression/diagnostics/",
+      model_name, "-int-ppc-diags.png"
+    )),
+    diagnostics_plots
   )
-  prop_zero <- function(x) mean(x == 0)
-  plot <- bayesplot::ppc_stat(y, y_rep, stat = "prop_zero")
-  plot <- bayesplot::ppc_rootogram(y, y_rep, prob = 0.9) + xlim(c(0, 40))
-  plot <- ggplot() +
-    geom_histogram(aes(x = y))
 
   # get the root mean squared error
   rmse <- sqrt(mean((y - rowMeans(y_rep))^2))
 
   # get the effective sample size
-  ess <- rstan::monitor(fit1$stanfit)
-
-
-  ppc_bars(observed_data, y_rep)
+  ess <- rstan::monitor(model$stanfit)
+  ess$vars <- rownames(ess)
+  ess_fixed <- ess %>% dplyr::filter(vars %in% names(rstanarm::fixef(model)))
   loo_results <- loo::loo(
-    model,
-    cores = round(parallel::detectCores() * 0.6),
+    model
   )
-  max(loo_results$diagnostics$pareto_k)
-  str(loo::pareto_k_table(loo_results))
+  # max(loo_results$diagnostics$pareto_k)
+  # str(loo::pareto_k_table(loo_results))
   loo_estimates <- loo_results$estimates
   elpd <- loo_estimates["elpd_loo", "Estimate"]
   se_elpd <- loo_estimates["elpd_loo", "SE"]
   effective_params <- loo_estimates["p_loo", "Estimate"]
   se_effective_params <- loo_estimates["p_loo", "SE"]
   rhat <- bayesplot::rhat(model)
-  neff <- round(mean(bayesplot::neff_ratio(model)[1:length(fixef(model))]), 3)
+  neff <- round(mean(bayesplot::neff_ratio(model)[
+    1:length(rstanarm::fixef(model))
+  ]), 3)
 
   # Combine into a summary data frame
   diagnostics <- data.frame(
     model = model_name,
+    rmse = rmse,
     elpd = elpd,
+    mean_bulk_fixed_ess = mean(ess_fixed$Bulk_ESS),
     se_elpd = se_elpd,
     effective_params = effective_params,
     se_effective_params = se_effective_params,
@@ -550,8 +554,8 @@ generate_main_model_tables <- function(
     fixed_effects_file_path,
     random_effects_file_path) {
   # testing
-  model <- main_model
-  model_name <- "leps-all"
+  # model <- main_model
+  # model_name <- "leps-all"
 
   # Extract fixed effects and diagnostics
   fixed_effects <- extract_fixed_effects(model, model_name)
@@ -576,8 +580,8 @@ generate_main_model_tables <- function(
     diagnostics,
     format = "latex",
     col.names = c(
-      "Model", "ELPD", "SE of ELPD", "Effective Parameters",
-      "SE of Effective Parameters", "$\\hat{R}$",
+      "Model", "RMSE", "ELPD", "Mean Bulk ESS", "SE of ELPD",
+      "Effective Parameters", "SE of Effective Parameters", "$\\hat{R}$",
       "Mean fixed effects $n_{eff}$ ratio"
     ),
     caption = "Model Diagnostics",

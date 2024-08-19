@@ -94,6 +94,57 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
     by = "seine_date"
   )
 
+  # make sure all the site names are correct and there are no bad names
+  names(wild_lice_clean_dates_fixed)
+  sort(unique(wild_lice_clean_dates_fixed$site))
+  wild_lice_clean_dates_fixed <- wild_lice_clean_dates_fixed %>%
+    dplyr::mutate(
+      site = dplyr::case_when(
+        site == "Arthur Island" ~ "Art Island",
+        site == "Goat cove" ~ "Goat Cove",
+        site %in% c("Hird Pt", "Hird Pt.") ~ "Hird Point",
+        site == "Jackson pass" ~ "Jackson Pass",
+        site %in% c("Kidd Bay", "Kidd Bay(goat cove)", "Kid Bay") ~ "Goat Cove",
+        site %in% c("Kynoc", "Kynoch Point", "Kynoch Pt.") ~ "Kynoch",
+        site %in% c("Lower laredo", "Lower Loredo") ~ "Lower Laredo",
+        site %in% c(
+          "Mary Cove", "Mary's cove", "Marys Cove",
+          # note including cone as Mary's here
+          "Cone Island"
+        ) ~ "Mary's Cove",
+        site %in% c("Meyer's Pass", "Meyers pass") ~ "Meyers Pass",
+        site %in% c("Suzy bay") ~ "Suzy Bay",
+        site == "Tolmie Ch2" ~ "Upper Tolmie",
+        site == "Wilby Pt" ~ "Wilby Point",
+        site == "Windy bay" ~ "Windy Bay",
+        site == "Cougar Bay" ~ "Upper Tolmie",
+        site == "Nowish" ~ "Jackson Pass",
+        TRUE ~ site
+      )
+    )
+  sites_in_years <- ggplot(data = wild_lice_clean_dates_fixed %>%
+    dplyr::select(year, month, day, site) %>%
+    dplyr::mutate(
+      date = lubridate::make_date(
+        year = as.integer(year),
+        month = as.integer(month),
+        day = day
+      )
+    ) %>%
+    unique()) +
+    geom_point(aes(x = date, y = site, colour = site)) +
+    geom_line(aes(x = date, y = site, colour = site)) +
+    theme_base()
+  ggplot2::ggsave(
+    here::here("./figs/wild-lice/site-observations-through-years.png"),
+    sites_in_years
+  )
+
+  dplyr::filter(site != c(
+    "?", "Close Bay", "Griffin Pass",
+    "Heidi Pt.", "Kyhoe", "Mouth of Kyhaeh", "No Info", "Wilby Point"
+  ))
+  table(wild_lice_clean_dates_fixed$site)
   wild_lice_to_save <- wild_lice_clean_dates_fixed %>%
     dplyr::rowwise() %>%
     dplyr::mutate(
