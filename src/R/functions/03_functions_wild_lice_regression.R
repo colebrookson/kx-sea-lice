@@ -54,10 +54,11 @@
 #' @import bayesplot
 #' @import ggplot2
 #' @import here
-create_diagnostic_plots <- function(model_list, n_coefs) {
+create_diagnostic_plots <- function(model_list, n_coefs_list) {
   # Loop through each model in the list
   for (model_name in names(model_list)) {
     model <- model_list[[model_name]]
+    n_coefs <- n_coefs_list[[model_name]]
 
     # Density plot
     # ppc_dens_plot <- bayesplot::pp_check(
@@ -255,8 +256,21 @@ lice_per_year_regression <- function(
     )
     qs::qsave(spp_models, paste0(output_path, "all-species-model-fits.qs"))
     ## model diagnostics =======================================================
-    create_diagnostic_plots(all_stage_models, n_coefs = 18)
-    create_diagnostic_plots(spp_models, n_coefs = 9)
+    stage_model_ncoefs <- list(
+      "leps-all" = 18,
+      "all-NA" = 18,
+      "leps-co" = 11,
+      "leps-mot" = 18,
+      "leps-chal" = 18
+    )
+    spp_models_ncoefs <- list(
+      "chum-leps" = 9,
+      "pink-leps" = 9,
+      "chum-lice" = 9,
+      "pink-lice" = 9
+    )
+    create_diagnostic_plots(all_stage_models, stage_model_ncoefs)
+    create_diagnostic_plots(spp_models, spp_models_ncoefs)
   } else {
     all_stage_models <- qs::qread(paste0(
       output_path,
@@ -479,7 +493,8 @@ extract_diagnostics <- function(model, model_name) {
       "./figs/lice-per-year-regression/diagnostics/",
       model_name, "-int-ppc-diags.png"
     )),
-    diagnostics_plots
+    diagnostics_plots,
+    width = 12, height = 10
   )
 
   # get the root mean squared error
