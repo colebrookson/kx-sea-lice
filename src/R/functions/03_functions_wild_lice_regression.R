@@ -574,7 +574,18 @@ generate_main_model_tables <- function(
 
   # Extract fixed effects and diagnostics
   fixed_effects <- extract_fixed_effects(model, model_name)
+  fixed_effects$model <- "Main model"
+
   diagnostics <- extract_diagnostics(model, model_name)
+  diagnostics$model <- "Main model"
+  # breaking this into two tables so they're both easier to read
+  diagnostics_1 <- diagnostics[, c(
+    "model", "rmse", "elpd",
+    "mean_bulk_fixed_ess", "se_elpd"
+  )]
+  diagnostics_2 <- diagnostics[, c(
+    "model", "effective_params", "se_effective_params", "rhat", "n_eff_ratio"
+  )]
 
   # Create LaTeX tables for fixed effects and diagnostics
   fixed_effects_table <- knitr::kable(
@@ -585,27 +596,40 @@ generate_main_model_tables <- function(
     ),
     booktabs = TRUE,
     escape = FALSE,
-    caption = "Fixed Effects with 90% Credible Intervals for Bayesian
+    caption = "Fixed Effects with 90 \\% Credible Intervals for Bayesian
     generalized linear model estimating the number of lice on fish per year.
     This model uses all years of the timeseries and the response
     variable is \\textit{L. salmonis} lice of all stages"
   ) %>% kableExtra::kable_classic()
 
-  diagnostics_table <- knitr::kable(
-    diagnostics,
+  diagnostics_1_table <- knitr::kable(
+    diagnostics_1,
     format = "latex",
     col.names = c(
-      "Model", "RMSE", "ELPD", "Mean Bulk ESS", "SE of ELPD",
-      "Effective Parameters", "SE of Effective Parameters", "$\\hat{R}$",
-      "Mean fixed effects $n_{eff}$ ratio"
+      "Model", "RMSE", "ELPD", "Mean Bulk ESS", "SE of ELPD"
     ),
-    caption = "Model Diagnostics",
+    caption = "Model Diagnostics with measures of fit.",
+    booktabs = TRUE,
+    escape = FALSE
+  ) %>% kableExtra::kable_classic()
+  diagnostics_2_table <- knitr::kable(
+    diagnostics_2,
+    format = "latex",
+    col.names = c(
+      "Model", "EPs", "SE of EP",
+      "$\\hat{R}$", "Mean FE $n_{eff}$ ratio"
+    ),
+    caption = "Model Diagnostics with  measures of convergence of the model.
+    EP = 'Effective Parameters', FE = 'Fixed Effects'",
     booktabs = TRUE,
     escape = FALSE
   ) %>% kableExtra::kable_classic()
 
   # Combine fixed effects and diagnostics tables
-  combined_tables <- paste(fixed_effects_table, diagnostics_table, sep = "\n\n")
+  combined_tables <- paste(fixed_effects_table, diagnostics_1_table,
+    diagnostics_2_table,
+    sep = "\n\n"
+  )
 
   # Convert the LaTeX table to a character vector
   latex_table_lines <- strsplit(combined_tables, "\n")[[1]]
@@ -615,19 +639,27 @@ generate_main_model_tables <- function(
     "\\\\end\\{tabular\\}",
     latex_table_lines
   )) + 1)[1]
-  insert_pos_diags <- (which(grepl(
+  insert_pos_diags_1 <- (which(grepl(
     "\\\\end\\{tabular\\}",
     latex_table_lines
   )) + 1)[2]
+  insert_pos_diags_2 <- (which(grepl(
+    "\\\\end\\{tabular\\}",
+    latex_table_lines
+  )) + 1)[3]
 
   # Insert the label
   latex_table_lines <- append(latex_table_lines,
-    paste0("\\label\\{SI-", model_name, "-fixef-", "\\}"),
+    paste0("\\label{", "SI-", model_name, "-fixef", "}"),
     after = insert_pos_fixef - 1
   )
   latex_table_lines <- append(latex_table_lines,
-    paste0("\\label\\{SI-", model_name, "-diags-", "\\}"),
-    after = insert_pos_diags - 1
+    paste0("\\label{SI-", model_name, "-diags-1", "}"),
+    after = insert_pos_diags_1 - 1
+  )
+  latex_table_lines <- append(latex_table_lines,
+    paste0("\\label{SI-", model_name, "-diags-2", "}"),
+    after = insert_pos_diags_2
   )
 
   # Write fixed effects and diagnostics tables to .tex file

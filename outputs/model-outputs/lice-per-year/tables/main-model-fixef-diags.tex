@@ -1,6 +1,6 @@
 \begin{table}
 \centering
-\caption{Fixed Effects with 90% Credible Intervals for Bayesian
+\caption{Fixed Effects with 90 \% Credible Intervals for Bayesian
     generalized linear model estimating the number of lice on fish per year.
     This model uses all years of the timeseries and the response
     variable is \textit{L. salmonis} lice of all stages}
@@ -9,42 +9,57 @@
 \toprule
 Model & Term & Estimate & 10\% & 90\%\\
 \midrule
-leps-all & (Intercept) & -4.4141883 & -5.4450073 & -3.4617142\\
-leps-all & year2006 & 0.3142186 & -0.4427342 & 1.1851780\\
-leps-all & year2007 & -0.2840946 & -1.0647209 & 0.6046355\\
-leps-all & year2008 & -1.4313324 & -2.2924410 & -0.4955122\\
-leps-all & year2009 & 0.6220495 & -0.1134758 & 1.4841584\\
+Main model & (Intercept) & -4.4141883 & -5.4450073 & -3.4617142\\
+Main model & year2006 & 0.3142186 & -0.4427342 & 1.1851780\\
+Main model & year2007 & -0.2840946 & -1.0647209 & 0.6046355\\
+Main model & year2008 & -1.4313324 & -2.2924410 & -0.4955122\\
+Main model & year2009 & 0.6220495 & -0.1134758 & 1.4841584\\
 \addlinespace
-leps-all & year2010 & 2.4517954 & 1.7283832 & 3.3024880\\
-leps-all & year2011 & 0.6139271 & -0.1164037 & 1.4719737\\
-leps-all & year2012 & 1.0697778 & 0.3430208 & 1.9151402\\
-leps-all & year2013 & 3.4454955 & 2.7308888 & 4.2880963\\
-leps-all & year2014 & 0.7606667 & 0.0332293 & 1.6125137\\
+Main model & year2010 & 2.4517954 & 1.7283832 & 3.3024880\\
+Main model & year2011 & 0.6139271 & -0.1164037 & 1.4719737\\
+Main model & year2012 & 1.0697778 & 0.3430208 & 1.9151402\\
+Main model & year2013 & 3.4454955 & 2.7308888 & 4.2880963\\
+Main model & year2014 & 0.7606667 & 0.0332293 & 1.6125137\\
 \addlinespace
-leps-all & year2015 & 5.7074725 & 4.9877968 & 6.5555893\\
-leps-all & year2016 & 2.0615557 & 1.3265674 & 2.9279811\\
-leps-all & year2017 & 2.4764831 & 1.7568084 & 3.3159493\\
-leps-all & year2018 & 1.0877254 & 0.3451178 & 1.9481325\\
-leps-all & year2019 & 1.7929884 & 1.0603361 & 2.6489411\\
+Main model & year2015 & 5.7074725 & 4.9877968 & 6.5555893\\
+Main model & year2016 & 2.0615557 & 1.3265674 & 2.9279811\\
+Main model & year2017 & 2.4764831 & 1.7568084 & 3.3159493\\
+Main model & year2018 & 1.0877254 & 0.3451178 & 1.9481325\\
+Main model & year2019 & 1.7929884 & 1.0603361 & 2.6489411\\
 \addlinespace
-leps-all & year2020 & 3.1958079 & 2.4786241 & 4.0453300\\
-leps-all & year2021 & 2.4747795 & 1.7543028 & 3.3140537\\
-leps-all & year2022 & 2.0332793 & 1.3174516 & 2.8767444\\
+Main model & year2020 & 3.1958079 & 2.4786241 & 4.0453300\\
+Main model & year2021 & 2.4747795 & 1.7543028 & 3.3140537\\
+Main model & year2022 & 2.0332793 & 1.3174516 & 2.8767444\\
 \bottomrule
 \end{tabular}
-\label\{SI-leps-all-fixef-\}
+\label{SI-leps-all-fixef}
 \end{table}
 
 \begin{table}
 \centering
-\caption{Model Diagnostics}
+\caption{Model Diagnostics with measures of fit.}
 \centering
-\begin{tabular}[t]{lrrrrrr}
+\begin{tabular}[t]{lrrrr}
 \toprule
-Model & ELPD & SE of ELPD & Effective Parameters & SE of Effective Parameters & $\hat{R}$ & Mean fixed effects $n_{eff}$ ratio\\
+Model & RMSE & ELPD & Mean Bulk ESS & SE of ELPD\\
 \midrule
-leps-all & -12921.03 & 166.2998 & 66.83577 & 2.920895 & 1.000714 & 0.104\\
+Main model & 1.499385 & -12921.03 & 3199.444 & 166.2998\\
 \bottomrule
-\label\{SI-leps-all-diags-\}
+\label{SI-leps-all-diags-1}
+\end{tabular}
+\end{table}
+
+\begin{table}
+\centering
+\caption{Model Diagnostics with  measures of convergence of the model.
+    EP = 'Effective Parameters', FE = 'Fixed Effects'}
+\centering
+\begin{tabular}[t]{lrrrr}
+\toprule
+Model & EPs & SE of EP & $\hat{R}$ & Mean FE $n_{eff}$ ratio\\
+\midrule
+Main model & 66.83577 & 2.920895 & 1.000714 & 0.104\\
+\bottomrule
+\label{SI-leps-all-diags-2}
 \end{tabular}
 \end{table}
