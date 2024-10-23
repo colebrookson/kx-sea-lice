@@ -159,7 +159,7 @@ lice_regression <- function(wild_lice, farm_lice, mod_output_path, name,
       geom_abline(
         intercept = mean(fits$intercept),
         slope = mean(fits$farm_lice),
-        size = 1,
+        linewidth = 1,
         color = "#8222be"
       ) +
       geom_point(
@@ -240,7 +240,7 @@ lice_regression <- function(wild_lice, farm_lice, mod_output_path, name,
       geom_abline(
         intercept = mean(fits_log$intercept),
         slope = mean(fits_log$farm_lice),
-        size = 1,
+        linewidth = 1,
         color = "#19999b"
       ) +
       geom_point(
