@@ -183,10 +183,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
       ) +
       scale_x_discrete() +
       scale_fill_gradientn("No. of Obs",
-        colours =
-          wesanderson::wes_palette("Zissou1", 100,
-            type = "continuous"
-          )
+        colours = MoMAColors::moma.colors("Alkalay2")
       ) +
       ggthemes::theme_base() +
       theme(
@@ -218,10 +215,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
       ) +
       ggthemes::theme_base() +
       scale_fill_gradientn("No. of Obs",
-        colours = wesanderson::wes_palette(
-          "Zissou1", 8,
-          type = "continuous"
-        )
+        colours = MoMAColors::moma.colors("Alkalay2")
       ) +
       labs(x = "Month", y = "Total Observations Across Years") +
       theme(

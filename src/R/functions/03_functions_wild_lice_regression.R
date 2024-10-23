@@ -546,15 +546,15 @@ extract_random_effects <- function(model, model_name) {
     conf.level = 0.9,
     conf.int = TRUE,
     conf.method = "quantile",
-    effects =
-    )
-  coef_summary$model <- model_name
-  coef_summary <- coef_summary[
+    effects = "ran_vals"
+  )
+  rand_summary$model <- model_name
+  rand_summary <- rand_summary[
     ,
-    c("model", "term", "estimate", "conf.low", "conf.high")
+    c("model", "level", "group", "term", "estimate", "conf.low", "conf.high")
   ]
 
-  return(coef_summary)
+  return(rand_summary)
 }
 #' Generate LaTeX Tables for Main Model
 #'
@@ -669,31 +669,50 @@ generate_main_model_tables <- function(
   ))
 
   # Extract random effects
-  # random_effects <- extract_random_effects(model, model_name)
+  random_effects <- extract_random_effects(model, model_name)
+  random_effects$model <- "Main model"
 
-  # # Create LaTeX table for random effects
-  # random_effects_table <- knitr::kable(
-  #   random_effects,
-  #   format = "latex",
-  #   col.names = c("Model", "Term", "Estimate", "10\\%", "90\\%"),
-  #   caption = "Random Effects"
-  # )
-  # ranef_table_lines <- strsplit(random_effects_table, "\n")[[1]]
+  # Create LaTeX table for random effects
+  random_effects_table <- knitr::kable(
+    random_effects,
+    format = "latex",
+    col.names = c(
+      "Model", "Level", "Group", "Term",
+      "Estimate", "10\\%", "90\\%"
+    ),
+    booktabs = TRUE,
+    escape = FALSE,
+    lontable = TRUE,
+    caption = "Random Effects with 90 \\% Credible Intervals for Bayesian
+    generalized linear model estimating the number of lice on fish per year.
+    This model uses all years of the timeseries and the response
+    variable is \\textit{L. salmonis} lice of all stages"
+  ) %>%
+    kableExtra::kable_classic() %>%
+    kableExtra::kable_styling(
+      latex_options = c("repeat_header"),
+      repeat_header_continued = "\\textit{(Continued on Next Page...)}"
+    )
 
-  # insert_pos_ranef <- (which(grepl(
-  #   "\\\\end\\{tabular\\}",
-  #   ranef_table_lines
-  # )) + 1)
-  # ranef_table_lines <- append(ranef_table_lines,
-  #   paste0("\\label\\{SI-", model_name, "-ranefs-", "\\}"),
-  #   after = insert_pos_ranef - 1
-  # )
+  ranef_table_lines <- strsplit(random_effects_table, "\n")[[1]]
 
-  # # Write random effects table to .tex file
-  # writeLines(ranef_table_lines, paste0(
-  #   random_effects_file_path,
-  #   "main-model-randef.tex"
-  # ))
+  insert_pos_ranef <- (which(grepl(
+    "\\\\end\\{tabular\\}",
+    ranef_table_lines
+  )) + 1)
+  ranef_table_lines <- append(ranef_table_lines,
+    paste0("\\label{SI-", model_name, "-ranefs", "}"),
+    after = insert_pos_ranef - 1
+  )
+  # ranef_table_lines[1] <-
+  #   "\\begin{longtable}"
+  # ranef_table_lines[length(ranef_table_lines)] <- "\\end{longtable}"
+
+  # Write random effects table to .tex file
+  writeLines(ranef_table_lines, paste0(
+    random_effects_file_path,
+    "main-model-randef.tex"
+  ))
 }
 
 #' Generate LaTeX Tables for Models in Groups

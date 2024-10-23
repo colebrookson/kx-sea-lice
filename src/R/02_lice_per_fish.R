@@ -189,4 +189,6 @@ model <- main_model
 model_name <- "leps-all"
 fixed_effects_file_path <-
     here::here("./outputs/model-outputs/lice-per-year/tables/")
-random_effects_file_path <- here::here("./outputs/lice-per-year/tables/")
+random_effects_file_path <- here::here(
+    "./outputs/model-outputs/lice-per-year/tables/"
+)
