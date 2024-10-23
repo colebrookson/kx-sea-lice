@@ -37,7 +37,7 @@ wild_lice <- clean_wild_lice(
     clean_output_path = here::here("./data/wild-lice/clean/"),
     fig_output_path = here::here("./figs/wild-lice/")
 )
-
+names(wild_lice)
 # plot the wild lice data
 plot_wild_lice_data(
     wild_lice = wild_lice,

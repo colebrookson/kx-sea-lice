@@ -32,9 +32,9 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
   # raw_wild_lice <- get_data_csv(targets::tar_read(raw_wild_lice_data))
   # dates_to_join <- get_data_csv(targets::tar_read(dates_to_join))
   # include_2005 <- TRUE
-  # raw_output_path = here::here("./data/wild-lice/raw//")
-  # clean_output_path = here::here("./data/wild-lice/clean//")
-  # fig_output_path = here::here("./figs/wild-lice//")
+  # raw_output_path <- here::here("./data/wild-lice/raw//")
+  # clean_output_path <- here::here("./data/wild-lice/clean//")
+  # fig_output_path <- here::here("./figs/wild-lice//")
 
   wild_lice_clean <- raw_wild_lice %>%
     dplyr::mutate(seine_date = as.factor(seine_date)) %>%
@@ -95,7 +95,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
   )
 
   # make sure all the site names are correct and there are no bad names
-  names(wild_lice_clean_dates_fixed)
+  # names(wild_lice_clean_dates_fixed)
   sort(unique(wild_lice_clean_dates_fixed$site))
   wild_lice_clean_dates_fixed <- wild_lice_clean_dates_fixed %>%
     dplyr::mutate(
@@ -157,14 +157,8 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
     dplyr::select(-c(
       lep_pam, lep_paf, lep_am, lep_af,
       lep_c1, lep_c2, lep_c3, lep_c4
-    )) %>%
-    dplyr::mutate(
-      if (site == "?") {
-        site <- NA
-      } else {
-        site <- site
-      }
-    )
+    ))
+  wild_lice_to_save[which(wild_lice_to_save$site == "?"), "site"] <- NA
 
   # make dataframe to plot
   obs_per_year <- wild_lice_clean_dates_fixed %>%
@@ -185,7 +179,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
       scale_fill_gradientn("No. of Obs",
         colours = MoMAColors::moma.colors("Alkalay2")
       ) +
-      ggthemes::theme_base() +
+      theme_base() +
       theme(
         axis.text.x = element_text(angle = 90, vjust = 0.5),
       ) +
@@ -213,7 +207,7 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
       geom_col(aes(x = month_char, y = n, fill = n),
         colour = "black"
       ) +
-      ggthemes::theme_base() +
+      theme_base() +
       scale_fill_gradientn("No. of Obs",
         colours = MoMAColors::moma.colors("Alkalay2")
       ) +
@@ -291,7 +285,7 @@ plot_wild_lice_data <- function(wild_lice, output_path) {
         colour = "black", shape = 21, size = 4,
         position = position_dodge(width = 0.8)
       ) +
-      ggthemes::theme_base() +
+      theme_base() +
       labs(
         x = "Year", y = "Average Lice per Fish (with 95% CI)"
       ) +
@@ -831,7 +825,7 @@ clean_farm_lice <- function(old_lice, new_lice, data_output_path,
         colour = "black",
         shape = 21
       ) +
-      ggthemes::theme_base() +
+      theme_base() +
       scale_fill_manual(values = c("goldenrod1", "purple2")) +
       scale_colour_manual(values = c("goldenrod1", "purple2")) +
       scale_x_date(date_breaks = "1 years") +
