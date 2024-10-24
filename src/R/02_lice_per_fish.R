@@ -35,10 +35,6 @@ lice_per_year <- lice_per_year_regression(
     run_or_read_models = "run",
     run_or_read_predictions = "run"
 )
-
-all_stage_models <- qs::qread(here::here("./outputs/model-outputs/lice-per-year/all-stage-model-fits.qs"))
-spp_models <- qs::qread(here::here("./outputs/model-outputs/lice-per-year/all-species-model-fits.qs"))
-
 end <- Sys.time()
 end - start
 
