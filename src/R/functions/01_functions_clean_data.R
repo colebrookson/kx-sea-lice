@@ -158,6 +158,11 @@ clean_wild_lice <- function(raw_wild_lice, dates_to_join,
       lep_pam, lep_paf, lep_am, lep_af,
       lep_c1, lep_c2, lep_c3, lep_c4
     ))
+  wild_lice_to_save$week <- lubridate::week(lubridate::make_date(
+    year = wild_lice_to_save$year,
+    month = wild_lice_to_save$month,
+    day = wild_lice_to_save$day
+  ))
   wild_lice_to_save[which(wild_lice_to_save$site == "?"), "site"] <- NA
 
   # make dataframe to plot

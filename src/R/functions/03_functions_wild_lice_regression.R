@@ -257,17 +257,17 @@ lice_per_year_regression <- function(
     qs::qsave(spp_models, paste0(output_path, "all-species-model-fits.qs"))
     ## model diagnostics =======================================================
     stage_model_ncoefs <- list(
-      "leps-all" = 18,
-      "all-NA" = 18,
-      "leps-co" = 11,
-      "leps-mot" = 18,
-      "leps-chal" = 18
+      "leps-all" = length(fixef(all_stage_models[[1]])),
+      "all-NA" = length(fixef(all_stage_models[[2]])),
+      "leps-co" = length(fixef(all_stage_models[[3]])),
+      "leps-mot" = length(fixef(all_stage_models[[4]])),
+      "leps-chal" = length(fixef(all_stage_models[[5]]))
     )
     spp_models_ncoefs <- list(
-      "chum-leps" = 9,
-      "pink-leps" = 9,
-      "chum-lice" = 9,
-      "pink-lice" = 9
+      "chum-leps" = length(fixef(spp_models[[1]])),
+      "pink-leps" = length(fixef(spp_models[[2]])),
+      "chum-lice" = length(fixef(spp_models[[3]])),
+      "pink-lice" = length(fixef(spp_models[[4]]))
     )
     create_diagnostic_plots(all_stage_models, stage_model_ncoefs)
     create_diagnostic_plots(spp_models, spp_models_ncoefs)
